@@ -74,7 +74,7 @@ exports.editedUserInfo = (req,res,next) => {
             if(hasChanges){
                 user.updateInformation()
                 .then(([data1,meta1])=>{
-                    if(data1.length===3){
+                    if(data1.affectedRows>=1){
                         const adm = new Administrator(null,req.session.User.id,null)
                         adm.logUpdateUserInfo(user.id)
                         returnObject.hasErros=false
@@ -147,20 +147,23 @@ exports.invitationCode = (req,res,next) =>{
         msg: 'There is an active user for this e-mail address!'
     }
     const email = req.body.email
-    User.fectchUserByEmail_invitationCode(email)
+    console.log(req.body)
+    User.user(email)
     .then(([data,meta])=>{
-        if(data.length > 0){
+        console.log(data)
+        if(data[0].length > 0){
             res.json(returnObject)
             return 
         }else {
             User.fetchActiveCodeByEmail(email)
             .then(([data0,meta0])=>{
+                console.log(data0)
                 returnObject.hasErros = false
                 returnObject.msg  = 'Code generated succesfully'
-                if(data0.length > 0) {
+                if(data0[0].length > 0) {
                     returnObject.data = {
                         email: email,
-                        code: data0[0].code
+                        code: data0[0][0].code
                     }
                     res.json(returnObject)
                 }else{

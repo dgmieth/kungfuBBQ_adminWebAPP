@@ -82,7 +82,7 @@
                         if(typeof response.redirect=='string'){
                             window.location.href = response.redirect
                         }else if(response.error){
-                            showAlert(`alert-danger`,`User could not be found. Inform a valid e-mail and passwor`)
+                            showAlert(`alert-danger`,`${response.error}`)
                         }
                     })
                     .catch(error => {

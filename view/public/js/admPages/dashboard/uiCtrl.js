@@ -245,6 +245,7 @@ class UICtrl {
             var tempData = dataCtrl.returnData('orderDelivery')
             if(tempData.length===0){
                 appCtrl.setAppState = appCtrl.getPreviousState
+                this.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
                 return this.showHideAlert('alert-primary','There are no orders to deliver','show')
             }
             var innerData = ''
@@ -680,6 +681,7 @@ class UICtrl {
                 document.getElementById(uiCtrl.optionbar.btns.btnTwo).classList.remove('active')
                 document.getElementById(uiCtrl.optionbar.btns.btnThree).classList.remove('active')
                 document.getElementById(uiCtrl.optionbar.btns.btnFour).classList.remove('active')
+                document.getElementById(uiCtrl.optionbar.btns.btnFive).classList.remove('active')
                 document.getElementById(btnId).classList.add('active')
             }
             if(subStateOne){
@@ -707,6 +709,7 @@ class UICtrl {
                 updateBreadCumber(this.mainContent.divBreadcumber,orders,'Order delivery')
                 if(tempData.length===0){
                     appCtrl.setAppSubState = appCtrl.getPreviousSubState
+                    this.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
                     return this.showHideAlert('alert-primary','There are no orders to deliver','show')
                 }
             }
@@ -1585,7 +1588,7 @@ class UICtrl {
                 <div class="col-12 col-lg-2 colNoMarging" style="text-align:left"><strong>Meals quantity:</strong></div>
                 <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.oderMealsQtty}" style="text-align: left;">${tempData[0].totalMeals}</div>
                 <div class="col-12 col-lg-2  colNoMarging" style="text-align:left"><strong>Amount due:</strong></div>
-                <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.orderAmountDue}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].orderTotal).toFixed(2)*parseInt(tempData[0].totalMeals))}</div>
+                <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.orderAmountDue}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].orderTotal).toFixed(2)*parseInt(tempData[0].totalMeals)).toFixed(2)}</div>
                 <div class="col-12" style="height: 5px!important;"></div>
                 <div class="col-12 col-lg-2 colNoMarging"  style="text-align:left"><strong>Order status:</strong></div>
                 <div class="col-12 col-lg-10 colNoMarging" id="${this.inputs.order.orderStatusText}" style="text-align: left;">${tempData[0].orderStatus}</div>
@@ -1652,7 +1655,7 @@ class UICtrl {
             udateActionButtonLayout(this,'btn-danger','Delete',false)
     }
     if(show_hide===`show`&&modalType===this.modalTypes.order.deliver){
-        tempData = dataCtrl.returnData('activerOrders').filter(reg => {if(reg.orderId===orderId){return true}})
+        tempData = dataCtrl.returnData('orderDelivery').filter(reg => {if(reg.orderId===orderId){return true}})
         document.getElementById(this.modal.title).innerHTML = `<p class="h3 bg-info">Deliver order ${tempData[0].orderId}?</p>`
         document.getElementById(this.modal.body).innerHTML = `
         <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
@@ -1861,7 +1864,7 @@ class UICtrl {
             innerData = `${innerData}
             <button 
                 id="access-${reg.id}" 
-                class="btn .container-fluid mx-auto my-auto w-100 ${this.checkboxes.dishes.className} ${dataCtrl.originalAccesses.includes(reg.id) ? 'selectedBG' : ''}" 
+                class="btn .container-fluid text-left w-100 ${this.checkboxes.dishes.className} ${dataCtrl.originalAccesses.includes(reg.id) ? 'selectedBG' : ''}" 
                 onclick="const id = parseInt(this.id.split('-')[1])
                         var addSubtract = 0
                         if(this.classList.contains('selectedBG')){
@@ -1871,7 +1874,7 @@ class UICtrl {
                             this.classList.add('selectedBG')
                             dataCtrl.setModifiedAccesses = id
                         }" 
-                style="border-bottom: gray 1px solid;padding: 0;">
+                style="border-bottom: gray 1px solid;padding: 1px 0 0 0;text-align:left">
                 ${reg.name}
             </button>
             `
@@ -2016,6 +2019,7 @@ class UICtrl {
                         <div style="height:15px!important"></div>
                         <div class=".container-fluid mx-auto my-auto w-100 text-center">
                             <button id="copySelectedText" class="btn btn-secondary" onclick="appCtrl.copy()">Copy reply text with code</button>
+                            <button id="copyCodeOnly" class="btn btn-secondary" onclick="appCtrl.copyCodeOnly()">Copy code</button>
                         </div>
                     </div>
             </div>

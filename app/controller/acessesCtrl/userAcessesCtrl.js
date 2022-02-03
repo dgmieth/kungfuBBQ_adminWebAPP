@@ -5,6 +5,12 @@ const Developer = require(`../../../model/Developer`)
 //custom functions
 const destroySession = require('../supportFunctions/destroySession')
 const checkAccesses = require('../supportFunctions/checkAccesses')
+//custom return object
+var returnObject = {
+    hasErrors: true,
+    data: null,
+    msg: null
+}
 // ========================================================================================
 // USERS ==================================================================================
 // ========================================================================================
@@ -16,8 +22,8 @@ exports.viewActiveUsers = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to fetch users"
+        return res.status(401).json(returnObject)
     }
 }
 //edit user information 
@@ -28,8 +34,8 @@ exports.editUserInformation = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to edit users"
+        return res.status(401).json(returnObject)
     }
 }
 //delete user 
@@ -40,8 +46,8 @@ exports.deleteUser = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to delete users"
+        return res.status(401).json(returnObject)
     }
 }
 //generate invitation code
@@ -52,8 +58,8 @@ exports.invitationCode = (req,res,next)=>{
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to create invitation code"
+        return res.status(401).json(returnObject)
     }
 }
 //update user accesses to database
@@ -64,7 +70,8 @@ exports.updateUserAccesses = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        console.log(`==========================================`)
+        returnObject.msg = "User does not have permission to update user accesses"
+        return res.status(401).json(returnObject)
     }
 }

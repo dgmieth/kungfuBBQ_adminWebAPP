@@ -25,7 +25,7 @@ exports.fetchAllMessages = (req,res,next)=>{
     .then(([data,meta])=>{
         if(data){
             returnObject.hasErrors = false
-            returnObject.data = sorter.sortCatoringMsgs(data)
+            returnObject.data = sorter.sortCatoringMsgs(data[0])
             return res.json(returnObject)
         }
         return returnErroMessage(`Could not delete cooking date.`)

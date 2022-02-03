@@ -23,15 +23,15 @@ module.exports = class Dish {
     // ======================================================================
     // CRUD =================================================================
     newDish(){
-        return db.query(`CALL ${dbName}.createNewDish(?,?,?,?,?)`,                                         
+        return db.query(`CALL createNewDish(?,?,?,?,?)`,                                         
         [`${this.name}`,`${this.price}`,`${this.ingredients}`,`${this.description}`,`${this.createdBy}`])
     }
     updateDish(){
-        return db.query(`CALL ${dbName}.updateDish(?,?,?,?,?)`,                                         
+        return db.query(`CALL updateDish(?,?,?,?,?)`,                                         
         [`${this.id}`,`${this.price}`,`${this.ingredients}`,`${this.description}`,`${this.updatedBy}`])
     }
     deleteDish(){
-        return db.query(`CALL ${dbName}.deleteDish(?,?,@returnCode);SELECT @returnCode as returnCode;`,                                         
+        return db.query(`CALL deleteDish(?,?,@returnCode);SELECT @returnCode as returnCode;`,                                         
         [`${this.id}`,`${this.updatedBy}`])
     }
      // =====================================================================
@@ -39,6 +39,6 @@ module.exports = class Dish {
     // ======================================================================
     // CRUD =================================================================
     static fetchAll(){
-        return db.query(`SELECT d.* FROM ${dbName}.dish d ORDER BY d.name ASC`)
+        return db.query(`SELECT d.* FROM dish d ORDER BY d.name ASC`)
     }
 }

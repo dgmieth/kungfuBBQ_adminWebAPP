@@ -39,7 +39,7 @@
     <div id="text" class="w-100 mx-auto my-auto text-center">
 
     </div>
-    <button type="button" class="close" onclick="()=>{uiCtrl.showHideAlert(null,null,'hide')}" style="float: right;">
+    <button type="button" class="close" onclick="uiCtrl.showHideAlert(null,null,'hide')" style="float: right;">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -240,12 +240,20 @@
     <%- include('headerFooter/login/loginFooter.ejs') %>
 </body>
 <!-- SCRIPT FILES START HERE -->
+<% if (devMode){ %>
+    <script>
+      const socketIoDNS = "https://dev.api.kungfubbq-dayton.com"
+    </script>
+    <script src="https://dev.api.kungfubbq-dayton.com/socket.io/socket.io.js"></script>
+<% }else{ %>
+    <script>const socketIoDNS = "https://api.kungfubbq-dayton.com"</script>
+    <script src="https://api.kungfubbq-dayton.com/socket.io/socket.io.js"></script>
+<% } %>
     <!-- BOOTSTRAP SCRIPTS -->
     <script src="/js/bootstrap/jquery.min.js"></script>
     <script src="/js/bootstrap/popper.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <!-- SOCKET IO -->
-    <script src="https://api.kungfubbq-dayton.com/socket.io/socket.io.js"></script>
     <!-- FLATPKR SCRIPTS -->
     <script src="/js/flatpkr/flatpkir.js"></script>
     <script src="/flatpickr/dist/plugins/confirmDate/confirmDate.js"></script>

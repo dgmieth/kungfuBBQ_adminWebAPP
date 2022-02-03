@@ -93,7 +93,7 @@
             <div id="text" class="w-100 mx-auto my-auto text-center">
 
             </div>
-            <button type="button" class="close" onclick="()=>{uiCtrl.showHideAlert(null,null,'hide')}" style="float: right;">
+            <button type="button" class="close" onclick="uiCtrl.showHideAlert(null,null,'hide')" style="float: right;">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -109,6 +109,13 @@
                 <button id="logout-btn" class="item">Log-out</button>
             </div>
         </div>
+        <div id="main-content-spinner" class=".container-fluid w-100 h-100 mx-auto my-auto text-center" style="display:none;position: absolute;background-color: rgba(240, 240, 240, 0.7)">
+            <div class="row h-100 w-100">
+              <div class="col-12">
+                <img src="/img/spinner2.gif" alt="Spinner" height="75%">
+              </div>
+            </div>
+          </div>
         <div id="main-content-wrapper" class="container-fluid w-100 h-100 mx-auto my-auto text-center">
 
         </div>

@@ -3,6 +3,12 @@ const Administrator = require(`../../../model/Administrator`)
 const Developer = require(`../../../model/Developer`)
 //custom functions
 const checkAccesses = require('../supportFunctions/checkAccesses')
+//custom return object
+var returnObject = {
+    hasErrors: true,
+    data: null,
+    msg: null
+}
 // ========================================================================================
 // COOKING DATES ==========================================================================
 // ========================================================================================
@@ -14,8 +20,8 @@ exports.allCookingCalendar = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to fetch all cooking dates"
+        return res.status(401).json(returnObject)
     }
 }
 //update CookingCalendarDate
@@ -26,8 +32,8 @@ exports.updateCookingCalendarDate = (req,res,next)=>{
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to update cooking dates"
+        return res.status(401).json(returnObject)
     }
 }
 //create newCookingDate
@@ -38,8 +44,8 @@ exports.newCookingDate = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to create new cooking dates"
+        return res.status(401).json(returnObject)
     }
 }
 //delete cooking calendar date
@@ -50,8 +56,8 @@ exports.deleteCookingCalendarDate = (req,res,next)=>{
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to delete cooking dates"
+        return res.status(401).json(returnObject)
     }
 }
 //open cooking calendar date to orders
@@ -62,8 +68,8 @@ exports.openToOrders = (req,res,next) =>{
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to open cooking dates to orders"
+        return res.status(401).json(returnObject)
     }
 }
 //close cooking calendar date to orders
@@ -74,31 +80,31 @@ exports.closeToOrders = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to close cooking dates to orders"
+        return res.status(401).json(returnObject)
     }
 }
 //choose how many meals will be cooked and send alert to the needed amount of users
 exports.firstAlert = (req,res,next) => {
-    console.log(process.env.SEND_FIRST_ALERT_COOKING_CALENDAR_DATE.split(','))
+    console.log(process.env.COOKING_CALENDAR_COOKING_CAPACITY.split(','))
     console.log(req.session.accesses)
-    if(checkAccesses.checkUserAccess(process.env.SEND_FIRST_ALERT_COOKING_CALENDAR_DATE,req)){
+    if(checkAccesses.checkUserAccess(process.env.COOKING_CALENDAR_COOKING_CAPACITY,req)){
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to set cooking capacity"
+        return res.status(401).json(returnObject)
     }
 }
 //send alert to users to pickup their orders
 exports.secondAlert = (req,res,next) => {
-    console.log(process.env.SEND_SECOND_ALERT_COOKING_CALENDAR_DATE.split(','))
+    console.log(process.env.COOKING_CALENDAR_START_DELIVERY.split(','))
     console.log(req.session.accesses)
-    if(checkAccesses.checkUserAccess(process.env.SEND_SECOND_ALERT_COOKING_CALENDAR_DATE,req)){
+    if(checkAccesses.checkUserAccess(process.env.COOKING_CALENDAR_START_DELIVERY,req)){
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to open cooking dates to delivery"
+        return res.status(401).json(returnObject)
     }
 }

@@ -22,6 +22,11 @@ pageRouter.get('/admDashboard', authCtrl.isAuth, authCtrl.admPlatformAccess, pag
 // DEVELOPER PAGE =======================================================
 // ======================================================================
 pageRouter.get('/developerDashboard', authCtrl.isAuth, pageCtrl.developerDashboard)
+// ======================================================================
+// PRIVACY POLICY =======================================================
+// ======================================================================
+pageRouter.get('/app', pageCtrl.privacyPolicy)
+pageRouter.get('/web', pageCtrl.privacyPolicy)
 
 //exporting router
 module.exports = pageRouter

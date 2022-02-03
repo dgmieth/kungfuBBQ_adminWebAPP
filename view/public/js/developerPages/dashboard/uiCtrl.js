@@ -4,6 +4,9 @@ class UICtrl {
             alert: 'alert',
             text: 'text'
         }
+        this.spinner = {
+            spinner: 'main-content-spinner'
+        }
         this.sidebar = {
             div: 'sidebar-wrapper',
             btns: {
@@ -63,9 +66,9 @@ class UICtrl {
                     <div class="align-self-center" style="padding:5px!important">
                         <button id="${this.user.btnsIDs.changePassword}" class="btn btn-secondary ${this.classes.subState}">${this.user.btnsTexts.changePassword}</button>
                     </div>
-                    <div class="align-self-center" style="padding:5px!important">
+                    <!-- <div class="align-self-center" style="padding:5px!important">
                         <button id="${this.user.btnsIDs.teste}" class="btn btn-secondary ${this.classes.subState}">${this.user.btnsTexts.teste}</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div id="${this.subStateOptionsWrapper}" class=".container-fluid w-100 mx-auto-my-auto text-center" style="height:85%!important;padding: 5px 5px;overflow-y:auto;">
@@ -147,8 +150,8 @@ class UICtrl {
                 </div>
                 <div class=".container-fluid w-100" style="height: 15px!important;"></div>
                 <div class=".container-fluid w-100" style="height: 15px!important;"></div>
-                <button id="${this.user.forms.btns.submit}" type="button" class="btn btn-primary">Change</button>
                 <button id="${this.user.forms.btns.cancel}" type="button" class="btn btn-danger">Cancel</button>
+                <button id="${this.user.forms.btns.submit}" type="button" class="btn btn-primary">Change</button>
                 <div class=".container-fluid w-100" style="height: 15px!important;"></div>
                 <div class=".container-fluid w-100" style="height: 15px!important;"></div>
             </div>
@@ -194,39 +197,31 @@ class UICtrl {
 //=================================================================================================
 //=================================================================================================
 // SHOW OR HIDE ALERT
-    showHideAlert(alertClass,text,show_hide){
-        const alertsIds = this.getIDs().alert
-        // const alertsIds = this.getIDs().alert
-        // this.showHideSpinner('hide')
-        function clearAlert(){
-            document.getElementById(alertsIds.alert).style.zIndex = 0
-            document.getElementById(alertsIds.text).innerHTML = ``
-            document.getElementById(alertsIds.alert).classList.remove('alert-success','alert-danger','alert-warning','alert-primary', 'alert-secondary', 'alert-info', 'alert-light','alert-dark','show')
-        }
-        if(clearTimeout(this.timeOutVar)){
-            clearAlert()
-        }
-        if(show_hide===`hide`){
-            return clearAlert()  
-        }
-        if(show_hide==='show'){
-            const alertsIds = this.getIDs().alert
-            clearAlert()
-            document.getElementById(alertsIds.alert).style.zIndex = 99999
-            document.getElementById(alertsIds.text).innerHTML = `${text}`
-            document.getElementById(alertsIds.alert).classList.add(alertClass, 'show')
-        }
-        this.timeOutVar = setTimeout(() => {
-             clearAlert()
-        }, 3000);
-
-        // if(show_hide===`hide`){
-        //     document.getElementById(alertsIds.alert).classList.remove('alert-success','alert-danger','alerta-warning', 'show')  
-        //     return   
-        // }
-        // document.getElementById(alertsIds.text).innerHTML = `${text}`
-        // document.getElementById(alertsIds.alert).classList.add(alertClass, 'show')
+showHideAlert(alertClass,text,show_hide){
+    const alertsIds = this.getIDs().alert
+    this.showHideSpinner('hide')
+    function clearAlert(){
+        document.getElementById(alertsIds.alert).style.zIndex = 0
+        document.getElementById(alertsIds.text).innerHTML = ``
+        document.getElementById(alertsIds.alert).classList.remove('alert-success','alert-danger','alert-warning','alert-primary', 'alert-secondary', 'alert-info', 'alert-light','alert-dark','show')
     }
+    if(clearTimeout(this.timeOutVar)){
+        clearAlert()
+    }
+    if(show_hide===`hide`){
+        return clearAlert()  
+    }
+    if(show_hide==='show'){
+        const alertsIds = this.getIDs().alert
+        clearAlert()
+        document.getElementById(alertsIds.alert).style.zIndex = 99999
+        document.getElementById(alertsIds.text).innerHTML = `${text}`
+        document.getElementById(alertsIds.alert).classList.add(alertClass, 'show')
+    }
+    this.timeOutVar = setTimeout(() => {
+         clearAlert()
+    }, 3000);
+}
 //=================================================================================================
 //=================================================================================================
 //=================================================================================================
@@ -235,5 +230,27 @@ class UICtrl {
 //RETURN UI IDS
     getIDs(){
         return this
+    }
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+//*************************************************************************************************
+//
+//
+//                                      SPINNER UI
+//
+//
+//*************************************************************************************************
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+    showHideSpinner(show_hide){
+        if(show_hide===`show`){
+            document.getElementById(this.spinner.spinner).style.zIndex = 99998
+            document.getElementById(this.spinner.spinner).style.display = 'block'
+        }else{
+            document.getElementById(this.spinner.spinner).style.zIndex = 0
+            document.getElementById(this.spinner.spinner).style.display = 'none'
+        }
     }
 }

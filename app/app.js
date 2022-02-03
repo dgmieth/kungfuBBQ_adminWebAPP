@@ -7,8 +7,7 @@ const express = require('express')
 const session = require('express-session')
 var MySQLStore = require('express-mysql-session')(session)
 const cookieParser = require('cookie-parser')
-require('dotenv').config()
-console.log(`checking dotenv ${process.env.DB_USER}`)
+require('dotenv').config({path: path.join(__dirname,'../.env')})
 //customed modules
 const db = require(`../model/bd/pool`)
 const notify = require('./controller/supportFunctions/sendNotification.js')
@@ -49,17 +48,19 @@ app.use(session({
 const pageRouter = require('./router/pageRouter')
 const servicesRouter = require('./router/servicesRouter')
 const authRouter = require('./router/authRouter')
-// app.use((req,res,next)=> {
-//     console.log('notificationSent')
-//     notify.sendNotification()
-//     next()
-// })
 //app router configuration
+app.use('/privacypolicy',pageRouter)
 app.use('/auth',authRouter)
 app.use('/services',servicesRouter)
 app.use(pageRouter)
+//check developer settings 
+if(process.env.NODE_ENV!=='prod'){
+    console.log(process.env.NODE_ENV)
+    console.log(parseInt(process.env.DEV_DOOR))
+}
+
 //other variables
-const httpPort = 8080
+const httpPort = process.env.NODE_ENV===`prod` ? parseInt(process.env.PROD_DOOR) : parseInt(process.env.DEV_DOOR)
 //server creation
 http.createServer(app).listen(httpPort)
 

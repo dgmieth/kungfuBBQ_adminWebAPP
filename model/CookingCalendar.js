@@ -19,59 +19,59 @@ module.exports = class CookingCalendar {
                         di.dish_id,
                         di.name,
                         di.description
-                    FROM ${dbName}.cookingDates cd 
+                    FROM cookingDates cd 
                     LEFT JOIN (SELECT 
                                     md.menu_id, 
                                     d.id as dish_id, 
                                     d.name, d.ingredients, d.description 
-                                FROM ${dbName}.menu_dish md 
-                                LEFT JOIN ${dbName}.dish d ON d.id = md.dish_id 
+                                FROM menu_dish md 
+                                LEFT JOIN dish d ON d.id = md.dish_id 
                                 WHERE  md.excluded = 0 AND d.excluded =0
                                 ) di ON di.menu_id = cd.menu_id
                     WHERE cd.id = ?;`,[`${this.id}`])
     }
     updateMealsForThisCookingDate(){
-        return db.query(`CALL ${dbName}.updateMealsForThisAndMealsOnList(?,?,?);`,
+        return db.query(`CALL updateMealsForThisAndMealsOnList(?,?,?);`,
         [`${this.id}`,`${this.mealsForThis}`,`${this.userId}`])
     }
     openToDelivery(){
-        return db.query(`CALL ${dbName}.adm_SecondAlertDeliveryAlert(?, ?, @returnCode);`,[`${this.id}`,`${this.userId}`])
+        return db.query(`CALL adm_SecondAlertDeliveryAlert(?, ?, @returnCode);`,[`${this.id}`,`${this.userId}`])
     }
      // =====================================================================
     // CLASS METHODS ========================================================
     // ======================================================================
     // CRUD =================================================================
     static fetchAllData(){
-        return db.query(`CALL ${dbName}.adm_FetchCookingDates();`)
+        return db.query(`CALL adm_FetchCookingDates();`)
     }
     // update a specifica cooking calendar date -> must send json object
     static updateCookingDate(jsonObject){
         console.log(jsonObject)
-        return db.query(`CALL ${dbName}.updateCookingDate(?,@returnCode);SELECT @returnCode;`,[`${jsonObject}`])
+        return db.query(`CALL updateCookingDate(?,@returnCode);SELECT @returnCode;`,[`${jsonObject}`])
     }
     // create a new cookinga calendar date
     static newCookingDate(userId,cookingDate){
-        return db.query(`CALL ${dbName}.createNewCookingDate(?,?,@returnCode);SELECT @returnCode;`,
+        return db.query(`CALL createNewCookingDate(?,?,@returnCode);SELECT @returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     //delete a cooking calendar date
     static deleteCoookingDate(userId,cookingDate){
-        return db.query(`CALL ${dbName}.deleteCookingDate(?,?,@returnCode);SELECT @returnCode as returnCode;`,
+        return db.query(`CALL deleteCookingDate(?,?,@returnCode);SELECT @returnCode as returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     //open cooking calendar date to orders
     static openToOrders(userId,cookingDate){
-        return db.query(`CALL ${dbName}.openToOrders(?,?,@returnCode);SELECT @returnCode;`,
+        return db.query(`CALL openToOrders(?,?,@returnCode);SELECT @returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     //open cooking calendar date to orders
     static closeToOrders(userId,cookingDate){
-        return db.query(`CALL ${dbName}.closeToOrders(?,?,@returnCode);SELECT @returnCode;`,
+        return db.query(`CALL closeToOrders(?,?,@returnCode);SELECT @returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     /*get user ids to send notification*/
     static getUserIdsForNotification(cookingDateId,all_paid){
-        return db.query(`CALL ${dbName}.adm_getUserIdsForNotification(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
+        return db.query(`CALL adm_getUserIdsForNotification(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
     }
     
  }

@@ -13,21 +13,21 @@ module.exports = class Order {
     // ======================================================================
     // CRUD =================================================================
     deleteOrder(){
-        return db.query(`CALL ${dbName}.deleteOrder(?,?,@returnCode);SELECT @returnCode as returnCode;`,
+        return db.query(`CALL deleteOrder(?,?,@returnCode);SELECT @returnCode as returnCode;`,
         [`${this.id}`,`${this.userId}`])
     }
     deliverOrder(){
-        return db.query(`CALL ${dbName}.deliverOrder(?,?);`,
+        return db.query(`CALL deliverOrder(?,?);`,
         [`${this.id}`,`${this.userId}`])
     }
     reimburseOrder(){
-        return db.query(`CALL ${dbName}.adm_reimburseOrder(?,?,?);`,[`${this.id}`,`${parseInt(process.env.DB_ORDER_REIMBURSEMENT_STATUS)}`,`${this.userId}`])
+        return db.query(`CALL adm_reimburseOrder(?,?,?);`,[`${this.id}`,`${parseInt(process.env.DB_ORDER_REIMBURSEMENT_STATUS)}`,`${this.userId}`])
     }
      // =====================================================================
     // CLASS METHODS ========================================================
     // ======================================================================
     // CRUD =================================================================
     static fetchOrdersForActiveFinishedCookingDates(){
-        return db.query(`CALL ${dbName}.adm_fetchOrders();`,[`${finishedStatus}`])
+        return db.query(`CALL adm_fetchOrders();`,[`${finishedStatus}`])
     }
 }

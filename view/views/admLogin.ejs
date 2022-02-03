@@ -78,18 +78,31 @@
                             password: document.getElementById('password').value
                         })
                     })
-                    .then(answer => { return answer.json() })
-                    .then(response => {
-                        if(typeof response.redirect=='string'){
-                            window.location.href = response.redirect
-                        }else if(response.error){
-                            showAlert(`alert-danger`,`User could not be found. Inform a valid e-mail and passwor`)
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error)
-                        showAlert(`alert-danger`,`Request couldnt reach the server.`)
-                    })
+                    .then(answer => { 
+                        console.log(answer)
+                        console.log(answer.status)
+                        console.log(answer.status===401)
+                        if(answer.status===401){
+                            console.log('inside')
+                            showAlert(`alert-warning`,`User does not have access to admin plataform`)
+                        }else{
+                            answer.json() 
+                            .then(response => {
+                                console.log(123)
+                                console.log(response)
+                                 if(typeof response.redirect=='string'){
+                                    window.location.href = response.redirect
+                                }else if(response.error){
+                                    showAlert(`alert-danger`,`${response.error}`)
+                                }
+                            })
+                            .catch(error => {
+                                console.log(456)
+                                console.log(error)
+                                showAlert(`alert-danger`,`Request couldnt reach the server.`)
+                            })
+                        }})
+                    .catch(error => {console.log(error)})
             }
         })
     </script>

@@ -88,23 +88,26 @@ class AppCtrl {
         return new Promise((resolve,reject)=>{
             fetch(`/services/allUsers`,{redirect:'follow'})
             .then(answer => { 
-                if(answer.redirected){
+                console.log(answer)
+                if(answer.status===401){
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch users from database','show')
+                }else if(answer.redirected){
                     return window.location.href = answer.url
-                }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErros){
-                    dataCtrl.setUsers = response
-                    resolve(true)
                 }else{
-                    uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
-                    reject(false)    
-                } })
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErros){
+                            dataCtrl.setUsers = response
+                            resolve(true)
+                        }else{
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
+                            reject(false)    
+                        } })
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)
+                    })}})})
     }
     generateInvitationCode(uiCtrl,email,resultsWrapperElementId,messageWrapperId,inputFieldId){
         if(email===''){
@@ -116,24 +119,29 @@ class AppCtrl {
             headers: {'Content-type':'application/json'},
             body: JSON.stringify(obj)})
         .then(answer => { 
-            if(answer.redirected){return window.location.href = answer.url }
-            return answer.json()})
-        .then(response => {
-            if(!response.hasErros){
-                document.getElementById(inputFieldId).value = response.data.code
-                document.getElementById(messageWrapperId).innerHTML = `Hi!
-                We've just generated your invitation code to create your accont in the KungfuBBQ app. 
-                Please, make sure to use this code <b>${response.data.code}</b> and this email <b>${response.data.email}</b> when registering.
-                Thanks!`
-                document.getElementById(resultsWrapperElementId).style.display = 'block'
+            if(answer.status===401){
+                uiCtrl.showHideUserModal(null,null,'hide',null)
+                uiCtrl.showHideAlert(`alert-warning`,'User has no access to create invitation codes','show')    
+            }else if(answer.redirected){return window.location.href = answer.url 
             }else{
-                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            uiCtrl.showHideUserModal(null,null,'hide',null)
-            uiCtrl.showHideAlert(`alert-danger`,err,'show') })
+                answer.json()
+                .then(response => {
+                    if(!response.hasErros){
+                        document.getElementById(inputFieldId).value = response.data.code
+                        document.getElementById(messageWrapperId).innerHTML = `Hi!
+                        We've just generated your invitation code to create your accont in the KungfuBBQ app. 
+                        Please, make sure to use this code <b>${response.data.code}</b> and this email <b>${response.data.email}</b> when registering.
+                        Thanks!`
+                        document.getElementById(resultsWrapperElementId).style.display = 'block'
+                    }else{
+                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-danger`,err,'show') })
+            }})
     }
     sendNotification(dataCtrl,uiCtrl,data){
         return new Promise((resolve,reject)=>{
@@ -142,19 +150,23 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(data)})
             .then(answer => { 
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                resolve(true)
-                if(!response.hasErrors){ return uiCtrl.showHideAlert(`alert-primary`,response.msg,'show') }
-                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
-            })
-            .catch(err => {
-                reject(false)
-                console.log(err)
-                uiCtrl.showHideAlert(`alert-danger`,err.msg,'show')
-            })
-        })
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to notify users','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
+                }else{
+                    answer.json()
+                    .then(response => {
+                        resolve(true)
+                        if(!response.hasErrors){ return uiCtrl.showHideAlert(`alert-primary`,response.msg,'show') }
+                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
+                    })
+                    .catch(err => {
+                        reject(false)
+                        console.log(err)
+                        uiCtrl.showHideAlert(`alert-danger`,err.msg,'show')
+                    })
+                }})})
     }
 //support functions
     commonFunctionsUserAfterPostUpdate(successMsg,dataCtrl,uiCtrl){
@@ -173,24 +185,28 @@ class AppCtrl {
         return new Promise((resolve,reject) => {
             fetch('/services/allCookingCalendar')
             .then(answer => { 
-                if(answer.redirected){return window.location.href = answer.url}
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErros){
-                    dataCtrl.setCookingCalendarStatus = response.data.cookingCalendarStatus
-                    dataCtrl.setCookingCalendar = response.data.cookigCalendar
-                    resolve(true)
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch cooking dates from database','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
                 }else{
-                    uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-                    reject(false)
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErros){
+                            dataCtrl.setCookingCalendarStatus = response.data.cookingCalendarStatus
+                            dataCtrl.setCookingCalendar = response.data.cookigCalendar
+                            resolve(true)
+                        }else{
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+                            reject(false)
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
     updateCookingDateInformation(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=> {
@@ -199,23 +215,27 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj) })
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                console.log(response)
-                if(!response.hasErrors){
-                    uiCtrl.showHideAlert(`alert-info`,response.data,'show')
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => { resolve(true) })
-                    .catch(err => {  reject(false) })
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to update cooking dates','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
                 }else{
-                    uiCtrl.showHideAlert(`alert-danger`,response.err,'show')}})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)})
-        })
+                    answer.json()
+                    .then(response => {
+                        console.log(response)
+                        if(!response.hasErrors){
+                            uiCtrl.showHideAlert(`alert-info`,response.data,'show')
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true) })
+                            .catch(err => {  reject(false) })
+                        }else{
+                            uiCtrl.showHideAlert(`alert-danger`,response.err,'show')}})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     createNewCookingCalendarDate(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -224,25 +244,29 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                console.log(response)
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => { resolve(true) })
-                    .catch(err => { reject(false) })
-                }else{
+                if(answer.status===401){
                     uiCtrl.showHideUserModal(null,null,'hide',null)
-                    uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)})
-        })
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to create new cooking date','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        console.log(response)
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true) })
+                            .catch(err => { reject(false) })
+                        }else{
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                    }})})
     }
     deleteCookingCalendarDate(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -251,20 +275,24 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => { resolve(true)})
-                    .catch(err => { reject(false) })
-                } })
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            }) })
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete cooking dates','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true)})
+                            .catch(err => { reject(false) })
+                        } })
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     openToOrders(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -273,20 +301,24 @@ class AppCtrl {
                 headers: { 'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => { resolve(true)})
-                    .catch(err => { reject(false) })
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to open cooking dates to orders','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true)})
+                            .catch(err => { reject(false) })
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     closeToOrders(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -295,20 +327,24 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => {resolve(true)})
-                    .catch(err => {reject(false)})
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to close cooking dates to orders','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => {resolve(true)})
+                            .catch(err => {reject(false)})
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     firstAlert(dataCtr,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -318,20 +354,24 @@ class AppCtrl {
                 body: JSON.stringify(dataObj)
             })
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => {resolve(true)})
-                    .catch(err => {reject(false)})
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to set cooking dates cooking capacity','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => {resolve(true)})
+                            .catch(err => {reject(false)})
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     secondAlert(dataCtrl,uiCtrl,body){
         return new Promise((resolve,reject)=>{
@@ -341,20 +381,24 @@ class AppCtrl {
                 body: JSON.stringify(body)
             })
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    this.fetchCookingDates(dataCtrl,uiCtrl)
-                    .then(value => {resolve(true)})
-                    .catch(err => {reject(false)})
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to set start delivery','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => {resolve(true)})
+                            .catch(err => {reject(false)})
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
 //=================================================================================================
 //ORDER APP STATE =================================================================================
@@ -363,20 +407,27 @@ class AppCtrl {
     fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl){
         return new Promise((resolve,reject)=>{
             fetch('/services/fetchOrdersForActiveFinishedCookingDates')
-            .then(answer => {return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setOders = response.data
-                    resolve(true)
+            .then(answer => {
+                console.log('called =====================================')
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch orders from database','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)})
-        })
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setOders = response.data
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     deleteOrder(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -384,20 +435,26 @@ class AppCtrl {
                 method: 'POST',
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
-            .then(answer => {return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setOders = response.data                    
-                    resolve(true)
+            .then(answer => {
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete orders','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setOders = response.data                    
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     deliverOrder(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
@@ -405,20 +462,26 @@ class AppCtrl {
                 method: 'POST',
                 headers: {'Content-type':'application/json' },
                 body: JSON.stringify(dataObj)})
-            .then(answer => {return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setOders = response.data                    
-                    resolve(true)
+            .then(answer => {
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to deliver orders','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setOders = response.data                    
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
 //=================================================================================================
 //DISHES APP STATE =================================================================================
@@ -428,20 +491,24 @@ class AppCtrl {
         return new Promise ((resolve,reject)=> {
             fetch('/services/fetchAllDishes')
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setDishes = response.data
-                    resolve(true)
-                }
-                reject(false)})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch dishes from database','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
+                }else {
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setDishes = response.data
+                            resolve(true)
+                        }
+                        reject(false)})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
     postNewDish(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=> {
@@ -450,20 +517,24 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setDishes = response.data
-                    resolve(true)
-                }
-                reject(false)})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)})
-        })
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access create new dish','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setDishes = response.data
+                            resolve(true)
+                        }
+                        reject(false)})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
     editDish(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=> {
@@ -471,22 +542,26 @@ class AppCtrl {
                 method: 'POST',
                 headers: {'Content-type':'application/json' },
                 body: JSON.stringify(dataObj)})
-            .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setDishes = response.data
-                    resolve(true)
+            .then(answer => { 
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access edit dishes','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setDishes = response.data
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
     deleteDish(dataCtrl,uiCtrl,dataObj){
         return new Promise((resolve,reject)=> {
@@ -495,22 +570,26 @@ class AppCtrl {
                 headers: {'Content-type':'application/json' },
                 body: JSON.stringify(dataObj) })
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setDishes = response.data
-                    resolve(true)
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access delete dishes','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
-                    reject(false)
-                } })
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setDishes = response.data
+                            resolve(true)
+                        }else{
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
+                            reject(false)
+                        } })
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
 //=================================================================================================
 //CATORING APP STATE ==============================================================================
@@ -519,22 +598,26 @@ class AppCtrl {
     fetchAllMessages(dataCtrl,uiCtrl){
         return new Promise((resolve,reject)=> {
             fetch('/services/fetchAllMessages')
-            .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    dataCtrl.setCatoringMsg = response.data
-                    resolve(true)
+            .then(answer => {
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch catering messages','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            dataCtrl.setCatoringMsg = response.data
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})   
+                }})})
     }
 //READ MESSAGE
     readMessage(dataCtrl,uiCtrl,dataObj){
@@ -567,21 +650,25 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                console.log(response)
-                if(!response.hasErrors){
-                    resolve(true)
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete messages','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        console.log(response)
+                        if(!response.hasErrors){
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
 //ARCHIVE MESSAGE
     archiveMessage(dataCtrl,uiCtrl,dataObj){
@@ -591,20 +678,24 @@ class AppCtrl {
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)})
             .then(answer => {  
-                if(answer.redirected){ return window.location.href = answer.url }
-                return answer.json()})
-            .then(response => {
-                if(!response.hasErrors){
-                    resolve(true)
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to archive messages','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
                 }else{
-                    reject(false)
-                }})
-            .catch(err => {
-                console.log(err)
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                reject(false)
-            })})
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            resolve(true)
+                        }else{
+                            reject(false)
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
     }
 //=================================================================================================
 //=================================================================================================
@@ -636,9 +727,9 @@ class AppCtrl {
             this.previousState = this.getAppState
             this.setAppState = this.getAppStatesList._ORDERDELIVERY
             this.setAppSubState = this.getAppSubStatesList._INITIAL
-            this.fetchCookingDates(dataCtrl,uiCtrl)
+            this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
             .then(value => {
-                this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
+                this.fetchCookingDates(dataCtrl,uiCtrl)
                 .then(value=> {
                     this.fetchUsers(dataCtrl,uiCtrl)
                     .then(value => {
@@ -709,9 +800,9 @@ class AppCtrl {
             this.setAppState = this.getAppStatesList._ORDERS
             uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
             this.setAppSubState = this.getAppSubStatesList._ACTIVEORDERS
-            this.fetchCookingDates(dataCtrl,uiCtrl)
+            this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
             .then(value => {
-                this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
+                this.fetchCookingDates(dataCtrl,uiCtrl)
                 .then(value=> {
                     this.fetchUsers(dataCtrl,uiCtrl)
                     .then(value => {
@@ -917,18 +1008,24 @@ class AppCtrl {
                         headers: {'Content-type':'application/json'},
                         body: JSON.stringify(dataObj)})
                     .then(answer => {  
+                        console.log('===========================================')
+                        console.log(answer)
                         uiCtrl.showHideSpinner('hide')
-                        if(answer.redirected){ return window.location.href = answer.url }
-                        return answer.json()})
-                    .then(response => {
-                        console.log(response)
-                        if(!response.hasErros){ return appCtrl.commonFunctionsUserAfterPostUpdate(response.msg,dataCtrl,uiCtrl)}
-                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')})
-                    .catch(err => {
-                        console.log(err)
-                        uiCtrl.showHideUserModal(null,null,'hide',null)
-                        uiCtrl.showHideAlert(`alert-danger`,err,'show')})
-                })
+                        if(answer.status===401){
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideAlert(`alert-warning`,'User has not access to update user info','show')
+                        }else if(answer.redirected){ return window.location.href = answer.url 
+                        }else{
+                            answer.json()
+                            .then(response => {
+                                console.log(response)
+                                if(!response.hasErros){ return appCtrl.commonFunctionsUserAfterPostUpdate(response.msg,dataCtrl,uiCtrl)}
+                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')})
+                            .catch(err => {
+                                console.log(err)
+                                uiCtrl.showHideUserModal(null,null,'hide',null)
+                                uiCtrl.showHideAlert(`alert-danger`,err,'show')})                                
+                            }})})
             }
             if(modalAction===modalActions.delete){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
@@ -944,18 +1041,22 @@ class AppCtrl {
                         body: JSON.stringify(dataObj)})
                     .then(answer => { 
                         uiCtrl.showHideSpinner('hide')
-                        if(answer.redirected){ return window.location.href = answer.url }
-                        return answer.json()})
-                    .then(response => {
-                        console.log(response)
-                        if(!response.hasErros){ return appCtrl.commonFunctionsUserAfterPostUpdate(response.msg,dataCtrl,uiCtrl) }
-                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')})
-                    .catch(err => {
-                        console.log(err)
-                        uiCtrl.showHideSpinner('hide')
-                        uiCtrl.showHideUserModal(null,null,'hide',null)
-                        uiCtrl.showHideAlert(`alert-danger`,err,'show')})
-                })
+                        if(answer.status===401){
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete users','show')    
+                        }else if(answer.redirected){ return window.location.href = answer.url 
+                        }else{
+                            return answer.json()
+                            .then(response => {
+                                console.log(response)
+                                if(!response.hasErros){ return appCtrl.commonFunctionsUserAfterPostUpdate(response.msg,dataCtrl,uiCtrl) }
+                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')})
+                            .catch(err => {
+                                console.log(err)
+                                uiCtrl.showHideSpinner('hide')
+                                uiCtrl.showHideUserModal(null,null,'hide',null)
+                                uiCtrl.showHideAlert(`alert-danger`,err,'show')})
+                        }})})
             }
             if(modalAction===modalActions.notify){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
@@ -1003,6 +1104,15 @@ class AppCtrl {
         el.select();
         document.execCommand('copy');
         alert(`Text copied to clipboard`)
+        document.body.removeChild(el);
+    }
+    copyCodeOnly(){
+        const el = document.createElement('textarea');
+        el.value = document.getElementById('code').value;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        alert(`Code copied to clipboard`)
         document.body.removeChild(el);
     }
     
@@ -1135,21 +1245,25 @@ class AppCtrl {
                         headers: {'Content-type':'application/json'},
                         body: JSON.stringify({cookingDateId: cdId, msgToUser: msg})})
                 .then(answer => {  
-                    if(answer.redirected){ return window.location.href = answer.url }
-                    return answer.json()})
-                .then(response => {
-                    uiCtrl.showHideOrderModal(null,null,'hide',null)
-                    uiCtrl.showHideSpinner('hide')
-                    if(!response.hasErros){
-                        uiCtrl.showHideAlert(`alert-info`,response.msg,'show')
+                    if(answer.status===401){
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-warning`,'User does not have permission to send notification to all or to all paid','show')    
+                    }else if(answer.redirected){ return window.location.href = answer.url 
                     }else{
-                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')}})
-                .catch(err => {
-                    console.log('orderModals - sendToAll',err);
-                    uiCtrl.showHideSpinner('hide')
-                    uiCtrl.showHideOrderModal(null,null,'hide',null)
-                })  
-                })
+                        answer.json()
+                        .then(response => {
+                            uiCtrl.showHideOrderModal(null,null,'hide',null)
+                            uiCtrl.showHideSpinner('hide')
+                            if(!response.hasErros){
+                                uiCtrl.showHideAlert(`alert-info`,response.msg,'show')
+                            }else{
+                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')}})
+                        .catch(err => {
+                            console.log('orderModals - sendToAll',err);
+                            uiCtrl.showHideSpinner('hide')
+                            uiCtrl.showHideOrderModal(null,null,'hide',null)})
+
+                    }})})
             }
         }
         //=================================================
@@ -1483,6 +1597,7 @@ class AppCtrl {
             loadEventListeners(dataCtrl,uiCtrl,this,modalActions.delete,element)
         }
         if(action===modalActions.deliver){
+            console.log(element.id)
             uiCtrl.showHideOrderModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.deliver)
             loadEventListeners(dataCtrl,uiCtrl,this,modalActions.deliver,element)
         }
@@ -1534,8 +1649,7 @@ catoringActions(dataCtrl,uiCtrl,action,element){
                         uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
                         uiCtrl.showHideOrderModal(null,null,'hide',null,null)
                     })
-                    .catch(err=> { console.log('error fetchAllMessages')})
-                })
+                    .catch(err=> { console.log('error fetchAllMessages')})})
                 .catch(value => {console.log('error deleteMessage')})
             })
         }
@@ -1611,30 +1725,36 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
                         deleteAccesses: deleteAccess,
                         userId: dataCtrl.returnData('tempSelectedData')
                     })})
-                .then(answer => {  
-                    if(answer.redirected){ return window.location.href = answer.url }
-                    return answer.json()})
-                .then(response => {
-                    if(!response.hasErros){
-                        appCtrl.fetchUsers(dataCtrl,uiCtrl)
-                        .then(value => {
+                .then(answer => { 
+                    console.log('updateAccess =====================================')
+                    console.log(answer.status)
+                    if(answer.status===401){
+                        uiCtrl.showHideSpinner('hide')
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete users','show')    
+                    }else if(answer.redirected){ return window.location.href = answer.url 
+                    }else{
+                        answer.json()
+                        .then(response => {
+                            if(!response.hasErros){
+                                appCtrl.fetchUsers(dataCtrl,uiCtrl)
+                                .then(value => {
+                                    uiCtrl.showHideSpinner('hide')
+                                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                                })
+                                .catch(err => {console.log('error fetchUsers',err);uiCtrl.showHideSpinner('hide')})
+                            }else{
+                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+                                reject(false)
+                            }
+                        })
+                        .catch(err => {
+                            console.log(`updateUserAccesses ->`,err)
                             uiCtrl.showHideSpinner('hide')
                             uiCtrl.showHideUserModal(null,null,'hide',null)
-                        })
-                        .catch(err => {console.log('error fetchUsers',err);uiCtrl.showHideSpinner('hide')})
-                    }else{
-                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-                        reject(false)
-                    }
-                })
-                .catch(err => {
-                    console.log(`updateUserAccesses ->`,err)
-                    uiCtrl.showHideSpinner('hide')
-                    uiCtrl.showHideUserModal(null,null,'hide',null)
-                    uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                    reject(false)
-                })
-            })
+                            uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                            reject(false)
+                        })}})})
         }
     }
 
@@ -1732,7 +1852,8 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
             }});
     }
     socketIOConnect(dataCtrl,uiCtrl){
-        let socket = io("https://api.kungfubbq-dayton.com", {
+        console.log(socketIoDNS)
+        let socket = io(socketIoDNS, {
             extraHeaders: {
                 Authorization: `Bearer ${dataCtrl.returnData('token')}`
             },
@@ -1760,11 +1881,11 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
             console.log(msg)
             if(this.appState===this.appStatesList._COOKINGCALENDAR ||
                 this.appState===this.appStatesList._ORDERS){
-                    this.fetchUsers(dataCtrl,uiCtrl)
+                    this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
                     .then(value => {
                         this.fetchCookingDates(dataCtrl,uiCtrl)
                         .then(value => {
-                            this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
+                            this.fetchUsers(dataCtrl,uiCtrl)
                             .then(value => {
                                 uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
                                 uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)})

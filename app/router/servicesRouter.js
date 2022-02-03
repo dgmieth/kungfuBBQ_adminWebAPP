@@ -41,15 +41,15 @@ servicesRouter.post('/newDish',authCtrl.isAuth, dishesAccessesCtrl.newDish, inde
 servicesRouter.post('/editDish',authCtrl.isAuth, dishesAccessesCtrl.editDish, indexServicesCtrl.editDish)
 servicesRouter.post('/deleteDish',authCtrl.isAuth, dishesAccessesCtrl.deleteDish, indexServicesCtrl.deleteDish)
 //CATORING
-servicesRouter.get('/fetchAllMessages', authCtrl.isAuth, catoringAccessesCtrl.fetchAllMessages, indexServicesCtrl.fetchAllMessages)
-servicesRouter.post('/readMessage', authCtrl.isAuth, catoringAccessesCtrl.readMessage, indexServicesCtrl.readMessage)
+servicesRouter.get('/fetchAllMessages', authCtrl.isAuth, catoringAccessesCtrl.fetchReadMessages, indexServicesCtrl.fetchAllMessages)
+servicesRouter.post('/readMessage', authCtrl.isAuth, catoringAccessesCtrl.fetchReadMessages, indexServicesCtrl.readMessage)
 servicesRouter.post('/deleteMessage', authCtrl.isAuth, catoringAccessesCtrl.deleteMessage, indexServicesCtrl.deleteMessage)
 servicesRouter.post('/archiveMessage', authCtrl.isAuth, catoringAccessesCtrl.archiveMessage, indexServicesCtrl.archiveMessage)
 //NOTIFICATIONS
 servicesRouter.post('/sendNotification', authCtrl.isAuth, notificationAccessesCtrl.sendNotification, indexServicesCtrl.sendNotification)
 servicesRouter.post('/sendNotifToAll',authCtrl.isAuth, notificationAccessesCtrl.sendNotifToAll, indexServicesCtrl.sendNotifToAll)
 // ======================================================================
-// SERVER CRONTAB ROUTES =====================================================
+// SERVER CRONTAB ROUTES ================================================
 // ======================================================================
 servicesRouter.get('/crontabNotification', indexServicesCtrl.crontabNotification)
 // ======================================================================

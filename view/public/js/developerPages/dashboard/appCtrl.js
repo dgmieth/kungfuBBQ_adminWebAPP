@@ -33,7 +33,7 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
     })
     .catch(err => {
         console.log(err)
-        uiCtrl.showHideAlert(`alert-danger`,err)
+        uiCtrl.showHideAlert(`alert-danger`,err,'show')
     })
     }
 //=================================================================================================
@@ -74,6 +74,7 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
                         uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
                         uiCtrl.changeActiveAppSubStateButton(e.target)
                         document.getElementById(ids.submit).addEventListener('click',(e)=> {
+                            uiCtrl.showHideSpinner(`show`)
                             fetch('/services/updateDeveloper', {
                                 method: `POST`,
                                 headers: {
@@ -88,18 +89,20 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
                             })
                             .then(answer => { return answer.json() })
                             .then(response => {
+                                uiCtrl.showHideSpinner(`hide`)
                                 console.log(response)
                                 if(response.success){
                                     alert(response.success)
                                     this.setAppSubState(this.getAppSubStatesList._INITIAL)
                                     uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
                                 }else if(response.error){
-                                    uiCtrl.showHideAlert('alert-danger',`Message: ${response.error}`)
+                                    uiCtrl.showHideAlert('alert-danger',`Message: ${response.error}`,'show')
                                 }
                             })
                             .catch(err => {
                                 console.log(err)
-                                uiCtrl.showHideAlert('alert-danger',`Message: ${err}`)
+                                uiCtrl.showHideSpinner(`hide`)
+                                uiCtrl.showHideAlert('alert-danger',`Message: ${err}`,'show')
                             })
                         })
                         document.getElementById(ids.cancel).addEventListener('click',(e)=> {
@@ -125,7 +128,7 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
         
         document.getElementById(hoursWorkBtns.register).addEventListener('click',(e)=> {
             if(!data.hasOpenedRegister){
-                console.log(1)
+                uiCtrl.showHideSpinner(`show`)
                 fetch('/services/postStartEndDeveloping', {
                     method: `POST`,
                     headers: {
@@ -136,16 +139,18 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
                 .then(answer => { return answer.json()})
                 .then(response => {
                     console.log(response)
+                    uiCtrl.showHideSpinner(`hide`)
                     if(response.success){
-                        uiCtrl.showHideAlert(`alert-success`,response.success)
+                        uiCtrl.showHideAlert(`alert-success`,response.success,'show')
                     }else if(response.error){
-                        uiCtrl.showHideAlert(`alert-danger`,response.error)
+                        uiCtrl.showHideAlert(`alert-danger`,response.error,'show')
                     }
                     this.fetchDevelopingResults(dataCtrl,uiCtrl)
                 })
                 .catch(err=>{
                     console.log(err)
-                    uiCtrl.showHideAlert(`alert-danger`,err)
+                    uiCtrl.showHideSpinner(`hide`)
+                    uiCtrl.showHideAlert(`alert-danger`,err,'show')
                 })
             }else{
                 uiCtrl.showHideModalToInsertInformation(`show`)
@@ -181,15 +186,15 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
         .then(response => {
             console.log(response)
             if(response.success){
-                uiCtrl.showHideAlert(`alert-success`,response.success)
+                uiCtrl.showHideAlert(`alert-success`,response.success,'show')
             }else if(response.error){
-                uiCtrl.showHideAlert(`alert-danger`,response.error)
+                uiCtrl.showHideAlert(`alert-danger`,response.error,'show')
             }
             this.fetchDevelopingResults(dataCtrl,uiCtrl)
         })
         .catch(err=>{
             console.log(err)
-            uiCtrl.showHideAlert(`alert-danger`,err)
+            uiCtrl.showHideAlert(`alert-danger`,err,'show')
         })
     }
     logout(uiCtrl){
@@ -199,12 +204,12 @@ fetchDevelopingResults(dataCtrl,uiCtrl){
                 if(answer.redirected){
                     window.location.href = answer.url
                 }else{
-                    uiCtrl.showHideAlert('alert-danger','Log-out unsuccessfull!')
+                    uiCtrl.showHideAlert('alert-danger','Log-out unsuccessfull!','show')
                 }
             })
             .catch(err => {
                 console.log(err)
-                uiCtrl.showHideAlert('alert-danger','Log-out unsuccessfull!')
+                uiCtrl.showHideAlert('alert-danger','Log-out unsuccessfull!','show')
             })
     }
 //=================================================================================================

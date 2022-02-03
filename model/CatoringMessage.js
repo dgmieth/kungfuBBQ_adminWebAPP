@@ -15,15 +15,15 @@ module.exports = class CatoringMessage {
     // ======================================================================
     // CRUD =================================================================
     markMessageAsRead(){
-        return db.query(`CALL ${dbName}.readCatoringMessage(?,?);`, 
+        return db.query(`CALL readCatoringMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
     deleteMessage(){
-        return db.query(`CALL ${dbName}.deleteCatoringMessage(?,?);`, 
+        return db.query(`CALL deleteCatoringMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
     archiveMessage(){
-        return db.query(`CALL ${dbName}.archiveCatoringMessage(?,?);`, 
+        return db.query(`CALL archiveCatoringMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
      // =====================================================================
@@ -31,25 +31,6 @@ module.exports = class CatoringMessage {
     // ======================================================================
     // CRUD =================================================================
     static fetchAllMessages(){
-        return db.query(`SELECT
-                            co.id,
-                            co.name,
-                            co.email ,
-                            co.orderDescription,
-                            co.phoneNumber,
-                            co.createdIn ,
-                            co.\`read\`,
-                            u3.name as readBy ,
-                            co.readIn,
-                            co.excluded,
-                            co.excludedIn,
-                            u2.name as excludedBy ,
-                            co.archived,
-                            co.archivedIn,
-                            u.name as archivedBy 
-                        FROM ${dbName}.CATORING_orders co 
-                        LEFT JOIN ${dbName}.\`user\` u ON u.id = co.archivedBy 
-                        LEFT JOIN ${dbName}.\`user\` u2 ON u2.id = co.excludedBy
-                        LEFT JOIN ${dbName}.\`user\` u3 ON u3.id = co.readBy  `)
+        return db.query(`CALL catoring_fetchAllMessages();`)
     }
 }

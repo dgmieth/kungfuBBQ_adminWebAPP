@@ -16,6 +16,10 @@ const notificationCtrl = require('./subServicesCtrl/notificationCtrl')
 // UPDATE PASSWORD ======================================================
 exports.updateDeveloper = (req,res,next) => {
     console.log(req.body)
+    console.log(req.session.User)
+    if(req.body.passwordNewConfirm!==req.body.passwordNew){
+        return res.status(401).json({error: `Password and passowrd confirmation don't match`})
+    }
     switch (req.body.updateType) {
         case "password":
             bcrypt.compare(req.body.passwordOld,req.session.User.password)
@@ -58,17 +62,17 @@ exports.developingInformation = (req,res,next) => {
     var returnObj = {}
     Developer.openDevelopingHours()
     .then(([data,meta])=> {
-        if(data[0].contador > 0){
+        if(data[0][0].contador > 0){
             returnObj.hasOpenedRegister = true
         } else {
             returnObj.hasOpenedRegister = false}
         return Developer.returnAllDevelopmentRegisters()})
-    .then(([data,meta])=> {
-        if(data){
-            returnObj.registers = data
+    .then(([data1,meta])=> {
+        if(data1){
+            returnObj.registers = data1[0]
             Developer.getMinutesWorked()
             .then(([data2,meta2])=> {
-                totalMinutes = data2[0].minutes
+                totalMinutes = data2[0][0].minutes
                 const hours =  parseInt(totalMinutes / 3600)
                 var remainder = totalMinutes-(hours*3600)
                 const mins = parseInt((remainder)/60)
@@ -85,6 +89,9 @@ exports.developingInformation = (req,res,next) => {
 }
 //updates information about development
 exports.postStartEndDeveloping = (req,res,next)=>{
+    if(!req.session.typeDev){
+        return res.json({error: 'User is not a developer!'})
+    }
     if(req.body.postType==='start'){
         Developer.inserStartDeveloping()
         .then(([data,meta])=> {

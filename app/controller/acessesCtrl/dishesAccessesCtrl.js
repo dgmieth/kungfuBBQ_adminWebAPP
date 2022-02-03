@@ -4,6 +4,12 @@ const Developer = require(`../../../model/Developer`)
 //custom functions
 const destroySession = require('../supportFunctions/destroySession')
 const checkAccesses = require('../supportFunctions/checkAccesses')
+//custom return object
+var returnObject = {
+    hasErrors: true,
+    data: null,
+    msg: null
+}
 // ========================================================================================
 // DISH ===================================================================================
 // ========================================================================================
@@ -15,8 +21,8 @@ exports.fetchAllDishes = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to fetch all dishes"
+        return res.status(401).json(returnObject)
     }
 }
 //fetch orders
@@ -27,8 +33,8 @@ exports.newDish = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to create new dishes"
+        return res.status(401).json(returnObject)
     }
 }
 //edit dish information
@@ -39,8 +45,8 @@ exports.editDish = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to edit dishes"
+        return res.status(401).json(returnObject)
     }
 }
 //delete dish from database
@@ -51,7 +57,7 @@ exports.deleteDish = (req,res,next) => {
         console.log('1-> hasAccess')
         next()
     }else{
-        console.log('2-> noAccess')
-        next()
+        returnObject.msg = "User does not have permission to delete dishes"
+        return res.status(401).json(returnObject)
     }
 }

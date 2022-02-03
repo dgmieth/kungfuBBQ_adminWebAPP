@@ -323,7 +323,8 @@ class DataCtrl {
             var returnArray = []
             var orders = []
             this.cookingCalendar.forEach(cd => {
-                if(cd.cookingDate_status_id===this.cookingAndDeliveryDateStatus){
+                //if(cd.cookingDate_status_id===this.cookingAndDeliveryDateStatus){
+                    if(cd.cookingDate_status_id>=8){
                     cdId = cd.id
                 }
                 if(cdId!==null){
