@@ -53,6 +53,7 @@ app.use('/privacypolicy',pageRouter)
 app.use('/auth',authRouter)
 app.use('/services',servicesRouter)
 app.use(pageRouter)
+
 //check developer settings 
 if(process.env.NODE_ENV!=='prod'){
     console.log(process.env.NODE_ENV)

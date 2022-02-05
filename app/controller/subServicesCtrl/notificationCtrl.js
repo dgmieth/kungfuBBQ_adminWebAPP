@@ -1,5 +1,5 @@
 //npm modules
-
+const cron = require('node-cron')
 //import modules
 const { count } = require('console')
 const e = require('express')
@@ -153,4 +153,74 @@ exports.crontabNotification = (req,res,next) => {
     .catch(err=>{
         console.log('adm_GetIdsAndMsgForCrontabCurlRequest->',err)
         return res.json({error:'nothing was sent'})})
+}
+// =====================================================================================
+// =====================================================================================
+// =====================================================================================
+// =====================================================================================
+// =====================================================================================
+//cron schedule
+// =====================================================================================
+//first notification is sent at 8:15am
+cron.schedule('0 04 8 * * *', () => {
+    sendCronNotif(`notifNumber_08:15`)
+}, {
+scheduled: true,
+timezone: "America/New_York"
+});
+//first notification is sent at 2:15pm
+cron.schedule('0 05 14 * * *', () => {
+    sendCronNotif(`notifNumber_14:15`)
+}, {
+scheduled: true,
+timezone: "America/New_York"
+});
+//first notification is sent at 6:15pm
+cron.schedule('0 06 18 * * *', () => {
+    sendCronNotif(`notifNumber_18:15`)
+}, {
+scheduled: true,
+timezone: "America/New_York"
+});
+
+//function to send cron notification
+function sendCronNotif(cronScheduler){
+    console.log(cronScheduler)
+    var counter = 0
+    Notification.adm_GetIdsAndMsgForCrontabCurlRequest()
+    .then(([idsMsgs,idsMsgsMeta])=>{
+        if(idsMsgs[0].length===0){
+            return res.json({noMessages:`no messages to be sent`})}
+        idsMsgs[0].forEach(info=>{
+            var notif = new Notification(null,info.msg,3)
+            notif.saveNewNotification()
+            .then(([newNotif, newNotifMeta])=>{
+                console.log(newNotif)
+                notif.setId = parseInt(newNotif[1][0].notifID)
+                sendNotification.sendNotification({ids: [`${info.user_id}`], msg: info.msg})
+                .then(response => {
+                    notif.updateNotificationUserTable([`${info.user_id}`])
+                    .then(([updatedReturn, updatedReturnMeta])=>{
+                        notif.setCookingDate = info.cookingDates_id
+                        notif.increasesNotificationSequencerSpecificOrder(info.order_id)
+                        .then(([increased, increasedMeta])=>{
+                            counter += 1
+                            if(counter === idsMsgs[0].length){
+                                return ({success:`all messages sent (${counter})`})
+                            }else{
+                                return ({noMessages:`no messages to be sent`})}})
+                        .catch(err => {
+                            console.log('notificationIncreaser->',err)})})
+                    .catch(err => {        
+                        console.log('updateNotificationuserTable-> ', err)})})
+                .catch(err => {        
+                    console.log('sendNotif-> ', err)})})
+            .catch(err => {        
+                console.log('saveNotif-> ', err)
+            })
+        })
+    })
+    .catch(err=>{
+        console.log('adm_GetIdsAndMsgForCrontabCurlRequest->',err)
+        return ({error:'nothing was sent'})})
 }
