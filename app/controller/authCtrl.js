@@ -123,7 +123,7 @@ exports.loginAdministrator = (req,res,next)=> {
                     req.session.accesses = administrator.accesses
                     req.session.typeAdm = true
                     req.session.logged = true
-                    req.session.expireTime = (new Date()).setMilliseconds(3600000)
+                    req.session.expireTime = (new Date()).setMilliseconds(86400000)
                     administrator.pageLogin()
                     res.status(200).send({redirect:'/admDashboard'})
                 })

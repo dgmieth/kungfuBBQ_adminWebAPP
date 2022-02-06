@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=prod node app/app.js",
     "devMode": "NODE_ENV=dev node app/app.js",
-    "startApp": "nodemon -e \"css,js,ejs,env,json\" app/app.js"
+    "startApp": "nodemon -e \"css,js,ejs,env,json\" app/app.js",
+    "debugMode": "nodemon --inspect -e \"css,js,ejs,env,json\" app/app.js"
   },
   "keywords": [
     "kungfuBBQ"

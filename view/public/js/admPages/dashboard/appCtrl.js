@@ -113,7 +113,8 @@ class AppCtrl {
         if(email===''){
             return uiCtrl.showHideAlert(`alert-danger`,'You must inform a valid e-mail address','show')
         }
-        const obj = {email: email}
+        const obj = {email: email.toLowerCase()}
+        console.log(obj)
         fetch('/services/invitationCode',{
             method: 'POST',
             headers: {'Content-type':'application/json'},
@@ -229,7 +230,12 @@ class AppCtrl {
                             .then(value => { resolve(true) })
                             .catch(err => {  reject(false) })
                         }else{
-                            uiCtrl.showHideAlert(`alert-danger`,response.err,'show')}})
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true) })
+                            .catch(err => {  reject(false) })
+                        }})
                     .catch(err => {
                         console.log(err)
                         uiCtrl.showHideUserModal(null,null,'hide',null)

@@ -68,7 +68,7 @@ exports.sendNotifToAll = (req,res,next)=>{
     cd.fetchById()
     .then(([cdInfo, cdInfoMeta])=>{
         if(cdInfo){
-            var idsForOrders = 'all'
+            var idsForOrders = 'subscribed'
             if(cdInfo.length>0){
                 if(cdInfo[0].cookingDate_status_id>=8){
                     idsForOrders = 'paid'}}
@@ -115,45 +115,45 @@ exports.sendNotifToAll = (req,res,next)=>{
         return returnErroMessage(`Cooking date information could not be retrieved. No notifications were sent.`)})
 }
 //server crontab route
-exports.crontabNotification = (req,res,next) => {
-    var counter = 0
-    Notification.adm_GetIdsAndMsgForCrontabCurlRequest()
-    .then(([idsMsgs,idsMsgsMeta])=>{
-        if(idsMsgs[0].length===0){
-            return res.json({noMessages:`no messages to be sent`})}
-        idsMsgs[0].forEach(info=>{
-            var notif = new Notification(null,info.msg,3)
-            notif.saveNewNotification()
-            .then(([newNotif, newNotifMeta])=>{
-                console.log(newNotif)
-                notif.setId = parseInt(newNotif[1][0].notifID)
-                sendNotification.sendNotification({ids: [`${info.user_id}`], msg: info.msg})
-                .then(response => {
-                    notif.updateNotificationUserTable([`${info.user_id}`])
-                    .then(([updatedReturn, updatedReturnMeta])=>{
-                        notif.setCookingDate = info.cookingDates_id
-                        notif.increasesNotificationSequencerSpecificOrder(info.order_id)
-                        .then(([increased, increasedMeta])=>{
-                            counter += 1
-                            if(counter === idsMsgs[0].length){
-                                return res.json({success:`all messages sent (${counter})`})
-                            }else{
-                                return res.json({noMessages:`no messages to be sent`})}})
-                        .catch(err => {
-                            console.log('notificationIncreaser->',err)})})
-                    .catch(err => {        
-                        console.log('updateNotificationuserTable-> ', err)})})
-                .catch(err => {        
-                    console.log('sendNotif-> ', err)})})
-            .catch(err => {        
-                console.log('saveNotif-> ', err)
-            })
-        })
-    })
-    .catch(err=>{
-        console.log('adm_GetIdsAndMsgForCrontabCurlRequest->',err)
-        return res.json({error:'nothing was sent'})})
-}
+// exports.crontabNotification = (req,res,next) => {
+//     var counter = 0
+//     Notification.adm_GetIdsAndMsgForCrontabCurlRequest()
+//     .then(([idsMsgs,idsMsgsMeta])=>{
+//         if(idsMsgs[0].length===0){
+//             return res.json({noMessages:`no messages to be sent`})}
+//         idsMsgs[0].forEach(info=>{
+//             var notif = new Notification(null,info.msg,3)
+//             notif.saveNewNotification()
+//             .then(([newNotif, newNotifMeta])=>{
+//                 console.log(newNotif)
+//                 notif.setId = parseInt(newNotif[1][0].notifID)
+//                 sendNotification.sendNotification({ids: [`${info.user_id}`], msg: info.msg})
+//                 .then(response => {
+//                     notif.updateNotificationUserTable([`${info.user_id}`])
+//                     .then(([updatedReturn, updatedReturnMeta])=>{
+//                         notif.setCookingDate = info.cookingDates_id
+//                         notif.increasesNotificationSequencerSpecificOrder(info.order_id)
+//                         .then(([increased, increasedMeta])=>{
+//                             counter += 1
+//                             if(counter === idsMsgs[0].length){
+//                                 return res.json({success:`all messages sent (${counter})`})
+//                             }else{
+//                                 return res.json({noMessages:`no messages to be sent`})}})
+//                         .catch(err => {
+//                             console.log('notificationIncreaser->',err)})})
+//                     .catch(err => {        
+//                         console.log('updateNotificationuserTable-> ', err)})})
+//                 .catch(err => {        
+//                     console.log('sendNotif-> ', err)})})
+//             .catch(err => {        
+//                 console.log('saveNotif-> ', err)
+//             })
+//         })
+//     })
+//     .catch(err=>{
+//         console.log('adm_GetIdsAndMsgForCrontabCurlRequest->',err)
+//         return res.json({error:'nothing was sent'})})
+// }
 // =====================================================================================
 // =====================================================================================
 // =====================================================================================

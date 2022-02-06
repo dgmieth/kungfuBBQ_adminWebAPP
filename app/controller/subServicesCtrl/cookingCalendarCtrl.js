@@ -67,7 +67,7 @@ exports.updateCookingCalendarDate = (req,res,next)=>{
                         returnObject.hasErrors = false
                         returnObject.data = data1
                         const notifMsg = `The menu and/or address of ${date === '' ? 'a' : 'the'} KungfuBBQ event ${date===''? '' : 'on ' + date} changed! Please check it out.`
-                        sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDateId),notifMsg,'all')
+                        sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDateId),notifMsg,'subscribed','update')
                     }else {
                         return returnErroMessage(`It was not possible to udpate this cooking date`)}})
                 .catch(err => {
@@ -131,12 +131,14 @@ exports.openToOrders = (req,res,next) => {
         res.json(returnObject)}
     CookingCalendar.openToOrders(parseInt(req.session.User.id),parseInt(req.body.cookingDate))
     .then(([data1,meta1])=>{
-        if(data1){
-            if((data1[1][0])['@returnCode']===dbErrorReturnCode){
+        console.log(data1)
+        if(data1[0]){
+            if((data1[2][0])['@returnCode']===dbErrorReturnCode){
                 return returnErroMessage(`Could not open to orders this cooking calendar date.`)}
             returnObject.hasErrors = false
             returnObject.data = data1
-            return res.json(returnObject)}
+            var notifMsg = `Hey!!! The ${data1[0][0].cookingDate} event is open to orders. Check it out on the app's Calendar!`
+            return sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDate),notifMsg,'all','openToOrders')}
         return returnErroMessage(`Could not open to orders this cooking calendar date.`)})
     .catch(err => {
         console.log(err)

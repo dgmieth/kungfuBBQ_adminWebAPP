@@ -164,6 +164,9 @@ class UICtrl {
         this.searchInput = {
             input: 'searchInputField'
         }
+        this.generalRegisterInformation = {
+            totalRegisters: 'totalRegisters'
+        }
         this.selectableClasses = {
             activeUsersRow: `activeUsersRow`,
             appStateBtns : 'appStateBtns '
@@ -250,15 +253,16 @@ class UICtrl {
             }
             var innerData = ''
             innerData = returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,this,tempData,false,false,false,true,false) 
-            this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.state,innerData)
+            this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.state,innerData,tempData.length)
             appStateBtnAndBreadcrum(this.sidebar.btns.orderDelivery,this.mainContent.divBreadcumber,'Quick actions','Order Delivery')
             appCtrl.loadSearchEventListeners(dataCtrl,this)
         }
         //manage access
         if(appCtrl.getAppState===appCtrl.getAppStatesList._MANAGEACCESS){
             var innerData = ''
-            innerData = returnInnerDataForManageAccessesSubStatesAndSearchMode(dataCtrl.returnData('users').data.filter(user => {if(user.excluded===0){return true}}))
-            this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.state,innerData)
+            var tempData = dataCtrl.returnData('users').data.filter(user => {if(user.excluded===0){return true}})
+            innerData = returnInnerDataForManageAccessesSubStatesAndSearchMode(tempData)
+            //this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.state,innerData,tempData.length)
             appStateBtnAndBreadcrum(this.sidebar.btns.manageAccess,this.mainContent.divBreadcumber,'System management',null)
             document.getElementById(this.mainContent.div).innerHTML = `
                 <div class=".container-fluid my-auto text-right w-100" style="height: 7%!important;padding-left:100px!important;padding-right:15px!important">
@@ -272,6 +276,9 @@ class UICtrl {
                                 style="width:100%!important;padding-bottom:2px"
                                 placeHolder="Search names, accesses papers...">
                         </div>
+                    </div>
+                    <div class=".container-fluid text-right w-50" style="float:right">
+                        <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempData.length} users</i></p>
                     </div>
                 </div>
                 <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 88%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
@@ -484,6 +491,9 @@ class UICtrl {
                             <input name="${this.searchInput.input}" id="${this.searchInput.input}" class=".container-fluid w-100 text-right" type="text" placeHolder="Search user name, email, phone number, social media user names...">
                         </div>
                     </div>
+                    <div class=".container-fluid text-right w-50" style="float:right">
+                        <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempData.length} users</i></p>
+                    </div>
                 </div>
                     <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height: 88%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
                         <div id="${this.table.tbody}" class="row w-100 my-auto mx-auto">
@@ -577,6 +587,9 @@ class UICtrl {
                                 : ''}
                         </div>
                     </div>
+                    <div class=".container-fluid text-right w-50" style="float:right">
+                        <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempData.length} events</i></p>
+                    </div>
                 </div>
                     <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height: 80%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
                         <div id="${this.table.tbody}" class="row w-100 my-auto mx-auto">
@@ -652,6 +665,9 @@ class UICtrl {
                             : ''}
                     </div>
                 </div>
+                <div class=".container-fluid text-right w-50" style="float:right">
+                <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempData.length} dishes</i></p>
+            </div>
             </div>
             <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height: 80%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
                 <div id="${this.table.tbody}" class="row w-100 my-auto mx-auto">
@@ -720,7 +736,7 @@ class UICtrl {
                 updateBreadCumber(this.mainContent.divBreadcumber,orders,'Inactive orders')
             }
             innerData = returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,this,tempData,subStateOne,subStateTwo,subStateThree,subStateFour,subStateFive) 
-            this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.subState,innerData)
+            this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.subState,innerData,tempData.length)
             document.getElementById(this.commonPropertiesNames.scrollingContainer).scrollTop = appCtrl.getScrollPosition()
             appCtrl.loadSearchEventListeners(dataCtrl,this)
         }
@@ -775,6 +791,9 @@ class UICtrl {
                             placeHolder="Search names, phone numbers, emails...">
                     </div>
                 </div>
+                <div class=".container-fluid text-right w-50" style="float:right">
+                    <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempData.length} messages</i></p>
+                </div>
             </div>
             <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height: 88%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
                 <div id="${this.table.tbody}" class="row w-100 my-auto mx-auto">
@@ -816,6 +835,7 @@ class UICtrl {
                 filteredArray = dataCtrl.returnData('activeUsers').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
             if(subStateTwo){
                 filteredArray = dataCtrl.returnData('excludedUsers').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
+            document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} user(s)`
             innerData = returnInnerDataForCUserSubStateAndSearchMode(dataCtrl,this,filteredArray,subStateOne,subStateTwo)
         }
 
@@ -831,6 +851,7 @@ class UICtrl {
                 filteredArray = dataCtrl.returnData('cookingCalendarFinished').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
             if(subStateThree){
                 filteredArray = dataCtrl.returnData('cookingCalendarExcluded').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
+                document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} event(s)`
             innerData = returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,filteredArray,subStateOne,subStateTwo,subStateThree)
         }
         //DISH
@@ -843,6 +864,7 @@ class UICtrl {
             if(subStateTwo){
                 console.log('subState _-> _EXCLUDEDDISHES')
                 filteredArray = dataCtrl.returnData('excludedDishes').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
+                document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} dish(es)`
             innerData = returnInnerDataForDishSubStatesAndSearchMode(dataCtrl,this,filteredArray,subStateOne,subStateTwo,null)
         }
         //ORDERS
@@ -862,12 +884,14 @@ class UICtrl {
                 filteredArray = dataCtrl.returnData('orderDelivery').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
             if(subStateFive){
                 filteredArray = dataCtrl.returnData('inactiveOrders').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
+                document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} order(s)`
             innerData = returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,this,filteredArray,subStateOne,subStateTwo,subStateThree, subStateFour,subStateFive)
         }
         //MANAGE ACCESS
         if(appCtrl.getAppState===appCtrl.getAppStatesList._MANAGEACCESS){
             filteredArray = dataCtrl.returnData('users').data.filter(reg => {if(reg.searchString.match(regExpression)){return true}})
             filteredArray.filter(user=>{if(user.excluded===0){return true}})
+            document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} user(s)`
             innerData = returnInnerDataForManageAccessesSubStatesAndSearchMode(filteredArray)
         }
         //CATORING
@@ -881,6 +905,7 @@ class UICtrl {
                 filteredArray = dataCtrl.returnData('archivedMsgs').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
             if(subStateThree){
                 filteredArray = dataCtrl.returnData('excludedMsgs').filter(reg => {if(reg.searchString.match(regExpression)){return true}})}
+            document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} user(s)`
             innerData = returnInnerDataForCatoringSubStatesAndSearchMode(dataCtrl,this,filteredArray,subStateOne,subStateTwo,subStateThree)
         }
         document.getElementById(this.table.tbody).innerHTML = `${innerData}` 
@@ -1304,7 +1329,7 @@ class UICtrl {
                 document.getElementById(this.modal.title).innerHTML = `<p class="h3"><strong>Open to orders</strong> cooking calendar date ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
                 document.getElementById(this.modal.body).innerHTML = `
                 <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
-                <p>Once this actions is performed you <strong>won't be able to EDIT</strong> this cooking calendar date anylonger. You <u>will still be able to <i>delete</i></u> this cooking calendar date, but that means you will <u>delete <i>all orders</i> already made to this cooking calendar date</u>.</p>
+                <p>All active users <strong>will be notified</strong> that this cooking date is open to orders. You <u>are still able to <i>delete</i></u> this cooking date event, meaning, you will <u>delete <i>all orders</i> already subscribed to it as well.</u></p>
                 </div>
                 `
                 udateActionButtonLayout(this,'btn-primary','Open to orders',false)
@@ -2240,7 +2265,7 @@ class UICtrl {
             udateActionButtonLayout(this,null,null,true)
         }
     }
-    gettingOrderDeliveryStateOrSubstate(appStateOrSubState,innerData){
+    gettingOrderDeliveryStateOrSubstate(appStateOrSubState,innerData,tempDataLength){
         console.log('chamou')
         var mainDivForContent = ''
         if(appStateOrSubState===this.uiSwitcher.state){
@@ -2259,8 +2284,11 @@ class UICtrl {
                             class=".container-fluid text-right" 
                             type="text" 
                             style="width:100%!important;padding-bottom:2px"
-                            placeHolder="Search dishes, prices, ingredients, descriptions...">
+                            placeHolder="Search orders, users, ...">
                     </div>
+                </div>
+                <div class=".container-fluid text-right w-50" style="float:right">
+                    <p id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:20px;text-align:right"><i>${tempDataLength} orders</i></p>
                 </div>
             </div>
             <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height: 88%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">

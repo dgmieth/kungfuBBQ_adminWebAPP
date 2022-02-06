@@ -51,7 +51,7 @@ servicesRouter.post('/sendNotifToAll',authCtrl.isAuth, notificationAccessesCtrl.
 // ======================================================================
 // SERVER CRONTAB ROUTES ================================================
 // ======================================================================
-servicesRouter.get('/crontabNotification', indexServicesCtrl.crontabNotification)
+// servicesRouter.get('/crontabNotification', indexServicesCtrl.crontabNotification)
 // ======================================================================
 // DEVELOPER ROUTES =====================================================
 // ======================================================================
