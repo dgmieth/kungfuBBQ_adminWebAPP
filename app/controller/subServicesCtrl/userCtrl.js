@@ -167,7 +167,7 @@ exports.invitationCode = (req,res,next) =>{
                     }
                     res.json(returnObject)
                 }else{
-                    code = invitationCodeGenerator()
+                    code = invitationCodeGenerator(email.length)
                     const adm = new Administrator(null,req.session.User.id, null)
                     adm.saveNewInvitationCode(email,code)
                     .then(([data2,meta2])=>{

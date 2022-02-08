@@ -27,12 +27,15 @@ function generateRandomCode(maxIndex,charSet,numberOfi1){
     return code
 }
 //code generator
-module.exports = ()=>{
+module.exports = (lengthEmail)=>{
     const charSetRange = process.env.INVITATION_CODE_SEQUENCE
     const maxIndex = charSetRange.length
-    const dataOne = new Date().getFullYear().toString()
+    const dataZero =new Date() 
+    const dataOne = dataZero.getFullYear().toString()
+    var extraChar = lengthEmail > 60 ? generateRandomCode(maxIndex,charSetRange,i1) : charSetRange[lengthEmail]
     const i1 = 1
     const i2 = 2
 
-    return `${process.env.PREFIX_INVITATION_CODE}${dataOne.substring(2)}${charSetRange[parseInt(dataOne.substring(0,2))]}${generateRandomCode(maxIndex,charSetRange,i1)}${charSetRange[new Date().getMonth()]}${charSetRange[new Date().getDate()]}${generateRandomCode(maxIndex,charSetRange,i1)}`
+    //return `${process.env.PREFIX_INVITATION_CODE}${dataOne.substring(2)}${charSetRange[parseInt(dataOne.substring(0,2))]}${generateRandomCode(maxIndex,charSetRange,i1)}${charSetRange[new Date().getMonth()]}${charSetRange[new Date().getDate()]}${generateRandomCode(maxIndex,charSetRange,i1)}`
+    return `${process.env.PREFIX_INVITATION_CODE}${dataOne.substring(2)}${charSetRange[dataZero.getMonth()]}${charSetRange[dataZero.getDate()]}${charSetRange[dataZero.getHours()]}${charSetRange[dataZero.getMinutes()]}${charSetRange[dataZero.getSeconds()]}${extraChar}`
 }
