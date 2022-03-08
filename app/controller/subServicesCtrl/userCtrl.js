@@ -16,19 +16,15 @@ exports.allUsers = (req,res,next) => {
     .then(([data0,meta0])=>{
         const returnObject = {
             hasErros: false,
-            data: [sortUserInfo(data0[0]),data0[1],data0[2]]
-        }
-        res.json(returnObject)
-    })
+            data: [sortUserInfo(data0[0]),data0[1],data0[2]]    }
+        res.json(returnObject)  })
     .catch(err => {
         console.log(err)
         const returnObject = {
             hasErros: true,
             msg: `Not possible to fetch users from database`,
-            error: err
-        }
-        res.json(returnObject)
-    })
+            error: err  }
+        res.json(returnObject)  })
 }
 // ======================================================================
 // USER -> SAVE EDITED USER INFO ========================================
@@ -48,29 +44,20 @@ exports.editedUserInfo = (req,res,next) => {
             user.setPhoneNumber = data[0].phoneNumber
             user.setName = data[0].name
             data.forEach(reg => {
-                if(reg.socialMedia===process.env.FACEBOOK){
-                    user.setSocialMediaFacebook = reg.socialMediaName
-                }
-                if(reg.socialMedia===process.env.INSTAGRAM){
-                    user.setSocialMediaInstagram = reg.socialMediaName
-                }
-            })
+                if(reg.socialMedia===process.env.FACEBOOK){ user.setSocialMediaFacebook = reg.socialMediaName   }
+                if(reg.socialMedia===process.env.INSTAGRAM){    user.setSocialMediaInstagram = reg.socialMediaName  }   })
             if(user.name!==req.body.name){
                 hasChanges = true
-                user.setName = req.body.name
-            }
+                user.setName = req.body.name    }
             if(user.phoneNumber!==req.body.phoneNumber){
                 hasChanges = true
-                user.setPhoneNumber = req.body.phoneNumber
-            }
+                user.setPhoneNumber = req.body.phoneNumber  }
             if(user.socialMediaFacebook!==req.body.socialMedia_Facebook){
                 hasChanges = true
-                user.socialMediaFacebook = req.body.socialMedia_Facebook
-            }
+                user.socialMediaFacebook = req.body.socialMedia_Facebook    }
             if(user.socialMediaInstagram!==req.body.socialMedia_Instagram){
                 hasChanges = true
-                user.socialMediaInstagram = req.body.socialMedia_Instagram
-            }
+                user.socialMediaInstagram = req.body.socialMedia_Instagram  }
             if(hasChanges){
                 user.updateInformation()
                 .then(([data1,meta1])=>{
@@ -82,26 +69,19 @@ exports.editedUserInfo = (req,res,next) => {
                         res.json(returnObject)    
                     }else{
                         returnObject.msg = `Something went wrong! Try again later`
-                        res.json(returnObject)    
-                    }
-                })
+                        res.json(returnObject)  }   })
                 .catch(err=>{
                     returnObject.msg = `Data could not be saved!`
-                    res.json(returnObject)    
-                })
+                    res.json(returnObject)  })
             }else{
                 returnObject.msg = 'There were no changes in the user information!'
-                res.json(returnObject)    
-            }
+                res.json(returnObject)  }
         }else{
             returnObject.msg = 'No user found!'
-            res.json(returnObject)
-        }
-    })
+            res.json(returnObject)  }   })
     .catch(err => {
         returnObject.msg = err
-        res.json(returnObject)
-    })   
+        res.json(returnObject)  })   
 }
 // ======================================================================
 // USER -> DELETE USER BY ID ============================================
@@ -120,23 +100,19 @@ exports.deleteUserById = (req,res,next) => {
         if(validate===-2){
             returnObject.hasErros = true
             returnObject.msg = `Not possible to delete user right now. He/she have opened (paid) orders that have not been delivered or reimbursed. Please go to orders and deliver/reimburse them. Them try again.`
-            return res.json(returnObject)
-        }
+            return res.json(returnObject)   }
         var data0 = rAnswer[0]
         if(data0){
-            adm.logDeleteUserById(userId)
+            //adm.logDeleteUserById(userId)
             returnObject.hasErros = false
             returnObject.msg = 'User was succesfully deleted.'
             res.json(returnObject)
         }else{
-            res.json(returnObject)
-        }
-    })
+            res.json(returnObject)  }   })
     .catch(err => {
         console.log(err)
         returnObject.msg = err
-        res.json(returnObject)
-    }) 
+        res.json(returnObject)  }) 
 }
 // ======================================================================
 // USER -> GENERATE INVITATION CODE =====================================

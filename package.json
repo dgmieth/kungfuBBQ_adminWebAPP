@@ -4,7 +4,7 @@
   "description": "web app for configuring all information in the system",
   "main": "app/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "NODE_ENV=prod node app/app.js",
     "devMode": "NODE_ENV=dev node app/app.js",
     "startApp": "nodemon -e \"css,js,ejs,env,json\" app/app.js",
@@ -25,7 +25,9 @@
     "express-mysql-session": "^2.1.6",
     "express-session": "^1.17.2",
     "flatpickr": "^4.6.9",
+    "jest": "^27.5.1",
     "mysql2": "^2.2.5",
-    "node-cron": "^3.0.0"
+    "node-cron": "^3.0.0",
+    "sinon": "^13.0.1"
   }
 }

@@ -24,7 +24,7 @@ module.exports = class Administrator {
     save(savingType, callback){
         switch (savingType) {
             case 'password':
-                db.query(`CALL dev_updatePasswor(?,?);`, [`${this.password}`, `${this.id}`])
+                db.query(`CALL dev_updatePassword(?,?);`, [`${this.password}`, `${this.id}`])
                 .then(([data,meta])=> {
                     callback(null,{success:'Password updated'})
                 })
@@ -39,13 +39,13 @@ module.exports = class Administrator {
         }
     }
     selectAccess(){
-        return db.query(`CALL adm_selectAccesses(?)`, [`${this.id}`])
+        return db.query(`CALL access_fetchAll(?)`, [`${this.id}`])
     }
     deleteUserById(userId){
-        return db.query(`CALL adm_DeleteUser(?, ?, @returnCode);SELECT @returnCode as returnCode;`,[`${userId}`,`${this.id}`])
+        return db.query(`CALL user_deleteUser(?, ?, @returnCode);SELECT @returnCode as returnCode;`,[`${userId}`,`${this.id}`])
     }
     saveNewInvitationCode(email,code){
-        return db.query(`CALL adm_generateInvitationCode(?,?,?);`,[`${code}`,`${email}`,`${this.id}`])
+        return db.query(`CALL invitationCode_newCode(?,?,?);`,[`${code}`,`${email}`,`${this.id}`])
     }
     // LOGS =================================================================
     pageLogin(){
@@ -56,15 +56,15 @@ module.exports = class Administrator {
                         CALL db_registerLog(3, 2, ?, NULL,?,CURRENT_TIMESTAMP());
                         `, [`${userID}`,`${this.id}`,`${userID}`,`${this.id}`])
     }
-    logDeleteUserById(userID){
-        return db.query(`
-                        CALL db_registerLog(11, 1, ?, NULL,?,CURRENT_TIMESTAMP());
-                        CALL db_registerLog(11, 2, ?, NULL,?,CURRENT_TIMESTAMP());
-                        CALL db_registerLog(11, 3, ?, NULL,?,CURRENT_TIMESTAMP());`,
-                        [`${userID}`,`${this.id}`,
-                        `${userID}`,`${this.id}`,
-                        `${userID}`,`${this.id}`])
-    }
+    // logDeleteUserById(userID){
+    //     return db.query(`
+    //                     CALL db_registerLog(11, 1, ?, NULL,?,CURRENT_TIMESTAMP());
+    //                     CALL db_registerLog(11, 2, ?, NULL,?,CURRENT_TIMESTAMP());
+    //                     CALL db_registerLog(11, 3, ?, NULL,?,CURRENT_TIMESTAMP());`,
+    //                     [`${userID}`,`${this.id}`,
+    //                     `${userID}`,`${this.id}`,
+    //                     `${userID}`,`${this.id}`])
+    // }
     logNewInvitationCode(){
         return db.query(`CALL db_registerLog(12, 4, NULL, NULL,?,CURRENT_TIMESTAMP());`, [`${this.id}`])
     }
@@ -72,7 +72,7 @@ module.exports = class Administrator {
     // CLASS METHODS ========================================================
     // ======================================================================
     static fetchByEmail(email){
-        return db.query(`CALL adm_fetchByEmail(?);`, [`${email}`])
+        return db.query(`CALL admin_fetchUserByEmail(?);`, [`${email}`])
     }
     
 }

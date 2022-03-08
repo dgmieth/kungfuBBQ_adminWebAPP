@@ -59,7 +59,8 @@ class UICtrl {
                     description: 'dishDescription',
                     ingredients: 'dishIngredients',
                     price: 'dishPrice',
-                    id: 'dishId'
+                    id: 'dishId',
+                    fifo: 'fifo'
                 }
             },
             order: {
@@ -80,7 +81,8 @@ class UICtrl {
                 orderCDAddress: 'orderCDAddress',
                 orderCDDishName: 'orderCDDishName',
                 orderCDDishPrice: 'orderCDDishPrice',
-
+                tipAmount:'tipAmount',
+                tipReimbursed:'tipReimbursed'
             }
         }
         //=====================================
@@ -114,8 +116,8 @@ class UICtrl {
                 viewDetails: 'viewDetails',
                 openToOrders:'openToOrders',
                 closeToOrders:'closeToOrders',
-                firstAlert: 'firstAlert',
-                secondAlert: 'secondAlert',
+                setCookingCapacity: 'setCookingCapacity',
+                initiateDelivery: 'initiateDelivery',
                 gameOver: 'gameOver',
                 delete:'delete',
                 hide:'hide',
@@ -238,11 +240,11 @@ class UICtrl {
         }
         //QUICK ACTIONS APP STATES  => NO APP SUB STATES
         //invitationCode
-        if(appCtrl.getAppState===appCtrl.getAppStatesList._INVITATIONCODE){
-            this.getInivitationCodeUIElements(this.uiSwitcher.state)
-            appStateBtnAndBreadcrum(this.sidebar.btns.invitationCode,this.mainContent.divBreadcumber,'Quick actions','Invitation code')
+        // if(appCtrl.getAppState===appCtrl.getAppStatesList._INVITATIONCODE){
+        //     this.getInivitationCodeUIElements(this.uiSwitcher.state)
+        //     appStateBtnAndBreadcrum(this.sidebar.btns.invitationCode,this.mainContent.divBreadcumber,'Quick actions','Invitation code')
 
-        }
+        // }
         //orderDelivery
         if(appCtrl.getAppState===appCtrl.getAppStatesList._ORDERDELIVERY){
             var tempData = dataCtrl.returnData('orderDelivery')
@@ -304,7 +306,7 @@ class UICtrl {
                 <div class="list h-100" style="overflow-y: auto;">
                     <button id="${this.optionbar.btns.btnOne}" class="item">Active users</button>
                     <button id="${this.optionbar.btns.btnTwo}" class="item">Excluded users</button>
-                    <button id="${this.optionbar.btns.btnThree}" class="item">Generate Invitation Code</button>
+                    <!-- -> invitationCode <button id="${this.optionbar.btns.btnThree}" class="item">Generate Invitation Code</button> -->
                 </div>
             </div>
             <div id="${this.mainContent.mainContenctWithOptions}" class=".container-fluid w-100 h-100 mx-auto my-auto text-center" style="padding:0" >
@@ -456,14 +458,14 @@ class UICtrl {
             const users = 'Users'
             subStateOne = appCtrl.getAppSubState===appCtrl.getAppSubStatesList._ACTIVEUSERS
             subStateTwo = appCtrl.getAppSubState===appCtrl.getAppSubStatesList._EXCLUDEDUSERS
-            subStateThree = appCtrl.getAppSubState===appCtrl.getAppSubStatesList._INVITATIONCODE
+            // -> invitationCode  subStateThree = appCtrl.getAppSubState===appCtrl.getAppSubStatesList._INVITATIONCODE
 
             var viewDetails = '<th></th>'
 
             function removeActiveClassesFromUserSubStates(uiCtrl){
                     document.getElementById(uiCtrl.optionbar.btns.btnOne).classList.remove('active')
                     document.getElementById(uiCtrl.optionbar.btns.btnTwo).classList.remove('active')
-                    document.getElementById(uiCtrl.optionbar.btns.btnThree).classList.remove('active')
+                    // -> invitationCode  document.getElementById(uiCtrl.optionbar.btns.btnThree).classList.remove('active')
             }
             if(subStateOne||subStateTwo){
                 if(subStateOne){
@@ -505,12 +507,12 @@ class UICtrl {
                 document.getElementById(this.commonPropertiesNames.scrollingContainer).scrollTop = appCtrl.getScrollPosition()
                 appCtrl.loadSearchEventListeners(dataCtrl,this)
             }
-            if(subStateThree){
-                removeActiveClassesFromUserSubStates(this)
-                document.getElementById(this.optionbar.btns.btnThree).classList.add('active')
-                this.getInivitationCodeUIElements(this.uiSwitcher.subState)
-                updateBreadCumber(this.mainContent.divBreadcumber,users,'Invitation code')
-            }
+            // -> invitationCode if(subStateThree){
+            //     removeActiveClassesFromUserSubStates(this)
+            //     document.getElementById(this.optionbar.btns.btnThree).classList.add('active')
+            //     this.getInivitationCodeUIElements(this.uiSwitcher.subState)
+            //     updateBreadCumber(this.mainContent.divBreadcumber,users,'Invitation code')
+            // }
         }
         //*****************************************************************************************
         //-----------------------------------------------------------------------------------------
@@ -1170,7 +1172,7 @@ class UICtrl {
             console.log('listOrders called')
             dataCtrl.clearSelectedDishes()
             var dishesHeader = ''
-            tempData = dataCtrl.returnData('order').filter(order => {
+            tempData = dataCtrl.returnData('orderButExcluded').filter(order => {
                 if(order.cookingDates_id===coookingCalendarId && order.order_status_id!==999) { return true }
             })
             cookingCalendarObj[0].dishes.forEach(dish => {
@@ -1179,7 +1181,7 @@ class UICtrl {
                 `
             })
             innerData = returnDynamicElementsForCookingDateListOrdersModal(this,tempData)
-            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Listing orders for cooking calendar ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street} </p>`
+            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Listing orders for cooking calendar ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street} </p>`
             document.getElementById(this.modal.body).innerHTML = `
             <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
                 <div class=".container-fluid row w-100 mx-auto my-auto"> 
@@ -1198,10 +1200,10 @@ class UICtrl {
             this.getEditCookingDateModalOrNewDishModal(dataCtrl,appCtrl,modalType,cookingCalendarObj)
             udateActionButtonLayout(this,'btn-primary','Save changes',false)
         }
-        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.firstAlert){
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.setCookingCapacity){
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send acknowledgement alert to orders in ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
             document.getElementById(this.modal.body).innerHTML = `
-            <div id="${this.modalTypes.cookingDate.firstAlert}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
+            <div id="${this.modalTypes.cookingDate.setCookingCapacity}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
             <div class=".container-fluid mx-auto my-auto w-100 text-center">
                 <div class="h4"><strong>How many meals</strong> will you cook on this cooking calendar date?</div>
                 <div class=".container-fluid mx-auto my-auto w-100 text-center">
@@ -1211,10 +1213,10 @@ class UICtrl {
             `
             udateActionButtonLayout(this,'btn-primary','Send',false)
         }
-        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.secondAlert){
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.initiateDelivery){
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send alert operning cooking date ${cookingCalendarObj[0].cookingDate.split(' ')[0]} to delivery?</p>`
             document.getElementById(this.modal.body).innerHTML = `
-            <div id="${this.modalTypes.cookingDate.secondAlert}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
+            <div id="${this.modalTypes.cookingDate.initiateDelivery}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
             <div class=".container-fluid mx-auto my-auto w-100 text-center">
                 <div class="h4">This action will open this cooking date to delivery and all users that paid their respective orders will be notified to start coming to the address to pick up their orders.</div>
             </div>
@@ -1225,12 +1227,17 @@ class UICtrl {
             var finalAmount = 0
             innerData = `${innerData} <style>.pNoMargin{margin:0;padding:0}</style>`
             cookingCalendarObj[0].dishes.forEach(dish => {
+                console.log(dish)
                 finalAmount += dish.price === null || dish.price=== '' ? 0.0 : parseFloat(dish.price)
                 innerData = `${innerData}
                 <div id="DishID-${dish.dish_id}" class=".container-fluid mx-auto my-auto w-100 text-center" style="border-bottom: gray 1px solid;align-items: center;padding: 0;height: auto;">
                     <div class="row h-100 my-auto text-center">
                         <div class="col-6 my-auto" style="text-align: left;">
-                            <div><strong>${dish.name}</strong></div>
+                            <div>
+                            <span>
+                                ${dish.dishFifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+                            </span>
+                            <strong>${dish.name}</strong></div>
                         </div>
                         <div class="col-6 my-auto" style="text-align: left;">
                             <div><i>U$ ${(dish.price === null || dish.price=== '' ? '0.00' : dish.price)}</i></div>
@@ -1239,7 +1246,7 @@ class UICtrl {
                 </div>
                 `
             })
-            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Viewing ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}</p>`
+            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Viewing ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street}</p>`
             document.getElementById(this.modal.body).innerHTML = `
             <style>
                 .textLeft{text-align:left;margin:0;padding:0;}
@@ -1296,6 +1303,11 @@ class UICtrl {
                 <div class="container mx-auto my-auto w-75 text-center" style="overflow-y: auto;height: 200px!Important;border: gray .5px solid;">
                     ${innerData}
                 </div>
+                <div class="container row">
+                    <div class="col-12" style="text-align:left;">
+                        <img src="/img/fifoDish.png" height="20px" /> First come, first served type of dish. Not pre-orderable and not charged on the amount.
+                    </div>
+                </div>
             </div>  
             <hr>
             <hr>
@@ -1318,7 +1330,7 @@ class UICtrl {
             console.log('modal -> openToOrders')
             dataCtrl.clearSelectedDishes()
             if(cookingCalendarObj[0].cookingDate_status_id<3){
-                document.getElementById(this.modal.title).innerHTML = `<p class="h3 bg-warning">Incomplete information for ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
+                document.getElementById(this.modal.title).innerHTML = `<p class="h3 bg-warning">Incomplete information for ${cookingCalendarObj[0].cookingDate.split(' ')[0]}?</p>`
                 document.getElementById(this.modal.body).innerHTML = `
                 <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
                 <p>You must fill in the required information in the cooking calendar date to open it to orders. Please edit this cooking calendar date: dimiss this window and click on the pencil for this cooking calendar date and fill out all blanks on the form.</p>
@@ -1326,7 +1338,7 @@ class UICtrl {
                 `
                 udateActionButtonLayout(this,null,null,true)
             }else if(cookingCalendarObj[0].cookingDate_status_id===3){
-                document.getElementById(this.modal.title).innerHTML = `<p class="h3"><strong>Open to orders</strong> cooking calendar date ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
+                document.getElementById(this.modal.title).innerHTML = `<p class="h3"><strong>Open to orders</strong> cooking calendar date ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street}?</p>`
                 document.getElementById(this.modal.body).innerHTML = `
                 <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
                 <p>All active users <strong>will be notified</strong> that this cooking date is open to orders. You <u>are still able to <i>delete</i></u> this cooking date event, meaning, you will <u>delete <i>all orders</i> already subscribed to it as well.</u></p>
@@ -1339,7 +1351,7 @@ class UICtrl {
         if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.closeToOrders){
             console.log('modal -> closeToOrders')
             dataCtrl.clearSelectedDishes()
-            document.getElementById(this.modal.title).innerHTML = `<p class="h3 bg-warning"><strong>Close to orders</strong> cooking calendar date ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
+            document.getElementById(this.modal.title).innerHTML = `<p class="h3 bg-warning"><strong>Close to orders</strong> cooking calendar date ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street}?</p>`
             document.getElementById(this.modal.body).innerHTML = `
             <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
             <p>Once this actions is performed you <strong>won't be able to ACCEPT new orders</strong> for this cooking calendar date information anylonger. You <u>will still be able to <i>delete</i></u> this cooking calendar date, but that means you will <u>delete <i>all orders</i> already made to this cooking calendar date</u>.</p>
@@ -1419,17 +1431,9 @@ class UICtrl {
                             <p id="dishPrice">U$ ${tempData[0].price === null || tempData[0].price === '' ? '0.00' : tempData[0].price}</p>
                         </div>
                         <div class="col-12" style="height:8px!important"></div>
-                        <div class="col-12 row">
-                            <div class="col-12 col-lg-2">
-                                <p class="h5">Ingredients:</p>
-                            </div>
-                            <div class="col-12 col-lg-10">
-                                <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;overflow-y: auto;text-align: justify">
-                                    <p id="dishIngredients">
-                                        ${tempData[0].ingredients === null || tempData[0].ingredients === '' ? '<i>no ingredients</i>' : tempData[0].ingredients}
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="col-12 col-md-10" style="text-align: left;">
+                            <input type="checkbox" name="fifo" value="Bike" ${tempData[0].fifo === 1 ? 'checked' : ''} disabled>
+                            <label for="fifo"> First come first served</label><br>
                         </div>
                         <div class="col-12" style="height:8px!important"></div>
                         <div class="col-12 row">
@@ -1440,6 +1444,19 @@ class UICtrl {
                                 <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;overflow-y: auto;text-align: justify">
                                     <p id="dishDescription">
                                         ${tempData[0].description === null || tempData[0].description === '' ? '<i>no description</i>' : tempData[0].description}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12" style="height:8px!important"></div>
+                        <div class="col-12 row">
+                            <div class="col-12 col-lg-2">
+                                <p class="h5">Ingredients:</p>
+                            </div>
+                            <div class="col-12 col-lg-10">
+                                <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;overflow-y: auto;text-align: justify">
+                                    <p id="dishIngredients">
+                                        ${tempData[0].ingredients === null || tempData[0].ingredients === '' ? '<i>no ingredients</i>' : tempData[0].ingredients}
                                     </p>
                                 </div>
                             </div>
@@ -1469,17 +1486,9 @@ class UICtrl {
                             }" value="${tempData[0].price === null || tempData[0].price === '' ? '' : tempData[0].price}">
                         </div>
                         <div class="col-12" style="height:8px!important"></div>
-                        <div class="col-12">
-                            <div class="row">
-                                <div class="col-12 col-lg-2">
-                                    <p class="h5">Ingredients:</p>
-                                </div>
-                                <div class="col-12 col-lg-10">
-                                    <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;text-align: justify;padding: 0!important;">
-                                        <textarea class=".container-fluid h-100 w-100" name="${this.formsNames.editDishInfo}" id="${this.inputs.dishes.ids.ingredients}" placeholder="Inform the ingredients of this dish..." style="border: none;margin: 0;resize: none;">${tempData[0].ingredients === null || tempData[0].ingredients === '' ? '' : tempData[0].ingredients}</textarea>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-12 col-md-10" style="text-align: left;">
+                            <input type="checkbox" name="fifo" id="${this.inputs.dishes.ids.fifo}" ${tempData[0].fifo === 1 ? 'checked' : ''} disabled>
+                            <label for="fifo"> First come first served</label><br>
                         </div>
                         <div class="col-12" style="height:8px!important"></div>
                         <div class="col-12">
@@ -1490,6 +1499,19 @@ class UICtrl {
                                 <div class="col-12 col-lg-10">
                                     <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;text-align: justify;padding: 0!important;">
                                         <textarea class=".container-fluid h-100 w-100" name="${this.formsNames.editDishInfo}" id="${this.inputs.dishes.ids.description}" placeholder="Inform the ingredients of this dish..." style="border: none;margin: 0;resize: none;">${tempData[0].description === null || tempData[0].description === '' ? '' : tempData[0].description}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12" style="height:8px!important"></div>
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-12 col-lg-2">
+                                    <p class="h5">Ingredients:</p>
+                                </div>
+                                <div class="col-12 col-lg-10">
+                                    <div class="container mx-auto my-auto w-100" style="border: gray .5px solid;height: 150px!important;text-align: justify;padding: 0!important;">
+                                        <textarea class=".container-fluid h-100 w-100" name="${this.formsNames.editDishInfo}" id="${this.inputs.dishes.ids.ingredients}" placeholder="Inform the ingredients of this dish..." style="border: none;margin: 0;resize: none;">${tempData[0].ingredients === null || tempData[0].ingredients === '' ? '' : tempData[0].ingredients}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -1538,6 +1560,8 @@ class UICtrl {
         var orderDishes = ''
         var orderExtras = ''
         var cdDishes = ''
+        const elDivider = `<div class="col-12 colNoMarging"><hr style="margin: 0 70px"></div>`
+        const statusPaid = dataCtrl.returnData('paidStatus')
         var dataCtrlIdentifier = appCtrl.getAppSubState===appCtrl.getAppSubStatesList._ACTIVEORDERS ? 'activerOrders' : appCtrl.getAppSubState===appCtrl.getAppSubStatesList._FINISHEDORDERS ? 'deliveredOrders' : appCtrl.getAppSubState===appCtrl.getAppSubStatesList._EXCLUDEDORDERS ? 'excludedOrders' : appCtrl.getAppSubState===appCtrl.getAppSubStatesList._INACTIVEORDERS ? 'inactiveOrders' : 'orderDelivery' 
         tempData = dataCtrl.returnData(dataCtrlIdentifier).filter(reg => {if(reg.orderId===orderId){ return true }})
             orderDishes = `${orderDishes}
@@ -1545,15 +1569,17 @@ class UICtrl {
                     <div class="col-12 my-auto colNoMarging">
                         <div class="row my-auto colNoMarging" style="padding: 0 5px;">`
             tempData[0].dishes.forEach(reg => {
-                orderDishes = `${orderDishes}
-                <div 
-                    class="col-12 colNoMarging" 
-                    id="${this.inputs.order.orderDishesName}" 
-                    style="text-align: left;">
-                    ${reg.dish_name} - U$ ${parseFloat(reg.dish_price).toFixed(2)}
-                </div>
-                <div class="col-12 colNoMarging" style="text-align: left;border-bottom: gray .5px solid;">Quantity ===> ${reg.dishQtty}</div>
-                `})
+                console.log(reg)
+                if(reg.excludedDishExtra_dish===0){
+                    orderDishes = `${orderDishes}
+                    <div 
+                        class="col-12 colNoMarging" 
+                        id="${this.inputs.order.orderDishesName}" 
+                        style="text-align: left;">
+                        ${reg.dish_name} - U$ ${parseFloat(reg.dish_price).toFixed(2)}
+                    </div>
+                    <div class="col-12 colNoMarging" style="text-align: left;border-bottom: gray .5px solid;">Quantity ===> ${reg.dishQtty}</div>
+                    `   }   })
             orderDishes= `${orderDishes}</div></div></div>`
             orderExtras = `${orderExtras}
             <div class="row my-auto colNoMarging">
@@ -1574,20 +1600,24 @@ class UICtrl {
                     <div class="col-12 my-auto colNoMarging">
                         <div class="row my-auto colNoMarging" style="padding: 0 5px;">
             `
+            tempData[0].cookingCalendarDishes.sort((a,b)=>{ if(a>b){return -1 };if(a<b){return 1};return 0})
             tempData[0].cookingCalendarDishes.forEach(reg => {
                 cdDishes = `${cdDishes}
                 <div class="col-12 colNoMarging" 
                     id="${this.inputs.order.orderCDDishName}" 
                     style="text-align: left;border-bottom: gray .5px solid;">
-                    ${reg.name} - U$ ${parseFloat(reg.price).toFixed(2)}
+                    <span>
+                        ${reg.dishFifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+                    </span>${reg.name} - U$ ${parseFloat(reg.price).toFixed(2)}
                 </div>`})
             cdDishes = `${cdDishes}</div></div></div>`
         document.getElementById(this.modal.title).innerHTML = `<p class="h3">Order details</p>`
+        console.log(tempData[0])
         document.getElementById(this.modal.body).innerHTML = `
         <style>
             .stateStyle{min-height: 35px;font-size: 1.4rem;}
             .cdStyle{min-height: 45px;font-size: 1.58rem;}
-            .blackBG{background:rgba(0,0,0,1);color:white;}
+            .blackBG{background:rgba(51,59,78,1);color:white;}
             .darkGraykBG{background:rgba(108,108,108,1);color:white;}
             .darkBG{background:rgba(241,241,241,1);}
             .wrapWord{overflow-wrap: break-word;}
@@ -1605,18 +1635,26 @@ class UICtrl {
             .textCenter{text-aligh:center}
         </style>
         <div class=".container-fluid mx-auto my-auto text-center w-100colNoMarging">
-            <p class="h5">Order</p>
+            <p class="h5">Order number <strong>${tempData[0].orderId}</strong></p>
             <div class=".container-fluid mx-auto my-auto text-center w-100 colNoMarging">
             <div class="row">
-                <div class="col-12 col-lg-2 colNoMarging" style="text-align:left"><strong>Order id:</strong></div>
-                <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.orderId}" style="text-align: left;">${tempData[0].orderId}</div>
-                <div class="col-12 col-lg-2 colNoMarging" style="text-align:left"><strong>Meals quantity:</strong></div>
-                <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.oderMealsQtty}" style="text-align: left;">${tempData[0].totalMeals}</div>
-                <div class="col-12 col-lg-2  colNoMarging" style="text-align:left"><strong>Amount due:</strong></div>
-                <div class="col-12 col-lg-2 colNoMarging" id="${this.inputs.order.orderAmountDue}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].orderTotal).toFixed(2)*parseInt(tempData[0].totalMeals)).toFixed(2)}</div>
+                <!-- <div class="col-2 colNoMarging" style="text-align:left"><strong>Order id:</strong></div>
+                <div class="col-10 colNoMarging" id="${this.inputs.order.orderId}" style="text-align: left;"></div>  -->
+                ${elDivider}
+                <div class="col-4 col-lg-2 colNoMarging" style="text-align:left"><strong>Meals:</strong></div>
+                <div class="col-8 col-lg-10 colNoMarging" id="${this.inputs.order.oderMealsQtty}" style="text-align: left;font-size:1.4rem">${tempData[0].totalMeals}</div>
+                ${elDivider}
+                <div class="col-4 col-lg-2 colNoMarging" style="text-align:left"><strong>Meals:</strong></div>
+                <div class="col-8 col-lg-10 colNoMarging" id="${this.inputs.order.orderAmountDue}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].orderTotal).toFixed(2)*parseInt(tempData[0].totalMeals)).toFixed(2)}</div>
+                <div class="col-4 col-lg-2 colNoMarging" style="text-align:left"><strong>Tip:</strong></div>
+                <div class="col-8 col-lg-10 colNoMarging" id="${this.inputs.order.tipAmount}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].tipAmount)).toFixed(2)}</div>
+                <div class="col-4 col-lg-2 colNoMarging" style="text-align:left"><strong>Amount ${statusPaid.includes(tempData[0].order_status_id) || tempData[0].order_status_id===13 ? 'paid' : 'due'}:</strong></div>
+                <div class="col-8 col-lg-10 colNoMarging" id="${this.inputs.order.orderAmountDue}" style="text-align: left;">U$ ${parseFloat(parseFloat(tempData[0].orderTotal).toFixed(2)*parseInt(tempData[0].totalMeals)+parseFloat(tempData[0].tipAmount)).toFixed(2)}</div>
+                ${elDivider}
                 <div class="col-12" style="height: 5px!important;"></div>
-                <div class="col-12 col-lg-2 colNoMarging"  style="text-align:left"><strong>Order status:</strong></div>
-                <div class="col-12 col-lg-10 colNoMarging" id="${this.inputs.order.orderStatusText}" style="text-align: left;">${tempData[0].orderStatus}</div>
+                <div class="col-4 col-lg-2 colNoMarging"  style="text-align:left"><strong>Order status:</strong></div>
+                <div class="col-8 col-lg-10 colNoMarging" id="${this.inputs.order.orderStatusText}" style="text-align: left;">${tempData[0].orderStatus}</div>
+                ${elDivider}
                 <div class="col-12" style="height: 5px!important;"></div>
                 <div class="col-12 colNoMarging"  style="text-align:left"><strong>Order Details</strong></div>
                 <div class="col-12">
@@ -1635,7 +1673,7 @@ class UICtrl {
             </div>
             </div>
             <hr>
-            <p class="h5">User</p>
+            <p class="h5">User Information</p>
             <div class=".container-fluid mx-auto my-auto text-center w-100">
                 <div class="row colNoMarging">
                     <div class="col-12 col-lg-2 colNoMarging" style="text-align:left"><strong>Email:</strong></div>
@@ -1649,7 +1687,7 @@ class UICtrl {
                 </div>
             </div>
             <hr>
-            <p class="h5">Cooking Calendar Date</p>
+            <p class="h5">Calendar Event</p>
             <div class=".container-fluid mx-auto my-auto text-center w-100 colNoMarging">
                 <div class="row colNoMarging">
                     <div class="col-12 col-lg-2 colNoMarging" style="text-align:left"><strong>Date:</strong></div>
@@ -1661,6 +1699,9 @@ class UICtrl {
                     <div class=".container-fluid mx-auto my-auto text-center w-100 colNoMarging" style="border: gray 0.5px solid;height: 150px!important;overflow-y: auto;">
                         <!--BEGINNING OF DISHES -->
                         ${cdDishes}
+                    </div>
+                    <div class="col-12" style="text-align:left;">
+                        <img src="/img/fifoDish.png" height="20px" /> First come, first served type of dish. Not pre-orderable and not charged on the amount.
                     </div>
                 </div>
                 </div>
@@ -1711,11 +1752,19 @@ class UICtrl {
         if(tempData.length>0){
             tempData=tempData[0]
         }else{return}
-        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Mark this order ${tempData.orderId} as reimbursed?</p>`
+        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Reimburse ${tempData.orderId}?</p>`
         document.getElementById(this.modal.body).innerHTML = `
         <form id="${this.form}">
             <input name="userId" id="userId" value="${tempData.orderId}" style="display:none">
-            <p class="h4">Rembember that you <strong>must</strong> have reimbursed the user before marking this order as reimbursed!</p>
+            <p class="h4">Remember that you <strong>must</strong> have reimbursed the user before marking this order as reimbursed!</p>
+            <hr />
+            <div class=".container-fluid row">
+                <div class="col-12 h5">Will the tip be reimbursed too? </div>
+                <div class="col-12" style="text-align: left;padding-bottom: 10px;padding-top: 10px;">
+                    <input type="checkbox" name="${uiCtrl.formsNames.tipReimbursed}" id="${uiCtrl.inputs.dishes.ids.tipReimbursed}" >
+                    <label for="${uiCtrl.inputs.dishes.ids.tipReimbursed}"> Reimburse tip</label>
+                </div>
+            </div>
         </form>
         ` 
         udateActionButtonLayout(this,`btn-primary`,`Reimburse`,false)
@@ -2079,34 +2128,51 @@ class UICtrl {
                 if(key==='zipcode'){zipcode = tempObj[key]}
             }
             dishArray.forEach(dish => {
-                if(selectedDishes.includes(dish.id)){finalAmount += parseFloat(dish.price)}
+                console.log(`fifo edit `,dish)
+                if(selectedDishes.includes(dish.id) && dish.fifo === 0 ){finalAmount += parseFloat(dish.price)}
                 if(dish.excluded===0){
                     innerDishes = `${innerDishes}
                     <button 
-                        id="checkboxDish-${dish.id}" 
+                        id="checkboxDish-${dish.id}-${dish.fifo === 0 ? 'no' : 'yes'}" 
                         class="btn .container-fluid mx-auto my-auto w-100 ${this.checkboxes.dishes.className} ${selectedDishes.includes(dish.id) ? 'selectedBG' : ''}" 
                         onclick="const id = parseInt(this.id.split('-')[1])
+                                const fifo = this.id.split('-')[2] === 'no' ? false : true
+                                console.log(fifo)
+                                console.log( this.id.split('-')[2])
                                 var addSubtract = 0
                                 if(this.classList.contains('selectedBG')){
                                     this.classList.remove('selectedBG')
                                     dataCtrl.removeSelectedDish(id)
-                                    addSubtract = -parseFloat(this.children[0].innerText.split(' ')[1])
+                                    if(!fifo){
+                                        console.log(this.children)
+                                        addSubtract = -parseFloat(this.children[1].innerText.split(' ')[1])
+                                        console.log(this.children[1].innerText.split(' ')[1])
+                                        console.log(addSubtract)}
                                 }else{
                                     this.classList.add('selectedBG')
                                     dataCtrl.setSelectedDishes = id
-                                    addSubtract = parseFloat(this.children[0].innerText.split(' ')[1])
+                                    if(!fifo){
+                                        addSubtract = parseFloat(this.children[1].innerText.split(' ')[1])
+                                        console.log(this.children[1].innerText.split(' ')[1])
+                                        console.log(addSubtract)
+                                    }
                                 }
                                 var amount = parseFloat(document.getElementById('${this.infoContainer.totalAmount}').innerText.split(' ')[1])
                                 amount += addSubtract
                                 document.getElementById('${this.infoContainer.totalAmount}').innerText = 'U$ ' + amount.toFixed(2)
+                                if(!fifo){
+                                }
                                 " 
                         style="border-bottom: gray 1px solid;padding: 0;">
+                        <span>
+                            ${dish.fifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+                        </span>
                         ${dish.name} <i>${dish.price === null | dish.price=== '' ? 'U$ 0.00' : 'U$ ' + dish.price}</i>
                     </button>
                     `
                 }
             })
-            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Edit information for ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
+            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Edit information for ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street}?</p>`
             document.getElementById(this.modal.body).innerHTML = `
             <div class=".container-fluid mx-auto my-auto w-100 text-center colNoMargin">
                 <div class="h6 w-50 mx-auto"><strong>To open to orders</strong> this <u>cooking calendar date</u>, it is necessary to inform <strong>street</strong>, <strong>city</strong>, <strong>state</strong> and the <strong>dishes</strong></div>
@@ -2219,6 +2285,11 @@ class UICtrl {
                         <p class="pNoMargin">Select the dish(es) from the list below to add to the menu of this cooking calendar date:</p>
                         <div class="container mx-auto my-auto w-75  colNoMargin" style="height: 200px!important;overflow-y:auto;border: gray .5px solid;">
                             ${innerDishes}                            
+                        </div>
+                        <div class="container row">
+                            <div class="col-12" style="text-align:left;">
+                                <img src="/img/fifoDish.png" height="20px" /> First come, first served type of dish. Not pre-orderable and not charged on the amount.
+                            </div>
                         </div>
                         <hr >
                         <div class=".container-fluid mx-auto my-auto w-100 text-center">
@@ -2353,7 +2424,10 @@ function returnInnerDataForCUserSubStateAndSearchMode(dataCtrl,uiCtrl,tempData,s
                         <div class="col-12 breakWord colNoMarging"><strong>Nome:</strong> ${reg.name}</div>
                     </div>
                     <div class="col-12 breakWord colNoMarging"><strong>Phone number:</strong> ${phoneNumberMask(reg.phoneNumber)}</div>
-                    <div class="col-12 breakWord colNoMarging" style="text-align:right;padding-right:20px">${reg.lastLogIn !== '' && reg.lastLogIn !== null ? `<i>Last log-in: </i>${reg.lastLogIn.split(' ')[0]}` : '' }</div>
+                    <div class="col-6 breakWord colNoMarging" style="text-align:left;padding-right:20px">
+                        <span><img src="/img/${reg.mobileOS.toLowerCase() === 'android' ? 'android' : 'apple'}.png" height="15" /></span>
+                    </div>
+                    <div class="col-6 breakWord colNoMarging" style="text-align:right;padding-right:20px">${reg.lastLogIn !== '' && reg.lastLogIn !== null ? `<i>Last log-in: </i>${reg.lastLogIn.split(' ')[0]}` : '' }</div>
                 </div>
                 <div class="col-4 row colNoMarging">
                     <!-- VIEW BUTTON -->
@@ -2415,7 +2489,7 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
     var counter = 0
     var innerData = `
         <style>
-            .blackBG{background:rgba(0,0,0,1);color:white;}
+            .blackBG{background:rgba(51,59,78,1);color:white;}
             .darkGraykBG{background:rgba(108,108,108,1);color:white;}
             .borderBottom{border-bottom: black 1.5px solid;}
             .darkBG{background:rgba(241,241,241,1)}
@@ -2458,16 +2532,16 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
             return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.closeToOrders}',this)`
         }
         if(status===5){
-            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.firstAlert}',this)`
+            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.setCookingCapacity}',this)`
         }
         if(status===7){
-            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.secondAlert}',this)`
+            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.initiateDelivery}',this)`
         }
         return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.gameOver}',this)`
     }
     //select right edit icon for cooking calendar date
     function cookingCalendarEditIcon(uiCtrl,status){
-        if(status<=3){
+        if(status<=5){
             return `editIcon`
         }
         return `viewIcon`
@@ -2481,10 +2555,10 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
             return uiCtrl.modalTypes.cookingDate.closeToOrders
         }
         if(status===5){
-            return uiCtrl.modalTypes.cookingDate.firstAlert
+            return uiCtrl.modalTypes.cookingDate.setCookingCapacity
         }
         if(status===7){
-            return uiCtrl.modalTypes.cookingDate.secondAlert
+            return uiCtrl.modalTypes.cookingDate.initiateDelivery
         }
         return uiCtrl.modalTypes.cookingDate.gameOver
     }
@@ -2500,7 +2574,7 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
         <div class="col-12 row borderBottom ${counter%2===0 ? '' : 'darkBG'} colNoMarging">
             <!-- COOKING DATE INFO -->
             <div class="col-5 row colNoMarging paddingLeftRight" style="text-align:left;padding: 2px">
-                <div class="col-12 colNoMarging innerTextMargin"><strong>${reg.nmMonth.substr(0,3)} ${reg.cookingDate.split(' ')[0].split('-')[2]} ${reg.cookingDate.split(' ')[0].split('-')[0]}</strong> at ${reg.cookingDate.split(' ')[1].substr(0,5)}</div>
+                <div class="col-12 colNoMarging innerTextMargin"><strong>${reg.nmMonth.substr(0,3)} ${reg.cookingDate.split(' ')[0].split('-')[2]} ${reg.cookingDate.split(' ')[0].split('-')[0]} at ${reg.timeFormat}</strong> <!-- at ${reg.cookingDate.split(' ')[1].substr(0,5)}--></div>
                 <div class="col-12 colNoMarging innerTextMargin breakWord"><strong>${reg.street === null ? 'Address missing' : `At ${reg.street}`}${reg.complement !== null ? `, ${reg.complement}` : ''}, ${reg.city === null ? '' : reg.city}</strong></div>
                 <div class="col-12 colNoMarging innerTextMargin breakWord" style="text-align:right;>
                     <p style="margin:0;">${reg.cookingDate_status}</p>
@@ -2645,7 +2719,11 @@ function returnInnerDataForDishSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,s
         <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0?'darkBG':''} bottomLine colNoMarging">
             <div class=".container-fluid col-8 row colNoMarging">
                 <div class="col-12 col-md-6 alignLeft colNoMarging"><strong>Name: </strong></div>
-                <div class="col-12 col-md-6 alignLeft colNoMarging">${reg.name}</div>
+                <div class="col-12 col-md-6 alignLeft colNoMarging">${reg.name} 
+                    <span>
+                        ${reg.fifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+                    </span>
+                </div>
                 <div class="col-12 col-md-6 alignLeft colNoMarging"><strong>Price: </strong></div>
                 <div class="col-12 col-md-6 alignLeft colNoMarging">${reg.price === null || reg.price === '' ? '0.00' : parseFloat(reg.price).toFixed(2)}</div>
             </div>
@@ -2695,7 +2773,7 @@ function returnInnerDataForCatoringSubStatesAndSearchMode(dataCtrl,uiCtrl,tempDa
     var innerData = `
         <style>
         <style>
-        .blackBG{background:rgba(0,0,0,1);color:white;}
+        .blackBG{background:rgba(51,59,78,1);color:white;}
         .darkBG{background:rgba(241,241,241,1)}
         .biggerFont{font-size: 1.5rem;}
         .wrapWord{overflow-wrap: break-word;}
@@ -2779,11 +2857,12 @@ function returnInnerDataForCatoringSubStatesAndSearchMode(dataCtrl,uiCtrl,tempDa
 }
 //inner data to populate table in dish substates
 function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,subStateOne,subStateTwo,subStateThree = false,subStateFour = false,subStateFive=false){
+    console.log(tempData)
     var innerData = `
     <style>
         .stateStyle{min-height: 35px;font-size: 1.4rem;}
         .cdStyle{min-height: 45px;font-size: 1.58rem;}
-        .blackBG{background:rgba(0,0,0,1);color:white;}
+        .blackBG{background:rgba(51,59,78,1);color:white;}
         .darkGraykBG{background:rgba(108,108,108,1);color:white;}
         .darkBG{background:rgba(241,241,241,1);}
         .wrapWord{overflow-wrap: break-word;}
@@ -2794,6 +2873,7 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
         .innerTextMargin{padding-left:5px;}
         .hrNoMargin{margin:0;padding:0;}
         .alignLeft{text-align:left;}
+        .alignRight{text-align:right;}
         .btnActions {background-size: 25px;background-repeat: no-repeat;background-position-y: center;padding-left: 30px;text-align: start;width: -webkit-fill-available;}
         .btnPadding{padding-bottom:2px;}
         .paddingLeftRight{padding-left: 2px;padding-right: 2px;}
@@ -2805,24 +2885,37 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
     
     function returnRepetitivePart(reg){
         var iconImage = returnOrderStatusIcon(reg)
+        const statusPaid = dataCtrl.returnData('paidStatus')
+        var elDivider = '<div class="col-12 textCenter colNoMarging" style="line-height:.5rem"><hr style="margin:0 35px"></div>'
         //CODE TO VIEW DETAILS OF ORDERS
         //     <td> <button id="${uiCtrl.modalTypes.order.viewDetails}-${reg.orderId}" onclick="uiCtrl.showHideAlert('alert-info','${reg.orderStatus}','show')" style="border:none"><img src="/img/${iconImage}.png" alt="Edit" height="25px"></button></td>
         return `
         <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0?'darkBG':''} bottomLine colNoMarging">
             <div class=".container-fluid col-4 row colNoMarging">
                 <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Order: </strong></div>
-                <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${reg.orderId}${reg.order_status_id===5||reg.order_status_id===8||reg.order_status_id===9||reg.order_status_id===10?'<i style="font-size:0.8rem">paid</i>':reg.order_status_id===13? '<i style="font-size:0.8rem">reimbursed</i>' :''}</div>
-                <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Amount due: </strong></div>
-                <div class="col-12 col-md-8 textCenter colNoMarging">${reg.orderTotal === null || reg.orderTotal === '' ? 'U$ 0.00' : `U$ `+ parseFloat(parseFloat(reg.orderTotal)*reg.dishes[0].dishQtty).toFixed(2)}</div>
-                <div class="col-12 wrapWord colNoMarging text-right"><i>${reg.orderStatus}</i></div>
-                <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Meals: </strong></div>
+                <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${reg.orderId}${statusPaid.includes(reg.order_status_id) ? '<i style="font-size:0.8rem">paid</i>':reg.order_status_id===13? '<i style="font-size:0.8rem">reimbursed</i>' :''}</div>
+                ${elDivider}
+                <div class="col-12 col-md-4 wrapWord alignLeft colNoMarging"><strong>Meals: </strong></div>
                 <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${reg.totalMeals}</div>
+                ${elDivider}
+                <div class="col-12 col-md-4 wrapWord alignLeft colNoMarging"><strong>Meals: </strong></div>
+                <div class="col-12 col-md-8 alignLeft colNoMarging" >${reg.orderTotal === null || reg.orderTotal === '' ? 'U$ 0.00' : `U$ `+ parseFloat(parseFloat(reg.orderTotal)*reg.totalMeals).toFixed(2)}</div>
+
+                <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Tip: </strong></div>
+                <div class="col-12 col-md-8 alignLeft colNoMarging">${reg.tipAmount === null || reg.tipAmount === '' ? 'U$ 0.00' : `U$ `+ parseFloat(parseFloat(reg.tipAmount)).toFixed(2)}</div>
+                <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Amount ${statusPaid.includes(reg.order_status_id) ||reg.order_status_id===13 ? 'paid' : 'due'} : </strong></div>
+                <div class="col-12 col-md-8 alignLeft colNoMarging" >${reg.orderTotal === null || reg.orderTotal === '' ? 'U$ 0.00' : `U$ `+ parseFloat((parseFloat(reg.orderTotal)*reg.totalMeals)+parseFloat(reg.tipAmount)).toFixed(2)}</div>
+                <!-- ${elDivider} -->
+                <!-- <div class="col-12 textCenter colNoMarging"><strong>Order status: </strong></div> -->
+                <!-- <div class="col-12 colNoMarging alignRight" style="padding-right:5px"><i>${reg.orderStatus}</i></div> -->
             </div>
             <div class=".container-fluid col-4 row leftLine colNoMarging">
                 <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Email: </strong></div>
                 <div class="col-12 col-md-8 alignLeft colNoMarging wrapWord">${reg.email}</div>
                 <div class="col-12 col-md-4 alignLeft colNoMarging wrapWord"><strong>Name: </strong></div>
                 <div class="col-12 col-md-8 alignLeft colNoMarging">${reg.name}</div>
+                <div class="col-12 col-md-4 alignLeft colNoMarging wrapWord"><strong>Phone: </strong></div>
+                <div class="col-12 col-md-8 alignLeft colNoMarging">${phoneNumberMask(reg.phoneNumber)}</div>
             </div>
             <div class=".container-fluid col-4 row leftLine colNoMarging btnMarginTopBottom">
                 <div class="col-12 col-md-6 colNoMarging btnPadding">
@@ -2885,6 +2978,13 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
     var cdId = 0
     var status = 0
     var counter = 0
+    tempData.sort((a,b)=>{
+        if(a.cookingDate<b.cookingDate){ return -1 }
+        if(a.cookingDate>b.cookingDate){ return 1 }
+        if(a.order_status_id>b.order_status_id){ return -1 }
+        if(a.order_status_id<b.order_status_id){ return 1 }
+        return 0
+    })
     tempData.forEach(reg => {
         if(cdId!==reg.cookingDates_id){
             cdId = reg.cookingDates_id
@@ -2908,7 +3008,7 @@ function returnInnerDataForManageAccessesSubStatesAndSearchMode(users){
     <style>
         .stateStyle{min-height: 35px;font-size: 1.4rem;}
         .cdStyle{min-height: 45px;font-size: 1.58rem;}
-        .blackBG{background:rgba(0,0,0,1);color:white;}
+        .blackBG{background:rgba(51,59,78,1);color:white;}
         .darkGraykBG{background:rgba(108,108,108,1);color:white;}
         .darkBG{background:rgba(241,241,241,1);}
         .wrapWord{overflow-wrap: break-word;}
@@ -2972,7 +3072,9 @@ function returnDynamicElementsForCookingDateListOrdersModal(uiCtrl,tempData){
     `
     var statusId = 0
     var counter = 0 
+    const elDivider = `<div class="col-12 colNoMarging"><hr style="margin: 0 70px"></div>`
     tempData.forEach(order => {
+        console.log(order)
         if(statusId!==order.order_status_id){
             statusId=order.order_status_id
             innerData = `${innerData}
@@ -2987,10 +3089,11 @@ function returnDynamicElementsForCookingDateListOrdersModal(uiCtrl,tempData){
                     <div class=".container-fluid col-12 col-md-4 colNoMarging"><strong>Order nr.:</strong></div>
                     <div class=".container-fluid col-12 col-md-8 biggerFont colNoMarging">${order.orderId}</div>
                 </div>
-                <div class=".container-fluid col-12 row colNoMarging">
+                ${elDivider}
+                <!-- <div class=".container-fluid col-12 row colNoMarging">
                     <div class=".container-fluid col-12 col-md-4 colNoMarging"><strong>Status</strong></div>
                     <div class=".container-fluid col-12 col-md-8 wrapWord colNoMarging" style="text-align: right;">${order.orderStatus}</div>
-                </div>
+                </div> -->
                 <div class=".container-fluid col-12 row colNoMarging">
                     <div class=".container-fluid col-12 col-md-4 colNoMarging"><strong>Meals:</strong></div>
                     <div class=".container-fluid col-12 col-md-8 biggerFont colNoMarging">${order.dishes[0].dishQtty}</div>
@@ -3034,17 +3137,21 @@ function returnFormElementsForNewDishForm(uiCtrl){
                         }
                     " placeholder="Information required">
                 </div>
+                <div class="col-12" style="text-align: left;padding-bottom: 10px;padding-top: 10px;">
+                    <input type="checkbox" name="${uiCtrl.formsNames.newDishInfo}" id="${uiCtrl.inputs.dishes.ids.fifo}" >
+                    <label for="${uiCtrl.inputs.dishes.ids.fifo}"> First come first served</label>
+                </div>
                 <div class="col-12 col-lg-2 text-left">
                     <p><strong>Description:</strong></p>
                 </div>
                 <div class="col-12 col-lg-10">
-                    <input type="text" name="${uiCtrl.formsNames.newDishInfo}" id="${uiCtrl.inputs.dishes.ids.description}" class="w-100">
+                    <textarea type="text" name="${uiCtrl.formsNames.newDishInfo}" id="${uiCtrl.inputs.dishes.ids.description}" class="w-100"></textarea>
                 </div>
                 <div class="col-12 col-lg-2 text-left">
                     <p><strong>Ingredients:</strong></p>
                 </div>
                 <div class="col-12 col-lg-10">
-                    <input type="text" name="${uiCtrl.formsNames.newDishInfo}" id="${uiCtrl.inputs.dishes.ids.ingredients}" class="w-100">
+                    <textarea type="text" name="${uiCtrl.formsNames.newDishInfo}" id="${uiCtrl.inputs.dishes.ids.ingredients}" class="w-100"></textarea>
                 </div>
             </div>
             
@@ -3095,12 +3202,13 @@ function returnOrderStatusIcon(order){
 }
 //masks phone number
 function phoneNumberMask(phoneNumber){
-    if(phoneNumber===null||phoneNumber===''){
+    // console.log('numbers->',phoneNumber)
+    if(phoneNumber===null||phoneNumber===''||phoneNumber===undefined){
         console.log('phoneNumbne -> ',phoneNumber)
         return phoneNumber
     }
     var numbers = phoneNumber.replace(/\D/ig,'')
-    console.log('numbers->',numbers)
+    // console.log('numbers->',numbers)
     if(numbers.length===10){
         return `(${numbers.substr(0,3)}) ${numbers.substr(3,3)}-${numbers.substr(6,4)}`
     }

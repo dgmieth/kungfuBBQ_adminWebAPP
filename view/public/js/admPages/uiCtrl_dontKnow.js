@@ -112,8 +112,8 @@ class UICtrl {
                 viewDetails: 'viewDetails',
                 openToOrders:'openToOrders',
                 closeToOrders:'closeToOrders',
-                firstAlert: 'firstAlert',
-                secondAlert: 'secondAlert',
+                setCookingCapacity: 'setCookingCapacity',
+                initiateDelivery: 'initiateDelivery',
                 gameOver: 'gameOver',
                 delete:'delete',
                 hide:'hide',
@@ -1226,10 +1226,10 @@ class UICtrl {
             this.getEditCookingDateModalOrNewDishModal(dataCtrl,appCtrl,modalType,cookingCalendarObj)
             udateActionButtonLayout(this,'btn-primary','Save changes',false)
         }
-        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.firstAlert){
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.setCookingCapacity){
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send acknowledgement alert to orders in ${cookingCalendarObj[0].cookingDate} at ${cookingCalendarObj[0].street}?</p>`
             document.getElementById(this.modal.body).innerHTML = `
-            <div id="${this.modalTypes.cookingDate.firstAlert}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
+            <div id="${this.modalTypes.cookingDate.setCookingCapacity}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
             <div class=".container-fluid mx-auto my-auto w-100 text-center">
                 <div class="h4"><strong>How many meals</strong> will you cook on this cooking calendar date?</div>
                 <div class=".container-fluid mx-auto my-auto w-100 text-center">
@@ -1239,10 +1239,10 @@ class UICtrl {
             `
             udateActionButtonLayout(this,'btn-primary','Send',false)
         }
-        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.secondAlert){
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.initiateDelivery){
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send alert operning cooking date ${cookingCalendarObj[0].cookingDate.split(' ')[0]} to delivery?</p>`
             document.getElementById(this.modal.body).innerHTML = `
-            <div id="${this.modalTypes.cookingDate.secondAlert}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
+            <div id="${this.modalTypes.cookingDate.initiateDelivery}"class=".container-fluid mx-auto my-auto w-100 text-center" hidden>${coookingCalendarId}</div>
             <div class=".container-fluid mx-auto my-auto w-100 text-center">
                 <div class="h4">This action will open this cooking date to delivery and all users that paid their respective orders will be notified to start coming to the address to pick up their orders.</div>
             </div>
@@ -2584,10 +2584,10 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
             return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.closeToOrders}',this)`
         }
         if(status===5){
-            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.firstAlert}',this)`
+            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.setCookingCapacity}',this)`
         }
         if(status===7){
-            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.secondAlert}',this)`
+            return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.initiateDelivery}',this)`
         }
         return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.gameOver}',this)`
     }
@@ -2607,10 +2607,10 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
             return uiCtrl.modalTypes.cookingDate.closeToOrders
         }
         if(status===5){
-            return uiCtrl.modalTypes.cookingDate.firstAlert
+            return uiCtrl.modalTypes.cookingDate.setCookingCapacity
         }
         if(status===7){
-            return uiCtrl.modalTypes.cookingDate.secondAlert
+            return uiCtrl.modalTypes.cookingDate.initiateDelivery
         }
         return uiCtrl.modalTypes.cookingDate.gameOver
     }

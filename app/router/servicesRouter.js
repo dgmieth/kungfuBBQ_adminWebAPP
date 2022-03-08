@@ -28,8 +28,8 @@ servicesRouter.post('/newCookingDate',authCtrl.isAuth, cookingDatesAccessesCtrl.
 servicesRouter.post('/deleteCookingCalendarDate',authCtrl.isAuth, cookingDatesAccessesCtrl.deleteCookingCalendarDate, indexServicesCtrl.deleteCookingCalendarDate)
 servicesRouter.post('/openToOrders',authCtrl.isAuth, cookingDatesAccessesCtrl.openToOrders, indexServicesCtrl.openToOrders)
 servicesRouter.post('/closeToOrders',authCtrl.isAuth, cookingDatesAccessesCtrl.closeToOrders, indexServicesCtrl.closeToOrders)
-servicesRouter.post('/firstAlert',authCtrl.isAuth, cookingDatesAccessesCtrl.firstAlert, indexServicesCtrl.firstAlert)
-servicesRouter.post('/secondAlert',authCtrl.isAuth, cookingDatesAccessesCtrl.secondAlert, indexServicesCtrl.secondAlert)
+servicesRouter.post('/setCookingCapacity',authCtrl.isAuth, cookingDatesAccessesCtrl.setCookingCapacity, indexServicesCtrl.setCookingCapacity)
+servicesRouter.post('/initiateDelivery',authCtrl.isAuth, cookingDatesAccessesCtrl.initiateDelivery, indexServicesCtrl.initiateDelivery)
 //ORDER
 servicesRouter.get('/fetchOrdersForActiveFinishedCookingDates',authCtrl.isAuth,orderAccessesCtrl.fetchOrdersForActiveFinishedCookingDates, indexServicesCtrl.fetchOrdersForActiveFinishedCookingDates)
 servicesRouter.post('/deleteOrder',authCtrl.isAuth,orderAccessesCtrl.deleteOrder, indexServicesCtrl.deleteOrder)

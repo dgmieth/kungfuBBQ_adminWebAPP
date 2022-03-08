@@ -109,41 +109,41 @@ class AppCtrl {
                         reject(false)
                     })}})})
     }
-    generateInvitationCode(uiCtrl,email,resultsWrapperElementId,messageWrapperId,inputFieldId){
-        if(email===''){
-            return uiCtrl.showHideAlert(`alert-danger`,'You must inform a valid e-mail address','show')
-        }
-        const obj = {email: email.toLowerCase()}
-        console.log(obj)
-        fetch('/services/invitationCode',{
-            method: 'POST',
-            headers: {'Content-type':'application/json'},
-            body: JSON.stringify(obj)})
-        .then(answer => { 
-            if(answer.status===401){
-                uiCtrl.showHideUserModal(null,null,'hide',null)
-                uiCtrl.showHideAlert(`alert-warning`,'User has no access to create invitation codes','show')    
-            }else if(answer.redirected){return window.location.href = answer.url 
-            }else{
-                answer.json()
-                .then(response => {
-                    if(!response.hasErros){
-                        document.getElementById(inputFieldId).value = response.data.code
-                        document.getElementById(messageWrapperId).innerHTML = `Hi!
-                        We've just generated your invitation code to create your accont in the KungfuBBQ app. 
-                        Please, make sure to use this code <b>${response.data.code}</b> and this email <b>${response.data.email}</b> when registering.
-                        Thanks!`
-                        document.getElementById(resultsWrapperElementId).style.display = 'block'
-                    }else{
-                        uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-                    }
-                })
-                .catch(err => {
-                    console.log(err)
-                    uiCtrl.showHideUserModal(null,null,'hide',null)
-                    uiCtrl.showHideAlert(`alert-danger`,err,'show') })
-            }})
-    }
+    // generateInvitationCode(uiCtrl,email,resultsWrapperElementId,messageWrapperId,inputFieldId){
+    //     if(email===''){
+    //         return uiCtrl.showHideAlert(`alert-danger`,'You must inform a valid e-mail address','show')
+    //     }
+    //     const obj = {email: email.toLowerCase()}
+    //     console.log(obj)
+    //     fetch('/services/invitationCode',{
+    //         method: 'POST',
+    //         headers: {'Content-type':'application/json'},
+    //         body: JSON.stringify(obj)})
+    //     .then(answer => { 
+    //         if(answer.status===401){
+    //             uiCtrl.showHideUserModal(null,null,'hide',null)
+    //             uiCtrl.showHideAlert(`alert-warning`,'User has no access to create invitation codes','show')    
+    //         }else if(answer.redirected){return window.location.href = answer.url 
+    //         }else{
+    //             answer.json()
+    //             .then(response => {
+    //                 if(!response.hasErros){
+    //                     document.getElementById(inputFieldId).value = response.data.code
+    //                     document.getElementById(messageWrapperId).innerHTML = `Hi!
+    //                     We've just generated your invitation code to create your accont in the KungfuBBQ app. 
+    //                     Please, make sure to use this code <b>${response.data.code}</b> and this email <b>${response.data.email}</b> when registering.
+    //                     Thanks!`
+    //                     document.getElementById(resultsWrapperElementId).style.display = 'block'
+    //                 }else{
+    //                     uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 console.log(err)
+    //                 uiCtrl.showHideUserModal(null,null,'hide',null)
+    //                 uiCtrl.showHideAlert(`alert-danger`,err,'show') })
+    //         }})
+    // }
     sendNotification(dataCtrl,uiCtrl,data){
         return new Promise((resolve,reject)=>{
             fetch('/services/sendNotification',{
@@ -210,6 +210,7 @@ class AppCtrl {
                 }})})
     }
     updateCookingDateInformation(dataCtrl,uiCtrl,dataObj){
+        console.log(dataObj)
         return new Promise((resolve,reject)=> {
             fetch('/services/updateCookingCalendarDate', {
                 method: 'POST',
@@ -314,11 +315,20 @@ class AppCtrl {
                 }else{
                     answer.json()
                     .then(response => {
+                        console.log(response)
                         if(!response.hasErrors){
+                            uiCtrl.showHideAlert(`alert-success`,response.data,'show')
                             this.fetchCookingDates(dataCtrl,uiCtrl)
                             .then(value => { resolve(true)})
                             .catch(err => { reject(false) })
-                        }})
+                        }else{
+                            uiCtrl.showHideAlert(`alert-warning`,response.msg,'show')
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => { resolve(true)})
+                            .catch(err => { reject(false) })
+                            // uiCtrl.showHideSpinner('hide')
+                        }
+                    })
                     .catch(err => {
                         console.log(err)
                         uiCtrl.showHideUserModal(null,null,'hide',null)
@@ -352,9 +362,9 @@ class AppCtrl {
                         reject(false)})
                 }})})
     }
-    firstAlert(dataCtr,uiCtrl,dataObj){
+    setCookingCapacity(dataCtr,uiCtrl,dataObj){
         return new Promise((resolve,reject)=>{
-            fetch('/services/firstAlert', {
+            fetch('/services/setCookingCapacity', {
                 method: 'POST',
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(dataObj)
@@ -379,9 +389,9 @@ class AppCtrl {
                         reject(false)})
                 }})})
     }
-    secondAlert(dataCtrl,uiCtrl,body){
+    initiateDelivery(dataCtrl,uiCtrl,body){
         return new Promise((resolve,reject)=>{
-            fetch('/services/secondAlert', {
+            fetch('/services/initiateDelivery', {
                 method: 'POST',
                 headers: {'Content-type':'application/json'},
                 body: JSON.stringify(body)
@@ -422,6 +432,7 @@ class AppCtrl {
                 }else{
                     answer.json()
                     .then(response => {
+                        console.log(response)
                         if(!response.hasErrors){
                             dataCtrl.setOders = response.data
                             resolve(true)
@@ -449,10 +460,13 @@ class AppCtrl {
                 }else{
                     answer.json()
                     .then(response => {
+                        console.log(response)
                         if(!response.hasErrors){
                             dataCtrl.setOders = response.data                    
                             resolve(true)
                         }else{
+                            uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
                             reject(false)
                         }})
                     .catch(err => {
@@ -720,14 +734,14 @@ class AppCtrl {
 // APP STATE
     loadAppStateEventListeners(dataCtrl,uiCtrl){
         const appStateIds = uiCtrl.getIDs().sidebar.btns
-        document.getElementById(appStateIds.invitationCode).addEventListener('click',(e)=>{
-            uiCtrl.showHideSpinner('show')
-            this.setAppState = this.getAppStatesList._INVITATIONCODE
-            this.setAppSubState = this.getAppSubStatesList._INITIAL
-            uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
-            uiCtrl.showHideSpinner('hide')
-            this.toggleSidebar(null,uiCtrl)  
-        })
+        // document.getElementById(appStateIds.invitationCode).addEventListener('click',(e)=>{
+        //     uiCtrl.showHideSpinner('show')
+        //     this.setAppState = this.getAppStatesList._INVITATIONCODE
+        //     this.setAppSubState = this.getAppSubStatesList._INITIAL
+        //     uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
+        //     uiCtrl.showHideSpinner('hide')
+        //     this.toggleSidebar(null,uiCtrl)  
+        // })
         document.getElementById(appStateIds.orderDelivery).addEventListener('click',(e)=>{
             uiCtrl.showHideSpinner('show')
             this.previousState = this.getAppState
@@ -899,9 +913,9 @@ class AppCtrl {
             document.getElementById(subBtnsIds.btnTwo).addEventListener('click',(e)=>{
                 moduleUserSubState(this,uiCtrl,this.getAppSubStatesList._EXCLUDEDUSERS)
             })
-            document.getElementById(subBtnsIds.btnThree).addEventListener('click',(e)=>{
-                moduleUserSubState(this,uiCtrl,this.getAppSubStatesList._INVITATIONCODE)
-            })
+            // document.getElementById(subBtnsIds.btnThree).addEventListener('click',(e)=>{
+            //     moduleUserSubState(this,uiCtrl,this.getAppSubStatesList._INVITATIONCODE)
+            // })
         }
 
         //COOKING CALENDAR SUB STATES
@@ -1167,30 +1181,30 @@ class AppCtrl {
                     .then(value => { commonActions()})
                     .catch(err => { console.log('error closeToOrders',err);uiCtrl.showHideSpinner('hide')})
                 })
-            }else if(modalAction===modalActions.firstAlert){
+            }else if(modalAction===modalActions.setCookingCapacity){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
                     const formName = uiCtrl.getIDs().formsNames.firstAlertInfo
                     const form = document.getElementsByName(formName)[0]
-                    const cdId = document.getElementById(modalTypes.firstAlert).innerText
+                    const cdId = document.getElementById(modalTypes.setCookingCapacity).innerText
                     if(form.value===''||form.value===null){
                         return uiCtrl.showHideAlert('alert-danger','You <strong>must</strong> inform the <strong>how many meals</strong> will be cooked on this cooking calendar date.','show')
                     }else {
                         uiCtrl.showHideSpinner('show')
-                        appCtrl.firstAlert(dataCtrl,uiCtrl,{numberMeals: parseInt(form.value), cookingDateId: parseInt(cdId)})
+                        appCtrl.setCookingCapacity(dataCtrl,uiCtrl,{numberMeals: parseInt(form.value), cookingDateId: parseInt(cdId)})
                         .then(val => {
                             // uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,appCtrl)
                             commonActions()})
-                        .catch(err => {console.log('error firstAlert',err);uiCtrl.showHideSpinner('hide')})
+                        .catch(err => {console.log('error setCookingCapacity',err);uiCtrl.showHideSpinner('hide')})
                     }})
-            }else if(modalAction===modalActions.secondAlert){
+            }else if(modalAction===modalActions.initiateDelivery){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
                     uiCtrl.showHideSpinner('show')
-                    const cdId = parseInt(document.getElementById(modalTypes.secondAlert).innerText)
-                    appCtrl.secondAlert(dataCtrl,uiCtrl,{cookingDateId:cdId})
+                    const cdId = parseInt(document.getElementById(modalTypes.initiateDelivery).innerText)
+                    appCtrl.initiateDelivery(dataCtrl,uiCtrl,{cookingDateId:cdId})
                     .then(value => {
                         uiCtrl.showHideAlert('alert-success','Pickup alert <strong>sent</strong>','show')
                         commonActions()})
-                    .catch(err => {console.log('error secondAlert',err);uiCtrl.showHideSpinner('hide') })
+                    .catch(err => {console.log('error initiateDelivery',err);uiCtrl.showHideSpinner('hide') })
                     })
             }else if(modalAction===modalActions.gameOver){
                 uiCtrl.showHideAlert('alert-warning','All possible actions for this cooking calendar date have beeing completed.','show')
@@ -1200,6 +1214,7 @@ class AppCtrl {
                     const cookingCalendarInfo = document.getElementsByName(uiCtrl.getIDs().formsNames.cookingCalendarInfo)
                     var msg = ''
                     const selectedDishes = dataCtrl.returnData('selectedDishes')
+                    const dishes = dataCtrl.returnData('dishes')
                     for(let info of cookingCalendarInfo){
                         const value = info.value
                         const id = info.id
@@ -1217,8 +1232,9 @@ class AppCtrl {
                         }
                         dataObj[info.id] = info.value
                     }
-                    if(selectedDishes.length===0){
-                        msg = `${msg}You MUST select at least ONE dish.`
+                    var fifos = dishes.filter(dish=> { if(selectedDishes.includes(dish.id) && dish.fifo ===1) {return true }})
+                    if(selectedDishes.length===0 || fifos.length === selectedDishes.length){
+                        msg = `${msg}You MUST select at least ONE dish that is not First Come First Served.`
                     }else{
                         dataObj.dishes = selectedDishes
                         dataObj.cookingDateId = dataCtrl.returnData('tempSelectedData').id.split('-')[1]
@@ -1238,7 +1254,8 @@ class AppCtrl {
                     .catch(err => {console.log('error updateCookingDateInformation',err);uiCtrl.showHideSpinner('hide')})
                 })
             }else if(modalAction===modalActions.newCookingCalendar){
-                appCtrl.createNewCookingCalendarDate(dataCtrl,uiCtrl,{newDate: dataCtrl.returnData('newCookingCalendarDate')})
+                appCtrl.createNewCookingCalendarDate(dataCtrl,uiCtrl,{newDate: dataCtrl.returnData('newCookingCalendarDate'),
+                                                    now: `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()} ${new Date().getHours()}:${new Date().getMinutes()}:00.0`})
                 .then(value => { uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl) })
                 .catch(err => { console.log('error createNewCookingCalendarDate')})
             }else if(modalAction===modalActions.sendToAll){
@@ -1258,12 +1275,13 @@ class AppCtrl {
                     }else{
                         answer.json()
                         .then(response => {
+                            console.log(response)
                             uiCtrl.showHideOrderModal(null,null,'hide',null)
                             uiCtrl.showHideSpinner('hide')
                             if(!response.hasErros){
-                                uiCtrl.showHideAlert(`alert-info`,response.msg,'show')
+                                uiCtrl.showHideAlert(`alert-info`,response.data,'show')
                             }else{
-                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')}})
+                                uiCtrl.showHideAlert(`alert-danger`,response.data,'show')}})
                         .catch(err => {
                             console.log('orderModals - sendToAll',err);
                             uiCtrl.showHideSpinner('hide')
@@ -1320,13 +1338,13 @@ class AppCtrl {
             uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.closeToOrders)
             loadListenersForBtnAction(modalActions.closeToOrders)
         }
-        if(action===modalActions.firstAlert){
-            uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.firstAlert)
-            loadListenersForBtnAction(modalActions.firstAlert)
+        if(action===modalActions.setCookingCapacity){
+            uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.setCookingCapacity)
+            loadListenersForBtnAction(modalActions.setCookingCapacity)
         }
-        if(action===modalActions.secondAlert){
-            uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.secondAlert)
-            loadListenersForBtnAction(modalActions.secondAlert)
+        if(action===modalActions.initiateDelivery){
+            uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.initiateDelivery)
+            loadListenersForBtnAction(modalActions.initiateDelivery)
         }
         if(action===modalActions.gameOver){
             loadListenersForBtnAction(modalActions.gameOver)
@@ -1382,6 +1400,7 @@ class AppCtrl {
             //--------------------------------------------------
             //BEGIN VALIDATION ---------------------------------
             var msg = ''
+            console.log(newDishInfoArray)
             for(let info of newDishInfoArray){
                 if(info.id===uiCtrl.getIDs().inputs.dishes.ids.name){
                     if(info.value===''||info.value===null){
@@ -1393,7 +1412,11 @@ class AppCtrl {
                         msg = `${msg}You MUST inform the price of the dish. `
                     }
                 }
-                dataObj[`${info.id}`] = info.value === '' ||  info.value === null ? null : info.value
+                if(info.id===uiCtrl.getIDs().inputs.dishes.ids.fifo){
+                    dataObj[`${info.id}`] = document.getElementById(uiCtrl.getIDs().inputs.dishes.ids.fifo).checked ? 1 : 0    
+                }else{
+                    dataObj[`${info.id}`] = info.value === '' ||  info.value === null ? null : info.value
+                }
             }
             if(msg!==``){
                 //uiCtrl.showHideCookingCalendarModal(null,null,'hide',null,null)
@@ -1448,7 +1471,7 @@ class AppCtrl {
                         if(dish.id === dataObj[uiCtrl.getIDs().inputs.dishes.ids.id] &&
                         dish.price === dataObj[uiCtrl.getIDs().inputs.dishes.ids.price] &&
                         dish.ingredients === dataObj[uiCtrl.getIDs().inputs.dishes.ids.ingredients] &&
-                        dish.description === dataObj[uiCtrl.getIDs().inputs.dishes.ids.description] ){
+                        dish.description === dataObj[uiCtrl.getIDs().inputs.dishes.ids.description]){
                             return true
                         }
                     })
@@ -1530,7 +1553,7 @@ class AppCtrl {
             if(action===modalActions.delete){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
                     appCtrl.deleteOrder(dataCtrl,uiCtrl,{orderId: parseInt(element.id.split('-')[1])})
-                    .then(valeu => { commonActions() })
+                    .then(value => { commonActions() })
                     .catch(err => {console.log('error deleteOrder',err)})
                 })
             }
@@ -1565,10 +1588,12 @@ class AppCtrl {
             if(action===modalActions.reimburse){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
                     uiCtrl.showHideSpinner('show')
+                    const reimburseTip = document.getElementById(uiCtrl.getIDs().inputs.dishes.ids.tipReimbursed).checked ? 1 : 0
+                    console.log(document.getElementById(uiCtrl.getIDs().inputs.dishes.ids.tipReimbursed).checked)
                     fetch('/services/reimburse',{
                         method: 'POST',
                         headers: {'Content-type':'application/json'},
-                        body: JSON.stringify({orderId: parseInt(element.id.split('-')[1])})})
+                        body: JSON.stringify({orderId: parseInt(element.id.split('-')[1]), reimburseTip:reimburseTip   }) })
                     .then(answer => {  
                         if(answer.redirected){ return window.location.href = answer.url }
                         return answer.json()})
@@ -1577,11 +1602,12 @@ class AppCtrl {
                             uiCtrl.showHideAlert(`alert-info`,`Order reimbursed`,'show')
                             appCtrl.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
                             .then(value => {
+                                console.log('================inside')
                                 uiCtrl.showHideSpinner('hide')
                                 uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
                                 uiCtrl.showHideOrderModal(null,null,'hide',null)
                             })
-                            .catch(err => {console.log('orderModl fetchUsers ->',err);uiCtrl.showHideSpinner('show');uiCtrl.showHideOrderModal(null,null,'hide',null)})
+                            .catch(err => {console.log('orderModl fetchUsers ->',err);uiCtrl.showHideSpinner('hide');uiCtrl.showHideOrderModal(null,null,'hide',null)})
                         }else{
                             uiCtrl.showHideSpinner('hide')
                             uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')}})
@@ -1840,7 +1866,7 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
         const appCtrl = this
         flatpickr(document.getElementById(btnId), {
             enableTime: true,
-            dateFormat: "Y-m-d H:i",
+            dateFormat: "Y-m-d",
             weekNumbers: true,
             minDate: "today",
             plugins: [new confirmDatePlugin({
@@ -1851,8 +1877,9 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
             onClose: function(selectedDates,dateStr,instance){
                 console.log(dateStr)
                 console.log(instance)
+                var minute = selectedDates[0].getMinutes() === 0 ? `00` : selectedDates[0].getMinutes() <= 9 ? `0${selectedDates[0].getMinutes()}` : selectedDates[0].getMinutes()
                 if(dateStr!==''){
-                    dataCtrl.setNewCookingCalendarDate = dateStr
+                    dataCtrl.setNewCookingCalendarDate = `${dateStr} ${selectedDates[0].getHours()}:${minute}:00.0`
                     appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,modalActionNewCookingCalendarDate,null)
                 }
             }});

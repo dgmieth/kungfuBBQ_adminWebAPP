@@ -15,15 +15,15 @@ module.exports = class CatoringMessage {
     // ======================================================================
     // CRUD =================================================================
     markMessageAsRead(){
-        return db.query(`CALL readCatoringMessage(?,?);`, 
+        return db.query(`CALL catoring_readMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
     deleteMessage(){
-        return db.query(`CALL deleteCatoringMessage(?,?);`, 
+        return db.query(`CALL catoring_deletegMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
     archiveMessage(){
-        return db.query(`CALL archiveCatoringMessage(?,?);`, 
+        return db.query(`CALL catoring_archiveMessage(?,?);`, 
                 [`${this.userId}`,`${this.id}`])
     }
      // =====================================================================

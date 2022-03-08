@@ -4,7 +4,7 @@ console.log(process.env.DB_NAME)
 //env variables
 var dbName = process.env.DB_NAME
 module.exports = class CookingCalendar {
-    constructor(id, userId = null, mealsForThis = null, ) {
+    constructor(id, userId = null, mealsForThis = null) {
         this.id = id
         this.userId = userId
         this.mealsForThis = mealsForThis
@@ -14,64 +14,50 @@ module.exports = class CookingCalendar {
     // ======================================================================
     // CRUD =================================================================
     fetchById(){   
-        return db.query(`SELECT
-                        cd.*,
-                        di.dish_id,
-                        di.name,
-                        di.description
-                    FROM cookingDates cd 
-                    LEFT JOIN (SELECT 
-                                    md.menu_id, 
-                                    d.id as dish_id, 
-                                    d.name, d.ingredients, d.description 
-                                FROM menu_dish md 
-                                LEFT JOIN dish d ON d.id = md.dish_id 
-                                WHERE  md.excluded = 0 AND d.excluded =0
-                                ) di ON di.menu_id = cd.menu_id
-                    WHERE cd.id = ?;`,[`${this.id}`])
+        return db.query(`CALL foodtruck_cd_fetchCookingEventById(?);`,[`${this.id}`])
     }
-    updateMealsForThisCookingDate(){
-        return db.query(`CALL updateMealsForThisAndMealsOnList(?,?,?);`,
+    setCookingCapacity(){
+        return db.query(`CALL foodtruck_cd_setCookingCapacityForCookingDateEvent(?,?,?,@returnCode);SELECT @returnCode as returnCode;`,
         [`${this.id}`,`${this.mealsForThis}`,`${this.userId}`])
     }
-    openToDelivery(){
-        return db.query(`CALL adm_SecondAlertDeliveryAlert(?, ?, @returnCode);`,[`${this.id}`,`${this.userId}`])
+    initiateDelivery(){
+        return db.query(`CALL foodtruck_cd_initiateDelivery(?, ?, @returnCode);SELECT @returnCode as returnCode;`,[`${this.id}`,`${this.userId}`])
     }
      // =====================================================================
     // CLASS METHODS ========================================================
     // ======================================================================
     // CRUD =================================================================
     static fetchAllData(){
-        return db.query(`CALL adm_FetchCookingDates();`)
+        return db.query(`CALL foodtruck_cd_fetchAllCookingDates();`)
     }
     // update a specifica cooking calendar date -> must send json object
     static updateCookingDate(jsonObject){
         console.log(jsonObject)
-        return db.query(`CALL updateCookingDate(?,@returnCode);SELECT @returnCode;`,[`${jsonObject}`])
+        return db.query(`CALL foodtruck_cd_updateCookingDate(?,@returnCode);SELECT @returnCode;`,[`${jsonObject}`])
     }
     // create a new cookinga calendar date
-    static newCookingDate(userId,cookingDate){
-        return db.query(`CALL createNewCookingDate(?,?,@returnCode);SELECT @returnCode;`,
-                    [`${userId}`,`${cookingDate}`])
+    static newCookingDate(userId,cookingDate,currentTimeStamp){
+        return db.query(`CALL foodtruck_cd_newCookingDate(?,?,@returnCode);SELECT @returnCode;`,
+                    [`${userId}`,`${cookingDate}`,])
     }
     //delete a cooking calendar date
     static deleteCoookingDate(userId,cookingDate){
-        return db.query(`CALL deleteCookingDate(?,?,@returnCode);SELECT @returnCode as returnCode;`,
+        return db.query(`CALL foodtruck_cd_deleteCookingDate(?,?,@returnCode);SELECT @returnCode as returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     //open cooking calendar date to orders
     static openToOrders(userId,cookingDate){
-        return db.query(`CALL openToOrders(?,?,@returnCode);SELECT @returnCode;`,
+        return db.query(`CALL foodtruck_cd_openToOrders(?,?,@returnCode);SELECT @returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     //open cooking calendar date to orders
     static closeToOrders(userId,cookingDate){
-        return db.query(`CALL closeToOrders(?,?,@returnCode);SELECT @returnCode;`,
+        return db.query(`CALL foodtruck_cd_closeToOrders(?,?,@returnCode);SELECT @returnCode;`,
                     [`${userId}`,`${cookingDate}`])
     }
     /*get user ids to send notification*/
     static getUserIdsForNotification(cookingDateId,all_paid){
-        return db.query(`CALL adm_getUserIdsForNotification(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
+        return db.query(`CALL notification_getUserIdsForManualNotifications(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
     }
     
  }

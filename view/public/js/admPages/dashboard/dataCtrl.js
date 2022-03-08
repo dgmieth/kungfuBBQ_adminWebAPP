@@ -24,6 +24,9 @@ class DataCtrl {
             archived: [],
             deleted: []
         }
+        this.paidOrderStatusArray = [5,8,9,10,11,12]
+        this.notMadeToThisListOrderStatusArray = [6,7]
+        this.waitingListOrderStatusArray = [4]
     }
 //=================================================================================================
 //=================================================================================================
@@ -37,7 +40,7 @@ class DataCtrl {
     set setUsers(array){
         this.users.hasValues = true
         var tempArray = []
-        console.log(array.data)
+        //console.log(array.data)
         array.data[0].forEach(user => {
             var object = user
             object.searchString = `${user.name} ${user.email} ${user.phoneNumber} ${user.mobileOS}`
@@ -78,7 +81,7 @@ class DataCtrl {
         this.cookingCalendar = tempArray
     }
     set setNewCookingCalendarDate(dateStr){
-        this.newCookingCalendarDate = `${dateStr}:00.0`
+        this.newCookingCalendarDate = dateStr
     }
     set setOders(orders){
         this.orders = orders
@@ -97,6 +100,7 @@ class DataCtrl {
                 ingredients: dish.ingredients,
                 name: dish.name,
                 price: dish.price,
+                fifo: dish.fifo,
                 searchString: `${dish.name.toLowerCase()} ${dish.price} ${dish.description === null || dish.description === '' ? '' : dish.description} ${dish.ingredients === null || dish.ingredients === '' ? '' : dish.ingredients}`
             })
         })
@@ -262,6 +266,16 @@ class DataCtrl {
         if(selectionText===`order`){
             return this.orders
         }
+        if(selectionText===`orderButExcluded`){
+            // return this.orders
+            var filter = this.orders.filter(a => {
+                if( a.order_status_id!==999) { return true }
+            })
+            filter.forEach(order => {   
+                var filterDishes = order.dishes.filter(a => {   if(a.excludedDishExtra_dish===0){ return true}      })
+                order.dishes = filterDishes  })
+            return filter
+        }
         if(selectionText==='activerOrders'){
             var returnArray = []
             if(this.orders===null){return []}
@@ -269,9 +283,10 @@ class DataCtrl {
                 if((order.order_status_id <= 5 ||
                     order.order_status_id === 8 ||
                     order.order_status_id === 9 ||
-                    order.order_status_id === 13) && 
+                    order.order_status_id === 13 ||
+                    order.order_status_id === 14) && 
                     order.order_status_id !== null && order.activeOrder ===`Active`){
-                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order))
+                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order,true))
                 }
             })
             return returntSortedArrayForOrdersActiveDeliveredExcluded(returnArray)
@@ -284,9 +299,10 @@ class DataCtrl {
                 if((order.order_status_id <= 5 ||
                     order.order_status_id === 8 ||
                     order.order_status_id === 9 ||
-                    order.order_status_id === 13) && 
+                    order.order_status_id === 13 ||
+                    order.order_status_id === 14) && 
                     order.order_status_id !== null && order.activeOrder ===`Inactive`){
-                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order))
+                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order,true))
                 }
             })
             return returntSortedArrayForOrdersActiveDeliveredExcluded(returnArray)
@@ -298,7 +314,7 @@ class DataCtrl {
                 var orderObj = {}
                 if(order.order_status_id===10 || 
                     order.order_status_id===11 ){
-                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order))
+                    returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order,true))
                 }
             })
             return returntSortedArrayForOrdersActiveDeliveredExcluded(returnArray)
@@ -330,7 +346,7 @@ class DataCtrl {
                 if(cdId!==null){
                     this.orders.forEach(order => {
                         if(order.cookingDates_id===cdId && 
-                            order.order_status_id===9){ 
+                            order.order_status_id===9 || order.order_status_id===14){ 
                                 orders.push(order)    
                             }
                     })
@@ -410,9 +426,18 @@ class DataCtrl {
         if(selectionText==='excludedMsgs'){
             return this.catoring.excluded
         }
+        if(selectionText==='paidStatus'){
+            return this.paidOrderStatusArray
+        }
+        if(selectionText==='notMadeToListStatus'){
+            return this.notMadeToThisListOrderStatusArray
+        }
+        if(selectionText==='waitingListStatus'){
+            return this.waitingListOrderStatusArray
+        }
     }
 }
-function returnObjecForOrdersActiveDeliveredExcluded(dataCtrl,order){
+function returnObjecForOrdersActiveDeliveredExcluded(dataCtrl,order,activeOrders = false){
     var orderObj = {}
     const users = dataCtrl.returnData('users')
     const cookingCalendar = dataCtrl.returnData('cookingCalendar')
@@ -427,6 +452,7 @@ function returnObjecForOrdersActiveDeliveredExcluded(dataCtrl,order){
         }
     })
     cookingCalendar.forEach(cd => {
+        //console.log(cd.dishes)
         if(cd.id===order.cookingDates_id){
             orderObj.cookingDate = cd.cookingDate
             orderObj.cdSortDate = cd.sortDate
@@ -450,12 +476,25 @@ function returnObjecForOrdersActiveDeliveredExcluded(dataCtrl,order){
         searchString = `${searchString} ${dish.name} ${dish.quantity}`
     })
     var totalMeals = 0
-    var totalDishes = order.dishes.length
+    var totalDishes = 0
     var dishesTotal = 0.00
     order.dishes.forEach(dish => {
-        searchString = `${searchString} ${dish.name} ${dish.quantity}`
-        totalMeals += parseInt(dish.dishQtty)
-        dishesTotal += parseFloat(dish.dish_price)
+        //console.log(dish)
+        if(activeOrders){
+            // console.log('enteredActiveOrder')
+            if(dish.excludedDishExtra_dish===0){
+                searchString = `${searchString} ${dish.name} ${dish.quantity}`
+                totalMeals += parseInt(dish.dishQtty)
+                dishesTotal += parseFloat(dish.dish_price)
+                totalDishes += 1
+            }
+        }else{
+            //console.log('didntEnteredActiveOrder')
+            searchString = `${searchString} ${dish.name} ${dish.quantity}`
+            totalMeals += parseInt(dish.dishQtty)
+            dishesTotal += parseFloat(dish.dish_price)
+            totalDishes += 1
+        }
     })
     var extrasTotal = 0.00
     order.extras.forEach(extra => {

@@ -85,7 +85,7 @@ exports.closeToOrders = (req,res,next) => {
     }
 }
 //choose how many meals will be cooked and send alert to the needed amount of users
-exports.firstAlert = (req,res,next) => {
+exports.setCookingCapacity = (req,res,next) => {
     console.log(process.env.COOKING_CALENDAR_COOKING_CAPACITY.split(','))
     console.log(req.session.accesses)
     if(checkAccesses.checkUserAccess(process.env.COOKING_CALENDAR_COOKING_CAPACITY,req)){
@@ -97,7 +97,7 @@ exports.firstAlert = (req,res,next) => {
     }
 }
 //send alert to users to pickup their orders
-exports.secondAlert = (req,res,next) => {
+exports.initiateDelivery = (req,res,next) => {
     console.log(process.env.COOKING_CALENDAR_START_DELIVERY.split(','))
     console.log(req.session.accesses)
     if(checkAccesses.checkUserAccess(process.env.COOKING_CALENDAR_START_DELIVERY,req)){

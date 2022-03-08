@@ -20,7 +20,8 @@ exports.sortCookingDates = (data) => {
                         name: reg.name,
                         ingredients: reg.ingredients,
                         description: reg.description,
-                        price: reg.price
+                        price: reg.price,
+                        dishFifo: reg.dishFifo,
                     })
                 })
             }
@@ -31,6 +32,7 @@ exports.sortCookingDates = (data) => {
                 cookingDate_status_id: cd.cookingDate_status_id,
                 cdMonth: parseInt(cd.cdMonth),
                 nmMonth: cd.nmMonth,
+                timeFormat:cd.timeFormat,
                 cookingDate_status: cd.cookingDateStatusName,
                 meals_quantity: cd.meals_quantity,
                 mealsForThis: cd.mealsForThis,
@@ -81,7 +83,9 @@ exports.sortOrdersForActiveFinishedCookingDates = (data) => {
                             dish_name: reg.dish_name ,
                             dish_price: reg.dishPrice,
                             dishQtty: reg.dishQtty ,
-                            observation: reg.observation
+                            dishFifo: reg.dishFifo,
+                            observation: reg.observation,
+                            excludedDishExtra_dish:reg.excludedDishExtra 
                         }
                     )
                 }
@@ -93,7 +97,8 @@ exports.sortOrdersForActiveFinishedCookingDates = (data) => {
                             extras_name: reg.extras_name ,
                             extrasQtty: reg.extrasQtty ,
                             observation: reg.observation,
-                            extras_price: reg.rextrasPrice
+                            extras_price: reg.rextrasPrice,
+                            excludedDishExtra_extra:reg.excludedDishExtra
                         }
                     )
                 }
@@ -107,6 +112,7 @@ exports.sortOrdersForActiveFinishedCookingDates = (data) => {
             dataObj.excludedIn = datetimeFormatter(order.excludedIn)
             dataObj.email = order.email
             dataObj.name = order.name
+            dataObj.phoneNumber = order.phoneNumber
             dataObj.activeOrder = order.activeOrder
             dataObj.orderList_id = order.orderList_id
             dataObj.cookingDates_id = order.cookingDates_id
@@ -114,6 +120,8 @@ exports.sortOrdersForActiveFinishedCookingDates = (data) => {
             dataObj.cookingDateStatus = order.cookingDateStatus
             dataObj.order_status_id = order.order_status_id
             dataObj.orderStatus = order.orderStatus
+            dataObj.tipAmount = parseFloat(order.tipAmount)
+            dataObj.tipReimbursed = order.tipReimbursed
             dataArray.push(dataObj)
         }
     })
@@ -133,7 +141,8 @@ exports.sortAllDishes = (data) => {
             id: reg.id,
             ingredients:  reg.ingredients,
             name:  reg.name,
-            price:  reg.price
+            price:  reg.price,
+            fifo: reg.fifo
         })
     })
     return dataArray

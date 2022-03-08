@@ -11,118 +11,92 @@ const datetimeFormatter = require('../supportFunctions/datetimeFormatter')
 const invitationCodeGenerator = require('../supportFunctions/invitationCodeGenerator')
 const sorter = require('../supportFunctions/sorter')
 //return object
+//return object
 const returnObject = {
-    hasErrors: true,
+    hasErrors: false,
     data: null,
-    msg: null
-}
+    msg: null}
+function returnErroMessage(msg,res){
+    returnObject.hasErrors = true
+    returnObject.msg = msg
+    res.json(returnObject)}
 // ======================================================================
 // CTRL FUNCTIONS =======================================================
 // ======================================================================
 // FETCH ALL DISHES  ====================================================
 exports.fetchAllDishes = (req,res,next) => {
-    console.log('fetchAllDishes -> ')
-    function returnErroMessage(msg){
-        returnObject.hasErrors = true
-        returnObject.msg = msg
-        res.json(returnObject) }
+    console.log('fetchAllDishes')
     Dish.fetchAll()
     .then(([data,meta])=> {
-        if(data){
+        if(data[0]){
             returnObject.hasErrors = false
-            returnObject.data = sorter.sortAllDishes(data)
+            returnObject.data = sorter.sortAllDishes(data[0])
             res.json(returnObject)
         }else{
-            return returnErroMessage('Nothing found in database')}})
+            return returnErroMessage('Nothing found in database',res )  }   })
     .catch(err => {
         console.log(err)
-        return returnErroMessage(`Nothing found in database. ${err}`)})
+        return returnErroMessage(`Nothing found in database. ${err}`,res )  })
 }
 // FETCH ALL DISHES  ====================================================
 exports.newDish = (req,res,next) => {
-    console.log(req.body)
-    function returnErroMessage(msg){
-        returnObject.hasErrors = true
-        returnObject.msg = msg
-        res.json(returnObject)}
-    const dish = new Dish(req.body.dishName,req.body.dishPrice,req.body.dishDescription,req.body.dishIngredients,req.session.User.id)
+    console.log('newDish')
+    const dish = new Dish(req.body.dishName,req.body.dishPrice,req.body.dishDescription,req.body.dishIngredients,req.session.User.id,req.body.fifo)
     dish.newDish()
     .then(([data,meta])=> {
         if(data){
-            fetchAllDishes()
-            .then(value => {
-                return res.json(value)})
+            fetchAllDishes(res)
         }else{
-            return returnErroMessage('Not possible to create dish at this time!')}})
+            return returnErroMessage('Not possible to create dish at this time!', res)  } })
     .catch(err => {
         console.log(err)
-        return returnErroMessage(`Not possible to create dish at this time! ${err}`)})
+        return returnErroMessage(`Not possible to create dish at this time! ${err}`,res)    })
 }
 //edit dish information
 exports.editDish = (req,res,next) => {
     console.log('editDish')
-    console.log(req.body)
-    function returnErroMessage(msg){
-        returnObject.hasErrors = true
-        returnObject.msg = msg
-        res.json(returnObject)}
-    const dish = new Dish(null,req.body.dishPrice,req.body.dishDescription,req.body.dishIngredients,null)
+    const dish = new Dish(null,req.body.dishPrice,req.body.dishDescription,req.body.dishIngredients,null,null)
     dish.setId = req.body.dishId
     dish.setUpdatedBy = req.session.User.id
     dish.updateDish()
     .then(([data,meta])=>{
         if(data){
-            fetchAllDishes()
-            .then(value => {
-                return res.json(value)})
-            .catch(err=>{
-                return returnErroMessage('Not possible to retrieve dishes information from database!')})
+            fetchAllDishes(res)
         }else{
-            return returnErroMessage('Not possible to edit dish at this time!')}})
+            return returnErroMessage('Not possible to edit dish at this time!',res) }   })
     .catch(err => {
         console.log(err)
-        return returnErroMessage(`Not possible to edit dish at this time! ${err}`)})
+        return returnErroMessage(`Not possible to edit dish at this time! ${err}`,res)  })
 }
 //delete dish from database
 exports.deleteDish = (req,res,next) => {
     console.log('deleteDish')
-    console.log(req.body)
-    function returnErroMessage(msg){
-        returnObject.hasErrors = true
-        returnObject.msg = msg
-        res.json(returnObject)}
     const dish = new Dish(null,null,null,null,null)
     dish.setId = req.body.dishId
     dish.setUpdatedBy = req.session.User.id
     dish.deleteDish()
     .then(([dishRe,meta])=>{
-        console.log(dishRe)
         if(dishRe[1][0]['returnCode']===-2){
             return returnErroMessage('This dish cannot be deleted because it is in use in one or more active cooking date events')}
         var data = dishRe[0]
         if(data){
-            fetchAllDishes()
-            .then(value => {
-                return res.json(value)})
+            fetchAllDishes(res)
         }else{
-            return returnErroMessage('Not possible to edit dish at this time!')} })
+            return returnErroMessage('Not possible to edit dish at this time!',res) }    })
     .catch(err => {
         console.log(err)
         return returnErroMessage(`Not possible to edit dish at this time! ${err}`)})
 }
 //COMMONG FUNCTIONS
-function fetchAllDishes(){
-    return new Promise((resolve,reject)=> {
-        Dish.fetchAll()
-        .then(([data,meta])=> {
-            if(data){
-                returnObject.hasErrors = false
-                returnObject.data = data
-            }else{
-                returnObject.msg = 'Nothing found in database'}
-            resolve(returnObject)})
-        .catch(err => {
-            console.log(err)
-            returnObject.msg = `Nothing found in database. ${err}`
-            reject(returnObject)})})
+function fetchAllDishes(res){
+    Dish.fetchAll()
+    .then(([data,meta])=> {
+        if(data[0]){
+            returnObject.hasErrors = false
+            returnObject.data = data[0]
+        }else{  returnObject.msg = 'Nothing found in database'  }
+        return res.json(returnObject)  })
+    .catch(err => {
+        console.log(err)
+        return returnErroMessage('Not possible to retrieve dishes information from database!',res)  })
 }

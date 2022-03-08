@@ -130,8 +130,8 @@ exports.newCookingDate = cookingCalendarCtrl.newCookingDate
 exports.deleteCookingCalendarDate = cookingCalendarCtrl.deleteCookingCalendarDate
 exports.openToOrders = cookingCalendarCtrl.openToOrders
 exports.closeToOrders = cookingCalendarCtrl.closeToOrders
-exports.firstAlert = cookingCalendarCtrl.firstAlert
-exports.secondAlert = cookingCalendarCtrl.secondAlert
+exports.setCookingCapacity = cookingCalendarCtrl.setCookingCapacity
+exports.initiateDelivery = cookingCalendarCtrl.initiateDelivery
 // ======================================================================
 // ORDERS ===============================================================
 exports.fetchOrdersForActiveFinishedCookingDates = orderCtrl.fetchOrdersForActiveFinishedCookingDates
