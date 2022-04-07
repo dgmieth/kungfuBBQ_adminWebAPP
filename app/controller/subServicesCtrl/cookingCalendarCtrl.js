@@ -39,6 +39,7 @@ exports.allCookingCalendar = (req,res,next) => {
 }
 // COOKING DATE -> UPDATE A COOKING DATE ================================
 exports.updateCookingCalendarDate = (req,res,next)=>{
+    console.log('updateCookingCalendarDate =================================================')
     console.log(req.body)
     const addressString = `${req.body.ccdStreet.replace(/\W/g,'+').toLowerCase()},${req.body.cctCity.toLowerCase()},${req.body.ccdState.toLowerCase()}`
     axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${process.env.MAPQUEST_KEY}&location=${addressString}`)
@@ -249,6 +250,25 @@ exports.initiateDelivery = (req,res,next) => {
         console.log('initiateDelivery->',err)
         return returnErroMessage(`Not possible to open this cooking date to delivery.`,res) })
 }
+// COOKING DATE -> UDATE START END TIMES =============================
+exports.updateStartEndTimes = (req,res,next) => {
+    console.log(`cookingCalendarCtrl -> updateStartEndTimes`)
+    console.log(req.body)
+    CookingCalendar.updateStartEndTime(req.body.cdId,req.body.startTime, req.body.endTime,req.session.User.id)
+    .then(([data1,meta1])=>{
+        // console.log(data1)
+        if(data1){
+            if((data1[1][0]).returnCode===-2){   return returnErroMessage(`End time must be after start time.`,res)   }
+            returnObject.hasErrors = false
+            returnObject.data = data1
+            return res.json(returnObject)}
+        return returnErroMessage(`Not possible to update start and end times at this moment.`,res)   
+    })
+    .catch(err => {
+        console.log(err)
+        return returnErroMessage(`Not possible to update start and end times at this moment.`,res)   
+    })
+}
 /*
     ==========================================================================================================================
                             CODE REFACTORING ----> SUPPORT FUNCTIONS
@@ -268,6 +288,7 @@ function jsonObjectForUpdateCookingDate(req,data,latitude,longitude){
         ccdState: req.body.ccdState,
         ccdCountry: req.body.ccdCountry  === null ||req.body.ccdCountry === '' ? '' : req.body.ccdCountry,
         ccdZipcode: req.body.ccdZipcode  === null ||req.body.ccdZipcode === '' ? '' : req.body.ccdZipcode,
+        ccdVenue: req.body.ccdVenue,
         includeDishes: includeDishes,
         excludeDishes: excludeDishes,
         cookingDateId: req.body.cookingDateId,

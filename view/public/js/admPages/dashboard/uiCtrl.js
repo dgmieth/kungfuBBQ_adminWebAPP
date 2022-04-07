@@ -51,7 +51,16 @@ class UICtrl {
                 city: 'cctCity',
                 state: 'ccdState',
                 country: 'ccdCountry',
-                zipcode: 'ccdZipcode'
+                zipcode: 'ccdZipcode',
+                venue: 'ccdVenue',
+                timeEdition:{
+                    startHours:'startHours',
+                    startMinutes:'startMinutes',
+                    startAmPM:'startAmPM',
+                    endHours:'endHours',
+                    endMinutes:'endMinutes',
+                    endAmPM:'endAmPM'
+                }
             },
             dishes: {
                 ids: {
@@ -112,6 +121,7 @@ class UICtrl {
             cookingDate: {
                 newCookingCalendar: 'newCookingCalendar',
                 listOrders:'listOrders',
+                editStartEndTimes: 'editStartEndTimes',
                 edit:'edit',
                 viewDetails: 'viewDetails',
                 openToOrders:'openToOrders',
@@ -1369,6 +1379,70 @@ class UICtrl {
             `
             udateActionButtonLayout(this,'btn-danger','Delete',false)
         }
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.editStartEndTimes){
+            console.log(cookingCalendarObj)
+            console.log(`\#${this.inputs.cookingCalendarDate.timeEdition.startHours}`)
+            function setTimes(timeStamp,startTime = true,uiCtrl){
+                var hourStart = parseInt(timeStamp.split(':')[0])
+                var minStart = Math.ceil(parseInt(timeStamp.split(':')[1].substr(0,2)))
+                var amPmStart = timeStamp.split(':')[1].substr(2,2)
+                if(hourStart<=9){
+                    hourStart = `0${hourStart}`
+                }
+                if(minStart<=9){
+                    minStart = `0${minStart}`
+                }
+                if(startTime){
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.startHours}`).children[0].value = hourStart
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.startMinutes}`).children[0].value = minStart
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.startAmPM}`).children[0].value = amPmStart                
+                }else{
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.endHours}`).children[0].value = hourStart
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.endMinutes}`).children[0].value = minStart
+                    document.querySelector(`\#${uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition.endAmPM}`).children[0].value = amPmStart 
+                }
+            }
+            const hours = `
+                <select>
+                    <option value="01">01</option>     <option value="02">02</option>     <option value="03">03</option>     <option value="04">04</option>     
+                    <option value="05">05</option>     <option value="06">06</option>     <option value="07">07</option>     <option value="08">08</option>     
+                    <option value="09">09</option>     <option value="10">10</option>     <option value="11">11</option>     <option value="12">12</option>
+                </select>
+                `
+            const minutes = `
+            <select>
+                <option value="00">00</option>     <option value="05">05</option>     <option value="10">10</option>     <option value="15">15</option>     
+                <option value="20">20</option>     <option value="25">25</option>     <option value="30">30</option>     <option value="35">35</option>
+                <option value="40">40</option>     <option value="45">45</option>     <option value="50">50</option>     <option value="55">55</option>
+            </select>
+            `
+            const amPm = `
+            <select>
+                <option value="AM">AM</option>     <option value="PM">PM</option>
+            </select>
+            `
+            document.getElementById(this.modal.title).innerHTML = `<p>Edit start/end time</p>`
+            document.getElementById(this.modal.body).innerHTML = `
+            <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
+                <div class="row">
+                    <div class="col-12 "><strong>From: </strong>
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.startHours}">${hours}</span>:
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.startMinutes}">${minutes}</span>:
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.startAmPM}">${amPm}</span>
+                    </div>
+                    <div class="col-12">
+                    <strong>To: </strong>
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.endHours}">${hours}</span>:
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.endMinutes}">${minutes}</span>:
+                        <span id="${this.inputs.cookingCalendarDate.timeEdition.endAmPM}">${amPm}</span>
+                    </div>
+                </div>
+            </div>
+            `
+            setTimes(cookingCalendarObj[0].timeFormat,true,this)
+            setTimes(cookingCalendarObj[0].timeFormatEnd,false,this)
+            udateActionButtonLayout(this,'btn-success','Update',false)
+        }
         this.showModal(show_hide)
         $(`#${this.modal.div}`).on('hidden.bs.modal', function (e) {
             dataCtrl.clearSelectedDishes()
@@ -2118,6 +2192,7 @@ class UICtrl {
             var state = null
             var country = null
             var zipcode = null
+            var venue = null
             var finalAmount = 0
             for(let key in tempObj){
                 if(key==='street'){street = tempObj[key]}
@@ -2126,6 +2201,7 @@ class UICtrl {
                 if(key==='state'){state = tempObj[key]}
                 if(key==='country'){country = tempObj[key]}
                 if(key==='zipcode'){zipcode = tempObj[key]}
+                if(key==='venue'){venue = tempObj[key]}
             }
             dishArray.forEach(dish => {
                 console.log(`fifo edit `,dish)
@@ -2180,6 +2256,12 @@ class UICtrl {
                 <div class="h4">Address information</div>
                 <div class="container mx-auto my-auto w-100 text-center colNoMargin">
                     <div class="row w-100 my-auto mx-auto colNoMargin">
+                        <div class="col-12 col-lg-2 colNoMargin">
+                            <p class="pNoMargin"><strong>Venue:</strong></p>
+                        </div>
+                        <div class="col-12 col-lg-10 colNoMargin">
+                            <input type="text" name="${this.formsNames.cookingCalendarInfo}" id="${this.inputs.cookingCalendarDate.venue}" class="w-100" value="${venue !==null ? venue : cookingCalendarObj[0].venue===null ? '' : cookingCalendarObj[0].venue}" oninput="dataCtrl.setTempObject = {venue: this.value}">
+                        </div>
                         <div class="col-12 col-lg-2 colNoMargin">
                             <p class="pNoMargin"><strong>Street:</strong></p>
                         </div>
@@ -2495,6 +2577,7 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
             .darkBG{background:rgba(241,241,241,1)}
             .btnPadding {padding:2px 0px!important;}
             .colNoMarging{margin:0;padding:0;}
+            .timeRowsMargin{margin-left:25px}
             .innerTextMargin{padding-left:5px}
             .hrNoMargin{margin:0;padding:0;}
             .btnActions {background-size: 25px;background-repeat: no-repeat;background-position-y: center;padding-left: 30px;text-align: start;width: -webkit-fill-available;\}
@@ -2570,11 +2653,42 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
         return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.viewDetails}',this)`
     }
     function returnRepetitivePart(uictrl,appCtrl,reg,subStateOne,subStateTwo,subStateThree){
+        console.log(reg)
         return `
         <div class="col-12 row borderBottom ${counter%2===0 ? '' : 'darkBG'} colNoMarging">
             <!-- COOKING DATE INFO -->
             <div class="col-5 row colNoMarging paddingLeftRight" style="text-align:left;padding: 2px">
-                <div class="col-12 colNoMarging innerTextMargin"><strong>${reg.nmMonth.substr(0,3)} ${reg.cookingDate.split(' ')[0].split('-')[2]} ${reg.cookingDate.split(' ')[0].split('-')[0]} at ${reg.timeFormat}</strong> <!-- at ${reg.cookingDate.split(' ')[1].substr(0,5)}--></div>
+                <div class="col-12 colNoMarging innerTextMargin"><strong>${reg.nmMonth.substr(0,3)} ${reg.cookingDate.split(' ')[0].split('-')[2]} ${reg.cookingDate.split(' ')[0].split('-')[0]}</strong></div>
+                <style>
+                    .innerBtnRows {
+                        padding:0;
+                        padding-left:0.500rem;
+                        text-align:center;
+                        box-sizing:border-box;
+                    }
+                    .innerRowButton {
+                        background-color: transparent;
+                        box-sizing: border-box;
+                        border: 0.4px solid black;
+                        border-radius: 3px;
+                        margin: 1px 0;
+                    }
+                </style>
+                <div class="col-12">
+                    <button 
+                        id="${uiCtrl.modalTypes.cookingDate.editStartEndTimes}-${reg.id}" 
+                        class="row innerRowButton" 
+                        onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalTypes.cookingDate.editStartEndTimes}',this);">
+                        <!-- start time --> 
+                            <div class="col-12 innerBtnRows">
+                                <strong>From: </strong>${reg.timeFormat}
+                            </div>
+                        <!-- end time -->
+                            <div class="col-12 innerBtnRows">
+                                <strong>To: </strong>${reg.timeFormatEnd}
+                            </div>    
+                    </button>
+                </div>
                 <div class="col-12 colNoMarging innerTextMargin breakWord"><strong>${reg.street === null ? 'Address missing' : `At ${reg.street}`}${reg.complement !== null ? `, ${reg.complement}` : ''}, ${reg.city === null ? '' : reg.city}</strong></div>
                 <div class="col-12 colNoMarging innerTextMargin breakWord" style="text-align:right;>
                     <p style="margin:0;">${reg.cookingDate_status}</p>
@@ -2960,14 +3074,14 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
                         </button>
                     </div>
                 ` : ''}
-                ${subStateFour && reg.order_status_id < 10 ?  `
+                ${subStateFour && (reg.order_status_id < 10 ||reg.order_status_id === 14 ) ?  `
                     <div class="col-12 col-md-6 colNoMarging btnPadding">
                         <button 
                             id="${uiCtrl.modalTypes.order.deliver}-${reg.orderId}"
                             class="btn btn-outline-info btnActions" 
                             style="background-image: url(/img/delivered.png)" 
                             onclick="appCtrl.orderActions(dataCtrl,uiCtrl,uiCtrl.getIDs().modalActions.order.deliver,this)"   >
-                            Deliver
+                            ${reg.order_status_id < 10 ? 'Deliver' : 'Pay & deliver'}
                         </button>
                     </div>
                 ` : ''}
@@ -2987,6 +3101,7 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
     })
     tempData.forEach(reg => {
         if(cdId!==reg.cookingDates_id){
+            console.log(reg.cookingDates_id)
             cdId = reg.cookingDates_id
             status = 0
             innerData = `${innerData} 

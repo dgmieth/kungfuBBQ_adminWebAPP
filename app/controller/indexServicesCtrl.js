@@ -132,6 +132,7 @@ exports.openToOrders = cookingCalendarCtrl.openToOrders
 exports.closeToOrders = cookingCalendarCtrl.closeToOrders
 exports.setCookingCapacity = cookingCalendarCtrl.setCookingCapacity
 exports.initiateDelivery = cookingCalendarCtrl.initiateDelivery
+exports.updateStartEndTimes = cookingCalendarCtrl.updateStartEndTimes
 // ======================================================================
 // ORDERS ===============================================================
 exports.fetchOrdersForActiveFinishedCookingDates = orderCtrl.fetchOrdersForActiveFinishedCookingDates

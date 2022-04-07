@@ -59,5 +59,8 @@ module.exports = class CookingCalendar {
     static getUserIdsForNotification(cookingDateId,all_paid){
         return db.query(`CALL notification_getUserIdsForManualNotifications(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
     }
-    
+    static updateStartEndTime(cookingDateId,startTime,endTime,doneBy){
+        console.log('model -> updateStartEndTime')
+        return db.query(`CALL foodtruck_cd_updateStartEndTimes(?,?,?,?,@returnCode);SELECT @returnCode as returnCode;`,[`${cookingDateId}`,`${startTime}`,`${endTime}`,`${doneBy}`])
+    }
  }

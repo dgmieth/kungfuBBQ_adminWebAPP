@@ -30,6 +30,7 @@ servicesRouter.post('/openToOrders',authCtrl.isAuth, cookingDatesAccessesCtrl.op
 servicesRouter.post('/closeToOrders',authCtrl.isAuth, cookingDatesAccessesCtrl.closeToOrders, indexServicesCtrl.closeToOrders)
 servicesRouter.post('/setCookingCapacity',authCtrl.isAuth, cookingDatesAccessesCtrl.setCookingCapacity, indexServicesCtrl.setCookingCapacity)
 servicesRouter.post('/initiateDelivery',authCtrl.isAuth, cookingDatesAccessesCtrl.initiateDelivery, indexServicesCtrl.initiateDelivery)
+servicesRouter.post('/updateStartEndTimes',authCtrl.isAuth, cookingDatesAccessesCtrl.initiateDelivery, indexServicesCtrl.updateStartEndTimes)
 //ORDER
 servicesRouter.get('/fetchOrdersForActiveFinishedCookingDates',authCtrl.isAuth,orderAccessesCtrl.fetchOrdersForActiveFinishedCookingDates, indexServicesCtrl.fetchOrdersForActiveFinishedCookingDates)
 servicesRouter.post('/deleteOrder',authCtrl.isAuth,orderAccessesCtrl.deleteOrder, indexServicesCtrl.deleteOrder)

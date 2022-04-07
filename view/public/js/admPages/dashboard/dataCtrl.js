@@ -340,19 +340,20 @@ class DataCtrl {
             var orders = []
             this.cookingCalendar.forEach(cd => {
                 //if(cd.cookingDate_status_id===this.cookingAndDeliveryDateStatus){
-                    if(cd.cookingDate_status_id>=8){
+                    if(cd.cookingDate_status_id>=7){
                     cdId = cd.id
                 }
                 if(cdId!==null){
                     this.orders.forEach(order => {
-                        if(order.cookingDates_id===cdId && 
-                            order.order_status_id===9 || order.order_status_id===14){ 
-                                orders.push(order)    
+                        console.log(order.order_status_id)
+                        if(order.cookingDates_id===cdId && [8,9,14].includes(order.order_status_id)){ 
+                                orders.push(order)  
                             }
                     })
                     cdId=null
                 }
             })
+            console.log(orders)
             if(orders.length>0){
                 orders.forEach(order=>{
                     returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order))

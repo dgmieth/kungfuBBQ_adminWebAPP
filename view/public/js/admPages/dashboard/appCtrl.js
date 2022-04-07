@@ -416,6 +416,32 @@ class AppCtrl {
                         reject(false)})
                 }})})
     }
+    updateStartEndTimes(dataCtrl,uiCtrl,dataObj){
+        return new Promise((resolve,reject)=>{
+            fetch('/services/updateStartEndTimes', {
+                method: 'POST',
+                headers: {'Content-type':'application/json'},
+                body: JSON.stringify(dataObj)})
+            .then(answer => {  
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to close cooking dates to orders','show')    
+                }else if(answer.redirected){return window.location.href = answer.url
+                }else{
+                    answer.json()
+                    .then(response => {
+                        if(!response.hasErrors){
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => {resolve(true)})
+                            .catch(err => {reject(false)})
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
+    }
 //=================================================================================================
 //ORDER APP STATE =================================================================================
 //=================================================================================================
@@ -1288,6 +1314,52 @@ class AppCtrl {
                             uiCtrl.showHideOrderModal(null,null,'hide',null)})
 
                     }})})
+            }else if(modalAction===modalActions.editStartEndTimes){
+                document.getElementById(btnAction).addEventListener('click',(e)=>{
+                    const prefixDate = dataCtrl.returnData('cookingCalendarActive').filter(x => x.id === parseInt(element.id.split('-')[1]))[0].cookingDate.split(' ')[0]
+                    const timeInputs = uiCtrl.getIDs().inputs.cookingCalendarDate.timeEdition
+                    var times = []
+                    function checkAmPm(amPm,hourValue){
+                        if(amPm.toLowerCase()===`pm`){
+                            if(parseInt(hourValue)<12){     return `${parseInt(hourValue)+12}`      }
+                            return hourValue
+                        }if(amPm.toLowerCase()===`am`){
+                            if(parseInt(hourValue)===12){       return `00`     }       }
+                        return hourValue        }
+                    function showErrors(uiCtrl){    return uiCtrl.showHideAlert('alert-danger',`End time must be greated than start time`,'show')   }
+                    var startTime = {
+                        hour: document.querySelector(`\#${timeInputs.startHours}`).children[0].value,
+                        minute: document.querySelector(`\#${timeInputs.startMinutes}`).children[0].value,
+                        amPm: document.querySelector(`\#${timeInputs.startAmPM}`).children[0].value
+                    }
+                    var endTime = {
+                        hour: document.querySelector(`\#${timeInputs.endHours}`).children[0].value,
+                        minute: document.querySelector(`\#${timeInputs.endMinutes}`).children[0].value,
+                        amPm: document.querySelector(`\#${timeInputs.endAmPM}`).children[0].value
+                    }
+                    //UPDATING HOURS FROM 12 HOUR CLOCK SYSTEM TO 24 HOUR CLOCK SYSTEM
+                    startTime.hour = checkAmPm(startTime.amPm, startTime.hour)
+                    endTime.hour = checkAmPm(endTime.amPm, endTime.hour)
+                    //VALIDATE HOURS
+                    if(parseInt(startTime.hour)>parseInt(endTime.hour)){    return showErrors(uiCtrl)     }
+                    if(parseInt(startTime.hour)===parseInt(endTime.hour)){
+                        if(parseInt(startTime.minute)>parseInt(endTime.minute)){    return showErrors(uiCtrl)   }   }
+                    startTime.timeStamp = `${prefixDate} ${startTime.hour}:${startTime.minute}:00.0`
+                    endTime.timeStamp = `${prefixDate} ${endTime.hour}:${endTime.minute}:00.0`
+                    console.log(startTime)
+                    console.log(endTime)
+                    uiCtrl.showHideSpinner('show')
+                    appCtrl.updateStartEndTimes(dataCtrl,uiCtrl,{cdId:parseInt(element.id.split('-')[1]),startTime: startTime.timeStamp, endTime: endTime.timeStamp})
+                    .then(value => {
+                        commonActions()
+                    })
+                    .catch(err => {
+                        console.log('value = false')
+                        uiCtrl.showHideOrderModal(null,null,'hide',null)
+                        uiCtrl.showHideSpinner('hide')
+                    })
+                    //console.log(dataCtrl.returnData('cookingCalendarActive'))
+                })
             }
         }
         //=================================================
@@ -1349,7 +1421,6 @@ class AppCtrl {
         if(action===modalActions.gameOver){
             loadListenersForBtnAction(modalActions.gameOver)
         }
-
         if(action===modalActions.delete){
             uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.delete)
             loadListenersForBtnAction(modalActions.delete)
@@ -1357,10 +1428,13 @@ class AppCtrl {
         if(action===modalActions.hide){
             uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.hide)
         }
-
         if(action===modalActions.newCookingCalendar){
-
             loadListenersForBtnAction(modalActions.newCookingCalendar)
+        }
+        if(action===modalActions.editStartEndTimes){
+            console.log('editStartEndTimes')
+            uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.editStartEndTimes)
+            loadListenersForBtnAction(modalActions.editStartEndTimes)
         }
     }
     // loadDishesSelectionCheckBoxes(dataCtrl,uiCtrl,className){

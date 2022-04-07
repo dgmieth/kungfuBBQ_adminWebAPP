@@ -28,11 +28,13 @@ exports.sortCookingDates = (data) => {
             dataArray.push({
                 id: cd.id,
                 cookingDate: datetimeFormatter(cd.cookingDate),
+                endTime: datetimeFormatter(cd.endTime),
                 menu_id: cd.menu_id,
                 cookingDate_status_id: cd.cookingDate_status_id,
                 cdMonth: parseInt(cd.cdMonth),
                 nmMonth: cd.nmMonth,
                 timeFormat:cd.timeFormat,
+                timeFormatEnd:cd.timeFormatEnd,
                 cookingDate_status: cd.cookingDateStatusName,
                 meals_quantity: cd.meals_quantity,
                 mealsForThis: cd.mealsForThis,
@@ -45,6 +47,7 @@ exports.sortCookingDates = (data) => {
                 excludedBy: cd.excludedBy,
                 excludedIn : datetimeFormatter(cd.excludedIn),
                 addressId: cd.addressId,
+                venue: cd.venue,
                 street: cd.street,
                 state: cd.state,
                 zipcode: cd.zipcode,
@@ -57,6 +60,7 @@ exports.sortCookingDates = (data) => {
             })
         }
     })
+    // console.log(dataArray)
     return dataArray
 }
 //sorter functionssortOrdersForActiveFinishedCookingDates
