@@ -14,13 +14,10 @@ exports.isAuth = (req,res,next) => {
     console.log(`========================================><=================================`)
     console.log(`SESSION CHECKING`)
     if(new Date(req.session.expireTime)<=new Date()||req.session.expireTime===undefined){
-        console.log(req.session._expires)
-        console.log(req.session)
         console.log(`----------------------------------><-----------------------------------`)
         console.log(`SESSION expired`)
         destroySession(req,res,next)
     }else{
-        console.log(req.session)
         console.log(`----------------------------------><-----------------------------------`)
         console.log(`SESSION exists`)
         next()
@@ -28,9 +25,6 @@ exports.isAuth = (req,res,next) => {
 }
 //user has ADM_platformAccess
 exports.admPlatformAccess = (req,res,next) => {
-	console.log(process.env.ADM_PLATFORM_ACCESS.split(','))
-    console.log(req.session.accesses)
-	console.log(process.env.ADM_PLATFORM_ACCESS)
     if(checkAccesses.checkUserAccess(process.env.ADM_PLATFORM_ACCESS,req)){
         console.log('1-> hasAccess')
         next()
@@ -62,17 +56,17 @@ exports.isDeveloperLoggedRedirect = (req,res,next) =>{
 exports.loginDeveloper = (req,res,next)=> {
     Developer.fetchByEmail(req.body.email)
     .then(([data,meta])=> {
-        console.log(data)
+        // console.log(data)
         bcrypt.compare(req.body.password,data[0][0].password)
         .then(result => {
-            console.log(result)
+            // console.log(result)
             if(result){
                 const developer = new Developer(data[0][0].email,data[0][0].id,data[0][0].password)
                 req.session.User = developer
                 req.session.typeDev = true
                 req.session.logged = true
                 req.session.expireTime = (new Date()).setMilliseconds(3600000)
-                console.log(developer)
+                // console.log(developer)
                 developer.pageLogin()
                 res.status(200).send({redirect:'/developerDashboard'})
             }else{
@@ -99,7 +93,7 @@ exports.logOutDeveloper = (req,res,next) => {
 exports.loginAdministrator = (req,res,next)=> {
     Administrator.fetchByEmail(req.body.email)
     .then(([data,meta])=> {
-        console.log(data)
+        // console.log(data)
         if(data[0].length===0){
             return res.status(401).json({error: 'User does not have access or User does not exist!'})
         }
@@ -109,7 +103,7 @@ exports.loginAdministrator = (req,res,next)=> {
                 const administrator = new Administrator(data[0][0].email,data[0][0].id,data[0][0].password)
                 administrator.selectAccess()
                 .then(([data1,meta1])=>{
-                    console.log(data1)
+                    // console.log(data1)
                     var accessArray = []
                     data1[0].forEach(reg => {
                         accessArray.push(reg.name)
@@ -154,11 +148,11 @@ exports.fetchJWToken = (req,res,next)=> {
     if(req.session.apiAccessToken===null||req.session.apiAccessToken==='undefined'){
         return res.json(returnObject)
     }
-    console.log(req.session.apiAccessToken)
+    // console.log(req.session.apiAccessToken)
     returnObject.hasErros = false
     returnObject.msg = null
     returnObject.data = req.session.apiAccessToken
-    console.log(returnObject)
+    // console.log(returnObject)
     res.json(returnObject)
 }
 // ======================================================================

@@ -15,8 +15,8 @@ const notificationCtrl = require('./subServicesCtrl/notificationCtrl')
 // ======================================================================
 // UPDATE PASSWORD ======================================================
 exports.updateDeveloper = (req,res,next) => {
-    console.log(req.body)
-    console.log(req.session.User)
+    // console.log(req.body)
+    // console.log(req.session.User)
     if(req.body.passwordNewConfirm!==req.body.passwordNew){
         return res.status(401).json({error: `Password and passowrd confirmation don't match`})
     }

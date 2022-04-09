@@ -59,7 +59,7 @@ exports.updateCookingCalendarDate = (req,res,next)=>{
                     date = data[0].cookingDate.split(' ')[0]}
                 CookingCalendar.updateCookingDate(jsonObjectForUpdateCookingDate(req,data,latitude,longitude))
                 .then(([data1,meta1])=>{
-                    console.log(data1)
+                    // console.log(data1)
                     if(data1[2][0]['@returnCode']===-2){
                         return returnErroMessage(`Cooking date is not updatable anylonger.`,res)    }
                     if(data1[2][0]['@returnCode']===-3){
@@ -110,7 +110,7 @@ exports.newCookingDate = (req,res,next) => {
 exports.deleteCookingCalendarDate = (req,res,next) => {
     CookingCalendar.deleteCoookingDate(parseInt(req.session.User.id),parseInt(req.body.cookingDate))
     .then(([data1,meta1])=>{
-        console.log(data1)
+        // console.log(data1)
         if(data1[1][0]['returnCode']===-2){
             return returnErroMessage(`Cooking date has active/paid/not delivered orders that must be reimbursed/delivered before deleting it.`,res) }
         if(data1){
@@ -126,7 +126,7 @@ exports.deleteCookingCalendarDate = (req,res,next) => {
 exports.openToOrders = (req,res,next) => {
     CookingCalendar.openToOrders(parseInt(req.session.User.id),parseInt(req.body.cookingDate))
     .then(([data1,meta1])=>{
-        console.log(data1)
+        // console.log(data1)
         if(data1[0]){
             if((data1[2][0])['@returnCode']===-2){   
                 return returnErroMessage(`Could not open to orders this cooking calendar date.`,res)    }

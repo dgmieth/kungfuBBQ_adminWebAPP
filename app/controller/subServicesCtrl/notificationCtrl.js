@@ -33,7 +33,7 @@ exports.sendNotification = (req,res,next)=>{
         notif.setId = parseInt(newNotif[1][0].notifID)
         sendNotification.sendNotification({ids: idArray, msg: req.body.messageToUser})
         .then(response => {
-            console.log(response)
+            // console.log(response)
             if(response.data.recipients===0){
                 return returnErroMessage(`This user hasn't logged in recently, so the notification system cannot find its device id`,res)
             }else{
@@ -121,7 +121,6 @@ exports.sendNotifToAll = (req,res,next)=>{
 // =====================================================================================
 //first notification is sent at 8:15am
 cron.schedule('0 15 8 * * *', () => {
-    console.log('')
     sendCronNotif(`notifNumber_08:15`)
 }, {
 scheduled: true,

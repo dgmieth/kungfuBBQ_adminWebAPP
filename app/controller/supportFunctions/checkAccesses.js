@@ -7,7 +7,7 @@
 // ======================================================================
 exports.checkUserAccess = (accessesArray,req)=>{
     var hasAccess = false
-	console.log(req.session)
+	// console.log(req.session)
     accessesArray.split(',').some(access => {
         if(req.session.accesses.includes(access)){
             hasAccess = true

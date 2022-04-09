@@ -6,7 +6,7 @@
 // DATETIME FORMATTER ===================================================
 // ======================================================================
 module.exports = (date) => {
-    console.log(date)
+    // console.log(date)
     if(date===null){
         return ''
     }

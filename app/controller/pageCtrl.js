@@ -21,7 +21,7 @@ exports.admDashboard = (req,res,next) => {
         devMode = true
         DNS = process.env.KUNGFU_DNS_DEV
     }
-    console.log(devMode)
+    // console.log(devMode)
     res.render('admDashboard',{ pageTitle: `Administrative Log-In`, DNS:DNS, devMode:devMode })
 }
 // ======================================================================
@@ -40,7 +40,7 @@ exports.developerDashboard = (req,res,next)=> {
 // ======================================================================
 // privacy policy
 exports.privacyPolicy = (req,res,next) => {
-    console.log(req.url.substring(1))
+    // console.log(req.url.substring(1))
     var name = ''
     if(req.url.substring(1)===`app`){
         name = `Mobile app privacy policy`

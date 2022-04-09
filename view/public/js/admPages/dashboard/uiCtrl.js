@@ -2260,7 +2260,7 @@ class UICtrl {
                             <p class="pNoMargin"><strong>Venue:</strong></p>
                         </div>
                         <div class="col-12 col-lg-10 colNoMargin">
-                            <input type="text" name="${this.formsNames.cookingCalendarInfo}" id="${this.inputs.cookingCalendarDate.venue}" class="w-100" value="${venue !==null ? venue : cookingCalendarObj[0].venue===null ? '' : cookingCalendarObj[0].venue}" oninput="dataCtrl.setTempObject = {venue: this.value}">
+                            <input type="text" maxlength="100" name="${this.formsNames.cookingCalendarInfo}" id="${this.inputs.cookingCalendarDate.venue}" class="w-100" value="${venue !==null ? venue : cookingCalendarObj[0].venue===null ? '' : cookingCalendarObj[0].venue}" oninput="dataCtrl.setTempObject = {venue: this.value}">
                         </div>
                         <div class="col-12 col-lg-2 colNoMargin">
                             <p class="pNoMargin"><strong>Street:</strong></p>
