@@ -27,6 +27,8 @@ class DataCtrl {
         this.paidOrderStatusArray = [5,8,9,10,11,12]
         this.notMadeToThisListOrderStatusArray = [6,7]
         this.waitingListOrderStatusArray = [4]
+        this.sauseFunding = {}
+        this.listOfPresence = []
     }
 //=================================================================================================
 //=================================================================================================
@@ -121,6 +123,21 @@ class DataCtrl {
     }
     set setModifiedAccesses(access){
         this.modifiedAccesses.push(access)
+    }
+    set setSauseFunding(object){
+        this.sauseFunding = object
+        if(this.sauseFunding.preOrders){
+            if(this.sauseFunding.preOrders.length>0){
+                this.sauseFunding.preOrders.forEach(pre => {
+                    pre.searchString = `${pre.name.toLowerCase()} ${pre.email.toLowerCase()} ${pre.phoneNumber.toLowerCase()}`
+                })
+            }
+        }
+    }
+    set setListOfPresence(array){
+        this.listOfPresence = []
+        if(array.length===0){   return  }
+        this.listOfPresence = array
     }
     removeAccess(access){
         this.modifiedAccesses = this.modifiedAccesses.filter(a => {if(a===access){return false} return true})
@@ -242,6 +259,9 @@ class DataCtrl {
                 return false
             })
         }
+        if(selectionText===`listOfPresence`){
+            return this.listOfPresence
+        }
         //dishes
         if(selectionText==='activeDishes'){
             return this.dishes.filter(dish => {
@@ -345,7 +365,6 @@ class DataCtrl {
                 }
                 if(cdId!==null){
                     this.orders.forEach(order => {
-                        console.log(order.order_status_id)
                         if(order.cookingDates_id===cdId && [8,9,14].includes(order.order_status_id)){ 
                                 orders.push(order)  
                             }
@@ -353,7 +372,6 @@ class DataCtrl {
                     cdId=null
                 }
             })
-            console.log(orders)
             if(orders.length>0){
                 orders.forEach(order=>{
                     returnArray.push(returnObjecForOrdersActiveDeliveredExcluded(this,order))
@@ -436,6 +454,11 @@ class DataCtrl {
         if(selectionText==='waitingListStatus'){
             return this.waitingListOrderStatusArray
         }
+        //sause funding
+        if(selectionText==='sauseFunding'){
+            return this.sauseFunding
+        }
+        //
     }
 }
 function returnObjecForOrdersActiveDeliveredExcluded(dataCtrl,order,activeOrders = false){

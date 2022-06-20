@@ -53,6 +53,7 @@ class UICtrl {
                 country: 'ccdCountry',
                 zipcode: 'ccdZipcode',
                 venue: 'ccdVenue',
+                eventOnly:'eventOnly',
                 timeEdition:{
                     startHours:'startHours',
                     startMinutes:'startMinutes',
@@ -60,7 +61,8 @@ class UICtrl {
                     endHours:'endHours',
                     endMinutes:'endMinutes',
                     endAmPM:'endAmPM'
-                }
+                },
+                menuInfoInnerDishes: 'menuInfoInnerDishes'
             },
             dishes: {
                 ids: {
@@ -92,6 +94,9 @@ class UICtrl {
                 orderCDDishPrice: 'orderCDDishPrice',
                 tipAmount:'tipAmount',
                 tipReimbursed:'tipReimbursed'
+            },
+            notification: {
+                messageToUser:'messageToUser'
             }
         }
         //=====================================
@@ -136,7 +141,9 @@ class UICtrl {
                 mealsConfirmed: 'mealsConfirmed',
                 mealsOnList: 'mealsOnList',
                 newDish: this.commonPropertiesNames.modalActions.cookingCalendarAndDish.newDish,
-                sendToAll: 'sendToAll'
+                sendToAll: 'sendToAll',
+                listPresence: 'listPresence',
+                filterFifoDishes: 'filterFifoDishes'
             },
             dish: {
                 newDish: this.commonPropertiesNames.modalActions.cookingCalendarAndDish.newDish,
@@ -158,6 +165,11 @@ class UICtrl {
                 read: 'readMessage',
                 archive: 'archiveMessage',
                 delete: 'deleteMessage'
+            },
+            sauseFunding: {
+                information: 'information',
+                sendToAll: 'sendToAll',
+                toggle: 'toggle'
             }
         }
         this.modalTypes = this.modalActions
@@ -193,6 +205,7 @@ class UICtrl {
                 invitationCode: 'genInvitationCodeStateBtn',
                 orderDelivery: 'orderDeliveryStateBtn',
                 logout: 'logoutStateBtn',
+                sauseFunding: 'sauseFundingStateBtn',
                 //states with options
                 users: 'usersStateBtn',
                 //menu: 'menuStateBtn',
@@ -201,7 +214,9 @@ class UICtrl {
                 orders: 'ordersStateBtn',
                 manageAccess: 'manageAccessStateBtn',
                 catorStateBtn: 'catorStateBtn',
-                reports: 'reportsStateBtn'
+                reports: 'reportsStateBtn',
+                sItems: 's_items',
+                sOrders: 's_orders'
             }
         }
         this.subStateOptionsWrapper = 'sub-state-options-wrapper'
@@ -216,6 +231,10 @@ class UICtrl {
             state: 'state',
             subState: 'subState'
         }
+        //=====================================
+        //OTHER UI ELEMENTS====================
+        this.unreadMessagesCounter = 'unreadMessagesCounter'
+        this.elRowDivider = `<div class="col-12 colNoMarging"><hr style="margin: 0 70px"></div>`
     }
 //=================================================================================================
 //=================================================================================================
@@ -267,6 +286,78 @@ class UICtrl {
             innerData = returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,this,tempData,false,false,false,true,false) 
             this.gettingOrderDeliveryStateOrSubstate(this.uiSwitcher.state,innerData,tempData.length)
             appStateBtnAndBreadcrum(this.sidebar.btns.orderDelivery,this.mainContent.divBreadcumber,'Quick actions','Order Delivery')
+            appCtrl.loadSearchEventListeners(dataCtrl,this)
+        }
+        //sauseFunding
+        if(appCtrl.getAppState===appCtrl.getAppStatesList._SAUSEFUNDING){
+            var tempData = dataCtrl.returnData('sauseFunding')
+            var innerData = returnInnerDataForSauseFundingAndSearchMode(dataCtrl,this,tempData.preOrders)
+            const mainDivForContent = document.getElementById(this.mainContent.div)
+            mainDivForContent.innerHTML = `
+            <style>
+                .colNoMarging{margin:0;padding:0;}
+                .btnPadding{padding-bottom:2px;}
+                .btnActions {background-size: 25px;background-repeat: no-repeat;background-position-y: center;padding-left: 30px;text-align: start;width: -webkit-fill-available;\}
+                .blackBG{background:rgba(51,59,78,1);color:white;}
+                .darkGraykBG{background:rgba(108,108,108,1);color:white;}
+                .darkBG{background:rgba(241,241,241,1);}
+                .wrapWord{overflow-wrap: break-word;}
+                .bottomLine{border-bottom: darkgray .5px solid;}
+                .leftLine{border-left: darkgray .5px solid;}
+                .colNoMarging{margin:0;padding:0 1px;}
+            </style>
+            <div class=".container-fluid my-auto text-right w-100" style="height: 7%!important;padding-left:100px!important;padding-right:15px!important">
+                <div class=".container-fluid text-right w-50" style="float:right">
+                    <div class="text-right">
+                        <input 
+                            name="${this.searchInput.input}" 
+                            id="${this.searchInput.input}" 
+                            class=".container-fluid text-right" 
+                            type="text" 
+                            style="width:100%!important;padding-bottom:2px"
+                            placeHolder="Search orders, users, ...">
+                    </div>
+                    
+                </div>
+                <div class=".container-fluid text-right w-50" style="    display: flex;
+                justify-content: end;
+                align-items: stretch;
+                align-content: stretch;">
+                    <div id="${this.generalRegisterInformation.totalRegisters}" style="padding-right:5px;text-align:right"><i>${tempData.preOrders.length} pre-orders</i></div>
+                </div>
+            </div>
+            <div class=".container-fluid my-auto text-right w-100" style="height: 8%!important;padding-right:15px!important">
+                <div class=".container-fluid w-100" style="display:flex;flex-direction: row-reverse;">
+                    <button 
+                        id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
+                        class="btn btn-outline-warning btnActions editMode" 
+                        style="background-image: url(/img/sendNotification.png);width: 120px!important;z-index:2;"
+                        onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.sendToAll}',this)" >
+                        Notify all
+                    </button>
+                    <button 
+                        id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
+                        class="btn btn-outline-secondary btnActions editMode" 
+                        style="background-image: url(/img/stats.png);width: 120px!important;z-index:2;"
+                        onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.information}',this)" >
+                        Information
+                    </button>
+                    <button 
+                        id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
+                        class="btn ${tempData.status.toLowerCase() === 'on' ? 'btn-primary' : 'btn-outline-primary'} btnActions editMode" 
+                        style="width: 100px!important;z-index:2;padding-left: 38px;"
+                        onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.toggle}',this)" >
+                        ${tempData.status}
+                    </button>
+                </div>
+            </div>
+            <div id="${this.commonPropertiesNames.scrollingContainer}" class=".container-fluid mx-auto my-auto text-center w-100" style="height:80%!important;overflow-y:auto;padding:5px 5px" onscroll="appCtrl.setScrollPosition(this.scrollTop)">
+                <div id="${this.table.tbody}" class="row w-100 my-auto mx-auto">
+                    ${innerData}
+                </div>
+            </div>  `
+            appStateBtnAndBreadcrum(this.sidebar.btns.orderDelivery,this.mainContent.divBreadcumber,'Sause Funding','')
+            document.getElementById(this.commonPropertiesNames.scrollingContainer).scrollTop = appCtrl.getScrollPosition()
             appCtrl.loadSearchEventListeners(dataCtrl,this)
         }
         //manage access
@@ -920,6 +1011,14 @@ class UICtrl {
             document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} user(s)`
             innerData = returnInnerDataForCatoringSubStatesAndSearchMode(dataCtrl,this,filteredArray,subStateOne,subStateTwo,subStateThree)
         }
+        //USERS
+        if(appCtrl.getAppState===appCtrl.getAppStatesList._SAUSEFUNDING){
+            console.log('searchMode -> usersSubState')
+            filteredArray = dataCtrl.returnData('sauseFunding').preOrders.filter(reg => {if(reg.searchString.match(regExpression)){return true}})
+            document.getElementById(this.generalRegisterInformation.totalRegisters).innerText = `${filteredArray.length} user(s)`
+
+            innerData = returnInnerDataForSauseFundingAndSearchMode(dataCtrl,this,filteredArray)
+        }
         document.getElementById(this.table.tbody).innerHTML = `${innerData}` 
     }
 //=================================================================================================
@@ -1167,7 +1266,7 @@ class UICtrl {
         if(modalType!==this.modalTypes.cookingDate.newDish){ }
         cookingCalendarObj = dataCtrl.returnData('cookingCalendar').filter(reg => { if(reg.id === coookingCalendarId){return true}})
         if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.sendToAll){
-            console.log('inside sendToAll')
+            console.log('sendToAll')
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send notification to all suscribed orders</p>`
             document.getElementById(this.modal.body).innerHTML = `
             <form id="${this.form}">
@@ -1181,19 +1280,47 @@ class UICtrl {
         if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.listOrders){
             console.log('listOrders called')
             dataCtrl.clearSelectedDishes()
-            var dishesHeader = ''
+            // var dishesHeader = ''
             tempData = dataCtrl.returnData('orderButExcluded').filter(order => {
                 if(order.cookingDates_id===coookingCalendarId && order.order_status_id!==999) { return true }
             })
-            cookingCalendarObj[0].dishes.forEach(dish => {
-                dishesHeader = `${dishesHeader}
-                    <th><strong>${dish.name}</strong></th>
-                `
-            })
+            // cookingCalendarObj[0].dishes.forEach(dish => {
+            //     dishesHeader = `${dishesHeader}
+            //         <th><strong>${dish.name}</strong></th>
+            //     `
+            // })
             innerData = returnDynamicElementsForCookingDateListOrdersModal(this,tempData)
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Listing orders for cooking calendar ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street} </p>`
             document.getElementById(this.modal.body).innerHTML = `
             <div class=".container-fluid mx-auto my-auto text-center w-100" style="height: 100%!important;">
+                <div class=".container-fluid row w-100 mx-auto my-auto"> 
+                    ${innerData}
+                </div>
+            </div>
+            `
+            udateActionButtonLayout(this,null,null,true)
+        }
+        if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.listPresence){
+            console.log('listPresence called')
+            var header = ''
+            tempData = dataCtrl.returnData('listOfPresence')
+            innerData = ``
+            dataCtrl.returnData('listOfPresence').forEach((p,counter) => {
+                innerData = `${innerData}
+                ${counter > 0 ? this.elRowDivider : ''}
+                <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0? 'darkBG' : ''} wrapWord bottomLine colNoMarging"> 
+                    <div class=".container-fluid col-12 col-md-4 text-left"><strong>E-mail:</strong></div>
+                    <div class=".container-fluid col-12 col-md-8 text-left">${p.email}</div>
+                    <div class=".container-fluid col-12 col-md-4 text-left"><strong>Name:</strong></div>
+                    <div class=".container-fluid col-12 col-md-8 text-left">${p.name}</div>
+                    <div class=".container-fluid col-12 col-md-4 text-left"><strong>Phone number:</strong></div>
+                    <div class=".container-fluid col-12 col-md-8 text-left">${phoneNumberMask(p.phoneNumber)}</div>
+                </div>
+                `
+            })
+            document.getElementById(this.modal.title).innerHTML = `<p class="h3">Listing users that may go to the ${cookingCalendarObj[0].cookingDate.split(' ')[0]} event only at ${cookingCalendarObj[0].street} </p>`
+            document.getElementById(this.modal.body).innerHTML = `
+            <div class=".container-fluid mx-auto my-auto w-100" style="height: 100%!important;">
                 <div class=".container-fluid row w-100 mx-auto my-auto"> 
                     ${innerData}
                 </div>
@@ -1237,7 +1364,6 @@ class UICtrl {
             var finalAmount = 0
             innerData = `${innerData} <style>.pNoMargin{margin:0;padding:0}</style>`
             cookingCalendarObj[0].dishes.forEach(dish => {
-                console.log(dish)
                 finalAmount += dish.price === null || dish.price=== '' ? 0.0 : parseFloat(dish.price)
                 innerData = `${innerData}
                 <div id="DishID-${dish.dish_id}" class=".container-fluid mx-auto my-auto w-100 text-center" style="border-bottom: gray 1px solid;align-items: center;padding: 0;height: auto;">
@@ -1262,9 +1388,20 @@ class UICtrl {
                 .textLeft{text-align:left;margin:0;padding:0;}
             </style>
             <div class=".container-fluid mx-auto my-auto w-100 text-center">
+            <hr class="hrNoMargin">
+                <div class="container mx-auto my-auto w-1000" style="text-align: left;padding:15px 0">
+                    <input type="checkbox" name="${this.formsNames.cookingCalendarInfo}" id="${this.inputs.cookingCalendarDate.eventOnly}" ${cookingCalendarObj[0].eventOnly === 1 ? 'checked' : ''} disabled>
+                    <label for="${this.formsNames.cookingCalendarInfo}"> <strong>Event only</strong></label><br>
+                </div>
                 <div class="h4">Address information</div>
                 <div class=".container-fluid mx-auto my-auto row">
                     <!--STREET and COMPLEMENT-->
+                    <div class="col-12 col-lg-2" style="text-align:left;">
+                        <p class="textLeft"><strong>Venue:</strong></p>
+                    </div>
+                    <div class="col-12 col-lg-10" style="text-align:left;">
+                        <p class="pNoMargin" id="${this.inputs.cookingCalendarDate.venue}">${cookingCalendarObj[0].venue === null || cookingCalendarObj[0].venue=== '' ? '' : cookingCalendarObj[0].venue }</p>
+                    </div>
                     <div class="col-12 col-lg-2 text-left">
                         <p class="textLeft"><strong>Sreet:</strong></p>
                     </div>
@@ -1380,8 +1517,6 @@ class UICtrl {
             udateActionButtonLayout(this,'btn-danger','Delete',false)
         }
         if(show_hide===`show`&&modalType===this.modalTypes.cookingDate.editStartEndTimes){
-            console.log(cookingCalendarObj)
-            console.log(`\#${this.inputs.cookingCalendarDate.timeEdition.startHours}`)
             function setTimes(timeStamp,startTime = true,uiCtrl){
                 var hourStart = parseInt(timeStamp.split(':')[0])
                 var minStart = Math.ceil(parseInt(timeStamp.split(':')[1].substr(0,2)))
@@ -1441,7 +1576,7 @@ class UICtrl {
             `
             setTimes(cookingCalendarObj[0].timeFormat,true,this)
             setTimes(cookingCalendarObj[0].timeFormatEnd,false,this)
-            udateActionButtonLayout(this,'btn-success','Update',false)
+            udateActionButtonLayout(this,'btn-primary','Update',false)
         }
         this.showModal(show_hide)
         $(`#${this.modal.div}`).on('hidden.bs.modal', function (e) {
@@ -1643,7 +1778,6 @@ class UICtrl {
                     <div class="col-12 my-auto colNoMarging">
                         <div class="row my-auto colNoMarging" style="padding: 0 5px;">`
             tempData[0].dishes.forEach(reg => {
-                console.log(reg)
                 if(reg.excludedDishExtra_dish===0){
                     orderDishes = `${orderDishes}
                     <div 
@@ -1686,7 +1820,6 @@ class UICtrl {
                 </div>`})
             cdDishes = `${cdDishes}</div></div></div>`
         document.getElementById(this.modal.title).innerHTML = `<p class="h3">Order details</p>`
-        console.log(tempData[0])
         document.getElementById(this.modal.body).innerHTML = `
         <style>
             .stateStyle{min-height: 35px;font-size: 1.4rem;}
@@ -1821,7 +1954,6 @@ class UICtrl {
     }
     if(show_hide==='show'&&modalType===this.modalTypes.order.reimburse){
         //commonFunctions(dataCtrl,true)
-        console.log(tempData.user_id)
         tempData = dataCtrl.returnData('activerOrders').filter(reg => {if(reg.orderId===orderId){return true}})
         if(tempData.length>0){
             tempData=tempData[0]
@@ -1957,6 +2089,63 @@ class UICtrl {
         }
         this.showModal(show_hide)
     }
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+//*************************************************************************************************
+//
+//
+//                               SAUSE FUNDING MODALS
+//
+//
+//*************************************************************************************************
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+showHideSauseFundingModal(dataCtrl,appCtrl,show_hide,messageId,modalType){
+    //check if it should hide modal
+    console.log('SAUSE FUNDING-MODAL - show')
+    if(show_hide===`hide`){
+        return this.showModal(show_hide)
+    }
+    //common variables
+    var tempData = []
+    var innerData = ''
+    var cookingCalendarObj = ''
+    var dataCtrlReturnDataDescription = appCtrl.getAppSubState === appCtrl.getAppSubStatesList._UNREADMESSAGES ? 'activeMsgs' : appCtrl.getAppSubState === appCtrl.getAppSubStatesList._ARCHIVEDMESSAGES ? 'archivedMsgs' : 'excludedMsgs'
+    //view details
+    if(show_hide===`show`&&modalType===this.modalTypes.sauseFunding.information){
+        tempData = dataCtrl.returnData('sauseFunding')
+        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Statistical information about sause funding campaign</p>`
+        document.getElementById(this.modal.body).innerHTML = `
+        <div class=".container-fluid mx-auto my-auto text-left w-100 row" style="height: 100%!important;">
+            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Current sause price:</strong></div>
+            <div class="col-12 col-md-8 mx-auto my-auto text-left">U$ ${parseFloat(tempData.price).toFixed(2)}</div>
+            ${this.elRowDivider}
+            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Amount raised in pre-orders:</strong></div>
+            <div class="col-12 col-md-8 mx-auto my-auto text-left">U$ ${parseFloat(tempData.preOrdersAmount).toFixed(2)}</div>
+            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Amount raised in tips:</strong></div>
+            <div class="col-12 col-md-8 mx-auto my-auto text-left">U$ ${parseFloat(tempData.tipsAmount).toFixed(2)}</div>
+            ${this.elRowDivider}
+            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Total amount raised:</strong></div>
+            <div class="col-12 col-md-8 mx-auto my-auto text-left">U$ ${parseFloat(tempData.amountRaised).toFixed(2)}</div>
+        </div>
+        `
+        udateActionButtonLayout(this,null,null,true)
+    }
+    if(show_hide===`show`&&modalType===this.modalTypes.sauseFunding.sendToAll){
+        console.log('inside sendToAll')
+        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Send notification to all pre-ordering users</p>`
+        document.getElementById(this.modal.body).innerHTML = `
+        <form id="${this.form}">
+            <p class="h4"><strong>What message do you want?</strong> It will be sent to all pre-ordering users.</p>
+            <textarea class="w-100" name="${this.notification}" id="${this.inputs.notification.messageToUser}" value=""></textarea>
+        </form>
+        ` 
+        udateActionButtonLayout(this,`btn-primary`,`Send`,false)
+    }
+    this.showModal(show_hide)
+}
 //=================================================================================================
 //=================================================================================================
 //=================================================================================================
@@ -2109,6 +2298,26 @@ class UICtrl {
 //*************************************************************************************************
 //
 //
+//                               OTHER UI RELATED FUNCTIONS
+//
+//
+//*************************************************************************************************
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+    updateUnreadMessagesCounter(qtty = 0){
+        if(qtty===0){
+            return document.getElementById(this.unreadMessagesCounter).style.display = 'none'
+        }
+        document.getElementById(this.unreadMessagesCounter).innerHTML = `<strong>${qtty}</strong>`
+        document.getElementById(this.unreadMessagesCounter).style.display = 'block'
+    }
+//=================================================================================================
+//=================================================================================================
+//=================================================================================================
+//*************************************************************************************************
+//
+//
 //                               GENERAL RETURN UICTRL DATA
 //
 //
@@ -2175,17 +2384,10 @@ class UICtrl {
     }
     getEditCookingDateModalOrNewDishModal(dataCtrl,appCtrl,edit_newDish_string,cookingCalendarObj){
         if(edit_newDish_string===this.modalTypes.cookingDate.edit){
-            const dishArray = dataCtrl.returnData('dishes')
+            const dishArray = cookingCalendarObj[0].eventOnly === 0 ? dataCtrl.returnData('dishes') : dataCtrl.returnData('dishes').filter(d => d.fifo === 1 )
             const selectedDishes = dataCtrl.returnData(`selectedDishes`)
             const tempObj = dataCtrl.returnData('tempObject')
-            var innerDishes = `
-            <style>
-                .selectedBG{background:rgba(74,134,255,.3)}
-                .pNoMargin{margin:0;padding:0}
-                .hrNoMargin{margin:0;padding:2px;}
-                .colNoMargin{margin:0;padding:2px 0;}}
-            </style>
-            `
+            var innerDishes = ``
             var street = null
             var complement = null
             var city = null
@@ -2204,54 +2406,65 @@ class UICtrl {
                 if(key==='venue'){venue = tempObj[key]}
             }
             dishArray.forEach(dish => {
-                console.log(`fifo edit `,dish)
                 if(selectedDishes.includes(dish.id) && dish.fifo === 0 ){finalAmount += parseFloat(dish.price)}
                 if(dish.excluded===0){
                     innerDishes = `${innerDishes}
-                    <button 
-                        id="checkboxDish-${dish.id}-${dish.fifo === 0 ? 'no' : 'yes'}" 
-                        class="btn .container-fluid mx-auto my-auto w-100 ${this.checkboxes.dishes.className} ${selectedDishes.includes(dish.id) ? 'selectedBG' : ''}" 
-                        onclick="const id = parseInt(this.id.split('-')[1])
-                                const fifo = this.id.split('-')[2] === 'no' ? false : true
-                                console.log(fifo)
-                                console.log( this.id.split('-')[2])
-                                var addSubtract = 0
-                                if(this.classList.contains('selectedBG')){
-                                    this.classList.remove('selectedBG')
-                                    dataCtrl.removeSelectedDish(id)
-                                    if(!fifo){
-                                        console.log(this.children)
-                                        addSubtract = -parseFloat(this.children[1].innerText.split(' ')[1])
-                                        console.log(this.children[1].innerText.split(' ')[1])
-                                        console.log(addSubtract)}
-                                }else{
-                                    this.classList.add('selectedBG')
-                                    dataCtrl.setSelectedDishes = id
-                                    if(!fifo){
-                                        addSubtract = parseFloat(this.children[1].innerText.split(' ')[1])
-                                        console.log(this.children[1].innerText.split(' ')[1])
-                                        console.log(addSubtract)
-                                    }
-                                }
-                                var amount = parseFloat(document.getElementById('${this.infoContainer.totalAmount}').innerText.split(' ')[1])
-                                amount += addSubtract
-                                document.getElementById('${this.infoContainer.totalAmount}').innerText = 'U$ ' + amount.toFixed(2)
-                                if(!fifo){
-                                }
-                                " 
-                        style="border-bottom: gray 1px solid;padding: 0;">
-                        <span>
-                            ${dish.fifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
-                        </span>
-                        ${dish.name} <i>${dish.price === null | dish.price=== '' ? 'U$ 0.00' : 'U$ ' + dish.price}</i>
-                    </button>
+                    ${returnMenuInfoDish(dish,selectedDishes.includes(dish.id),this)}
                     `
+                    // <button 
+                    //     id="checkboxDish-${dish.id}-${dish.fifo === 0 ? 'no' : 'yes'}" 
+                    //     class="btn .container-fluid mx-auto my-auto w-100 ${this.checkboxes.dishes.className} ${selectedDishes.includes(dish.id) ? 'selectedBG' : ''}" 
+                    //     onclick="const id = parseInt(this.id.split('-')[1])
+                    //             const fifo = this.id.split('-')[2] === 'no' ? false : true
+                    //             console.log(fifo)
+                    //             console.log( this.id.split('-')[2])
+                    //             var addSubtract = 0
+                    //             if(this.classList.contains('selectedBG')){
+                    //                 this.classList.remove('selectedBG')
+                    //                 dataCtrl.removeSelectedDish(id)
+                    //                 if(!fifo){
+                    //                     console.log(this.children)
+                    //                     addSubtract = -parseFloat(this.children[1].innerText.split(' ')[1])
+                    //                     console.log(this.children[1].innerText.split(' ')[1])
+                    //                     console.log(addSubtract)}
+                    //             }else{
+                    //                 this.classList.add('selectedBG')
+                    //                 dataCtrl.setSelectedDishes = id
+                    //                 if(!fifo){
+                    //                     addSubtract = parseFloat(this.children[1].innerText.split(' ')[1])
+                    //                     console.log(this.children[1].innerText.split(' ')[1])
+                    //                     console.log(addSubtract)
+                    //                 }
+                    //             }
+                    //             var amount = parseFloat(document.getElementById('${this.infoContainer.totalAmount}').innerText.split(' ')[1])
+                    //             amount += addSubtract
+                    //             document.getElementById('${this.infoContainer.totalAmount}').innerText = 'U$ ' + amount.toFixed(2)
+                    //             if(!fifo){
+                    //             }
+                    //             " 
+                    //     style="border-bottom: gray 1px solid;padding: 0;">
+                    //     <span>
+                    //         ${dish.fifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+                    //     </span>
+                    //     ${dish.name} <i>${dish.price === null | dish.price=== '' ? 'U$ 0.00' : 'U$ ' + dish.price}</i>
+                    // </button>
                 }
             })
             document.getElementById(this.modal.title).innerHTML = `<p class="h3">Edit information for ${cookingCalendarObj[0].cookingDate.split(' ')[0]} at ${cookingCalendarObj[0].street}?</p>`
             document.getElementById(this.modal.body).innerHTML = `
+            <style>
+                .selectedBG{background:rgba(74,134,255,.3)}
+                .pNoMargin{margin:0;padding:0}
+                .hrNoMargin{margin:0;padding:2px;}
+                .colNoMargin{margin:0;padding:2px 0;}}
+            </style>
             <div class=".container-fluid mx-auto my-auto w-100 text-center colNoMargin">
                 <div class="h6 w-50 mx-auto"><strong>To open to orders</strong> this <u>cooking calendar date</u>, it is necessary to inform <strong>street</strong>, <strong>city</strong>, <strong>state</strong> and the <strong>dishes</strong></div>
+                <hr class="hrNoMargin">
+                <div class="container mx-auto my-auto w-1000" style="text-align: left;padding:15px 0">
+                    <input type="checkbox" name="${this.formsNames.cookingCalendarInfo}" id="${this.inputs.cookingCalendarDate.eventOnly}" ${cookingCalendarObj[0].eventOnly === 1 ? 'checked' : ''} onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,uiCtrl.getIDs().modalActions.cookingDate.filterFifoDishes,this)">
+                    <label for="${this.formsNames.cookingCalendarInfo}"> <strong>Event only</strong></label><br>
+                </div>
                 <hr class="hrNoMargin">
                 <div class="h4">Address information</div>
                 <div class="container mx-auto my-auto w-100 text-center colNoMargin">
@@ -2365,7 +2578,7 @@ class UICtrl {
                     <div class="h4">Menu information</div>
                     <div class=".container-fluid mx-auto my-auto w-100 text-center">
                         <p class="pNoMargin">Select the dish(es) from the list below to add to the menu of this cooking calendar date:</p>
-                        <div class="container mx-auto my-auto w-75  colNoMargin" style="height: 200px!important;overflow-y:auto;border: gray .5px solid;">
+                        <div id="${this.inputs.cookingCalendarDate.menuInfoInnerDishes}" class="container mx-auto my-auto w-75 colNoMargin" style="height: 200px!important;overflow-y:auto;border: gray .5px solid;">
                             ${innerDishes}                            
                         </div>
                         <div class="container row">
@@ -2419,7 +2632,6 @@ class UICtrl {
         }
     }
     gettingOrderDeliveryStateOrSubstate(appStateOrSubState,innerData,tempDataLength){
-        console.log('chamou')
         var mainDivForContent = ''
         if(appStateOrSubState===this.uiSwitcher.state){
             mainDivForContent = document.getElementById(this.mainContent.div)
@@ -2569,6 +2781,8 @@ function returnInnerDataForCUserSubStateAndSearchMode(dataCtrl,uiCtrl,tempData,s
 //inner data to populate table in cooking calendar substates
 function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,subStateOne,subStateTwo,subStateThree){
     var counter = 0
+    const eventOnlyStatus = 20
+    const editableStatus = [1,2,3,4,5,eventOnlyStatus]
     var innerData = `
         <style>
             .blackBG{background:rgba(51,59,78,1);color:white;}
@@ -2624,7 +2838,7 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
     }
     //select right edit icon for cooking calendar date
     function cookingCalendarEditIcon(uiCtrl,status){
-        if(status<=5){
+        if(editableStatus.includes(status)){
             return `editIcon`
         }
         return `viewIcon`
@@ -2647,13 +2861,12 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
     }
     //select right edit function for cooking calendar date
     function cookingCalendarEditFunction(uiCtrl,status){
-        if(status<=5){
+        if(editableStatus.includes(status)){
             return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.edit}',this)`
         }
         return `appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.viewDetails}',this)`
     }
     function returnRepetitivePart(uictrl,appCtrl,reg,subStateOne,subStateTwo,subStateThree){
-        console.log(reg)
         return `
         <div class="col-12 row borderBottom ${counter%2===0 ? '' : 'darkBG'} colNoMarging">
             <!-- COOKING DATE INFO -->
@@ -2672,13 +2885,14 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
                         border: 0.4px solid black;
                         border-radius: 3px;
                         margin: 1px 0;
+                        color: black
                     }
                 </style>
                 <div class="col-12">
                     <button 
                         id="${uiCtrl.modalTypes.cookingDate.editStartEndTimes}-${reg.id}" 
                         class="row innerRowButton" 
-                        onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalTypes.cookingDate.editStartEndTimes}',this);">
+                        onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalTypes.cookingDate.editStartEndTimes}',this);" ${[8,9,999].includes(reg.cookingDate_status_id) ? 'disabled':''}>
                         <!-- start time --> 
                             <div class="col-12 innerBtnRows">
                                 <strong>From: </strong>${reg.timeFormat}
@@ -2690,41 +2904,59 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
                     </button>
                 </div>
                 <div class="col-12 colNoMarging innerTextMargin breakWord"><strong>${reg.street === null ? 'Address missing' : `At ${reg.street}`}${reg.complement !== null ? `, ${reg.complement}` : ''}, ${reg.city === null ? '' : reg.city}</strong></div>
-                <div class="col-12 colNoMarging innerTextMargin breakWord" style="text-align:right;>
-                    <p style="margin:0;">${reg.cookingDate_status}</p>
-                </div>
-                <div class="col-12 colNoMarging innerTextMargin text-center" style="background:greenyellow">
-                    <p style="margin:0;"><strong>Cooking capacity: ${reg.mealsForThis}</strong></p>
-                </div>
+                ${reg.eventOnly === 1 ? `` :
+                    `<div class="col-12 colNoMarging innerTextMargin breakWord" style="text-align:right;>
+                        <p style="margin:0;">${reg.cookingDate_status}</p>
+                    </div>
+                    <div class="col-12 colNoMarging innerTextMargin text-center" style="background:greenyellow">
+                        <p style="margin:0;"><strong>Cooking capacity: ${reg.mealsForThis}</strong></p>
+                    </div>  `
+                }
             </div>
             <!-- COOKING DATE STATISTICS -->
-            <div class="col-4 row colNoMarging my-auto mx-auto stats paddingLeftRight" style="text-align:left">
-                <div class="col-6 colNoMarging breakWord my-auto mx-auto"><strong>- Pre-orders: </strong></div>
-                <div class="col-6 colNoMarging text-center my-auto mx-auto">
-                    <button 
-                        id="${uiCtrl.modalTypes.cookingDate.listOrders}-${reg.id}" 
-                        class="btn btnActions editMode" 
-                        style="border: black 0.5px solid;padding-left: 15px;padding-right: 25px;text-align: center;"
-                        onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.listOrders}',this)">
-                        <p style="margin:0;">${reg.ordersTotal}</p>
-                    </button>
-                </div>
-                <hr class="hrNoMargin">
-                <div class="col-12 colNoMarging breakWord my-auto mx-auto"><strong>- Number of meals </strong></div>
-                <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.ordered: </strong></div>
-                <div class="col-6 colNoMarging text-center my-auto mx-auto">
-                    <p style="margin:0;">${reg.meals_quantity}</p></div>
-                <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.sorted: </strong></div>
-                <div class="col-6 colNoMarging text-center my-auto mx-auto">
-                    <p style="margin:0;">${reg.mealsOnList}</p></div>
-                <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.paid: </strong></div>
-                <div class="col-6 colNoMarging text-center my-auto mx-auto">
-                    <p style="margin:0;">${reg.mealsConfirmed}</p></div>
-                <hr class="hrNoMargin">
-                <div class="col-6 colNoMarging breakWord my-auto mx-auto"><strong>- First come first served</strong></div>
-                <div class="col-6 colNoMarging text-center my-auto mx-auto">
-                    <p style="margin:0;">${reg.mealsForThis-(reg.mealsConfirmed)}</p>
-                </div>
+            <div class="col-4 row colNoMarging my-auto mx-auto stats paddingLeftRight h-100" style="text-align:left">
+                ${reg.eventOnly === 1 ? 
+                    `
+                    <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center"><i>EVENT ONLY (FCFS)</i></div>
+                    <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center"><strong>Maybe will go:</strong></div>
+                    <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center">
+                        <button 
+                            id="${uiCtrl.modalTypes.cookingDate.listPresence}-${reg.id}" 
+                            class="btn btnActions editMode w-50" 
+                            style="border: black 0.5px solid;padding-left: 15px;padding-right: 25px;text-align: center;"
+                            onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.listPresence}',this)">
+                            <p style="margin:0;">${reg.maybeGo}</p>
+                        </button>
+                    </div>
+                    ` 
+                    :
+                    `<div class="col-6 colNoMarging breakWord my-auto mx-auto"><strong>- Pre-orders: </strong></div>
+                    <div class="col-6 colNoMarging text-center my-auto mx-auto">
+                        <button 
+                            id="${uiCtrl.modalTypes.cookingDate.listOrders}-${reg.id}" 
+                            class="btn btnActions editMode" 
+                            style="border: black 0.5px solid;padding-left: 15px;padding-right: 25px;text-align: center;"
+                            onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.listOrders}',this)">
+                            <p style="margin:0;">${reg.ordersTotal}</p>
+                        </button>
+                    </div>
+                    <hr class="hrNoMargin">
+                    <div class="col-12 colNoMarging breakWord my-auto mx-auto"><strong>- Number of meals </strong></div>
+                    <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.ordered: </strong></div>
+                    <div class="col-6 colNoMarging text-center my-auto mx-auto">
+                        <p style="margin:0;">${reg.meals_quantity}</p></div>
+                    <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.sorted: </strong></div>
+                    <div class="col-6 colNoMarging text-center my-auto mx-auto">
+                        <p style="margin:0;">${reg.mealsOnList}</p></div>
+                    <div class="col-6 colNoMarging my-auto mx-auto" style="text-align:right"><strong>.paid: </strong></div>
+                    <div class="col-6 colNoMarging text-center my-auto mx-auto">
+                        <p style="margin:0;">${reg.mealsConfirmed}</p></div>
+                    <hr class="hrNoMargin">
+                    <div class="col-6 colNoMarging breakWord my-auto mx-auto"><strong>- First come first served</strong></div>
+                    <div class="col-6 colNoMarging text-center my-auto mx-auto">
+                        <p style="margin:0;">${reg.mealsForThis-(reg.mealsConfirmed)}</p>
+                    </div>  `
+                }
             </div>
             <!-- COOKING DATE BTNS -->
             <div class="col-3 row colNoMarging paddingLeftRight" style="text-align:left">
@@ -2735,12 +2967,12 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
                             class="btn btn-outline-secondary btnActions editMode" 
                             style="background-image: url(/img/${cookingCalendarEditIcon(uiCtrl,reg.cookingDate_status_id)}.png)" 
                             onclick="${cookingCalendarEditFunction(uiCtrl,reg.cookingDate_status_id)};${cookingCalendarEditFunction(uiCtrl,reg.cookingDate_status_id)}" >
-                            ${reg.cookingDate_status_id <= 5 ? 'Edit' : 'View' }
+                            ${editableStatus.includes(reg.cookingDate_status_id) ? 'Edit' : 'View' }
                         </button>
                     </div>
                 ` : '' } 
                 ${subStateOne ? `
-                    ${reg.cookingDate_status_id === 6 ? '' :
+                    ${reg.cookingDate_status_id === 6 || reg.eventOnly === 1 ? '' :
                     `<div class="col-12 colNoMarging btnPadding">
                         <button 
                             id="${reg.cookingDate_status_id <= 3 ? uiCtrl.modalTypes.cookingDate.openToOrders : uiCtrl.modalTypes.cookingDate.closeToOrders}-${reg.id}" 
@@ -2756,24 +2988,26 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
                     }
                 ` : ''}
                 ${subStateOne ? `
-                    <div class="col-12 colNoMarging btnPadding">
-                        <button 
-                            id="${uiCtrl.modalTypes.cookingDate.edit}-${reg.id}" 
-                            class="btn btn-outline-warning btnActions editMode" 
-                            style="background-image: url(/img/sendNotification.png)" 
-                            onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.sendToAll}',this)" >
-                            ${reg.cookingDate_status_id >= 8 ? 'Notify paid' : 'Notify all' }
-                        </button>
-                    </div>
+                    ${reg.eventOnly === 1 ? '' : 
+                        `<div class="col-12 colNoMarging btnPadding">
+                            <button 
+                                id="${uiCtrl.modalTypes.cookingDate.edit}-${reg.id}" 
+                                class="btn btn-outline-warning btnActions editMode" 
+                                style="background-image: url(/img/sendNotification.png)" 
+                                onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.sendToAll}',this)" >
+                                ${reg.cookingDate_status_id >= 8 ? 'Notify paid' : 'Notify all' }
+                            </button>
+                        </div>  `
+                    }
                 ` : '' }
-                ${subStateOne ? `
+                ${subStateOne || reg.eventOnly === 1  ? `
                     <div class="col-12 colNoMarging btnPadding">
                         <button 
                             id="${uiCtrl.modalTypes.cookingDate.delete}-${reg.id}"
                             class="btn btn-outline-danger btnActions editMode" 
                             style="background-image: url(/img/delete48.png)" 
                             onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.delete}',this)"
-                            ${reg.cookingDate_status_id >= 6 ? 'disabled hidden' : ''}>
+                            ${reg.cookingDate_status_id >= 6 && reg.cookingDate_status_id !== eventOnlyStatus  ? 'disabled hidden' : ''}>
                             Delete
                         </button>
                     </div>
@@ -2806,6 +3040,64 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
         innerData= `${innerData} ${returnRepetitivePart(uiCtrl,appCtrl,reg,subStateOne,subStateTwo,subStateThree)}`
         counter += 1})
     return innerData
+}
+//inner dishes inside edit menu modal inside menu information 
+function returnMenuInfoDish(dish,bgSelected,uiCtrl){
+    return `
+        <button 
+            id="checkboxDish-${dish.id}-${dish.fifo === 0 ? 'no' : 'yes'}" 
+            class="btn .container-fluid mx-auto my-auto w-100 ${uiCtrl.getIDs().checkboxes.dishes.className}  ${bgSelected ? 'selectedBG' : ''}" 
+            onclick="const id = parseInt(this.id.split('-')[1])
+                    const fifo = this.id.split('-')[2] === 'no' ? false : true
+                    console.log(fifo)
+                    console.log( this.id.split('-')[2])
+                    var addSubtract = 0
+                    if(this.classList.contains('selectedBG')){
+                        this.classList.remove('selectedBG')
+                        dataCtrl.removeSelectedDish(id)
+                        if(!fifo){
+                            console.log(this.children)
+                            addSubtract = -parseFloat(this.children[1].innerText.split(' ')[1])
+                            console.log(this.children[1].innerText.split(' ')[1])
+                            console.log(addSubtract)}
+                    }else{
+                        this.classList.add('selectedBG')
+                        dataCtrl.setSelectedDishes = id
+                        if(!fifo){
+                            addSubtract = parseFloat(this.children[1].innerText.split(' ')[1])
+                            console.log(this.children[1].innerText.split(' ')[1])
+                            console.log(addSubtract)
+                        }
+                    }
+                    var amount = parseFloat(document.getElementById('${uiCtrl.getIDs().infoContainer.totalAmount}').innerText.split(' ')[1])
+                    amount += addSubtract
+                    document.getElementById('${uiCtrl.getIDs().infoContainer.totalAmount}').innerText = 'U$ ' + amount.toFixed(2)
+                    if(!fifo){
+                    }
+                    " 
+            style="border-bottom: gray 1px solid;padding: 0;">
+            <span>
+                ${dish.fifo === 1 ? '<img src="/img/fifoDish.png" height="20px"></img> ' : ''}
+            </span>
+            ${dish.name} <i>${dish.price === null | dish.price=== '' ? 'U$ 0.00' : 'U$ ' + dish.price}</i>
+        </button>
+    `
+}
+function filterFifoDishes(dataCtrl,uiCtrl,eventOnly = false){
+    var selectedDishes = dataCtrl.returnData(`selectedDishes`)
+    var innerDishesEl = document.getElementById(uiCtrl.getIDs().inputs.cookingCalendarDate.menuInfoInnerDishes)
+    const dishArray = !eventOnly ? dataCtrl.returnData('dishes') : dataCtrl.returnData('dishes').filter(d => d.fifo === 1 )
+    var innerDishes = ``
+    dishArray.forEach(dish => {
+        // if(selectedDishes.includes(dish.id) && dish.fifo === 0 ){finalAmount += parseFloat(dish.price)}
+        if(dish.excluded===0){
+            innerDishes = `${innerDishes}
+            ${returnMenuInfoDish(dish,selectedDishes.includes(dish.id),uiCtrl)}
+            `
+        }
+    })
+    innerDishesEl.innerHTML = innerDishes
+
 }
 //inner data to populate table in dish substates
 function returnInnerDataForDishSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,subStateOne,subStateTwo,subStateThree){
@@ -2971,7 +3263,6 @@ function returnInnerDataForCatoringSubStatesAndSearchMode(dataCtrl,uiCtrl,tempDa
 }
 //inner data to populate table in dish substates
 function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,subStateOne,subStateTwo,subStateThree = false,subStateFour = false,subStateFive=false){
-    console.log(tempData)
     var innerData = `
     <style>
         .stateStyle{min-height: 35px;font-size: 1.4rem;}
@@ -3101,7 +3392,6 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
     })
     tempData.forEach(reg => {
         if(cdId!==reg.cookingDates_id){
-            console.log(reg.cookingDates_id)
             cdId = reg.cookingDates_id
             status = 0
             innerData = `${innerData} 
@@ -3114,6 +3404,50 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
             `}
         innerData = `${innerData} ${returnRepetitivePart(reg)}`
         counter += 1
+    })
+    return innerData
+}
+//inner data to populate sause funding
+function returnInnerDataForSauseFundingAndSearchMode(dataCtrl,uiCtrl,tempData){
+    var innerData = ''
+    tempData.forEach((pre,counter)=> {
+        innerData=`${innerData}
+            <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0?'darkBG':''} bottomLine colNoMarging">
+                <div class=".container-fluid col-4 row colNoMarging">
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Pre-order: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${pre.orderNr} ${pre.paid === 1 ? '<i style="font-size:0.8rem">paid</i>' : ''}</div>
+                    ${uiCtrl.getIDs().elRowDivider}
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Qtty: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${parseInt(pre.qtty)}</div>
+                    ${uiCtrl.getIDs().elRowDivider}
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Amount: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">U$ ${parseFloat(pre.amount).toFixed(2)}</div>
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Tip: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">U$ ${parseFloat(pre.tip).toFixed(2)}</div>
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Total: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">U$ ${parseFloat(parseFloat(pre.amount) + parseFloat(pre.tip)).toFixed(2)}</div>
+                </div>
+                <div class=".container-fluid col-4 row leftLine colNoMarging">
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Email: </strong></div>
+                    <div class="col-12 col-md-8 alignLeft colNoMarging wrapWord">${pre.email}</div>
+                    <div class="col-12 col-md-4  alignLeft colNoMarging"><strong>Name: </strong></div>
+                    <div class="col-12 col-md-8 alignLeft colNoMarging wrapWord">${pre.name}</div>
+                    <div class="col-12 col-md-4  alignLeft colNoMarging"><strong>Phone number: </strong></div>
+                    <div class="col-12 col-md-8 alignLeft colNoMarging wrapWord">${phoneNumberMask(pre.phoneNumber)}</div>
+                </div>
+                <div class=".container-fluid col-4 row leftLine colNoMarging btnMarginTopBottom">
+                    <div class="col-12 col-md-6 colNoMarging btnPadding">
+                        <button 
+                            id="${uiCtrl.getIDs().modalTypes.user.notify}-${pre.user_id}"
+                            class="btn btn-outline-warning btnActions" 
+                            style="background-image: url(/img/sendNotification.png)" 
+                            onclick="appCtrl.userActions(dataCtrl,uiCtrl,uiCtrl.getIDs().modalActions.user.notify,this)"  >
+                            Notify
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `
     })
     return innerData
 }
@@ -3166,7 +3500,6 @@ function returnInnerDataForManageAccessesSubStatesAndSearchMode(users){
 }
 //return dynamic element part for listing orders
 function returnDynamicElementsForCookingDateListOrdersModal(uiCtrl,tempData){
-    console.log('dynamicElemenstsListingOrders->',tempData)
     tempData.sort((a,b)=> {
         if(a.order_status_id>b.order_status_id){return -1 }
         if(a.order_status_id<b.order_status_id){return 1 }
@@ -3189,7 +3522,6 @@ function returnDynamicElementsForCookingDateListOrdersModal(uiCtrl,tempData){
     var counter = 0 
     const elDivider = `<div class="col-12 colNoMarging"><hr style="margin: 0 70px"></div>`
     tempData.forEach(order => {
-        console.log(order)
         if(statusId!==order.order_status_id){
             statusId=order.order_status_id
             innerData = `${innerData}

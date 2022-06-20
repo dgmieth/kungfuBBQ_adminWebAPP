@@ -108,3 +108,15 @@ exports.initiateDelivery = (req,res,next) => {
         return res.status(401).json(returnObject)
     }
 }
+//fetch presence for event only
+exports.eventOnly = (req,res,next) => {
+    console.log(process.env.EVENT_ONLY.split(','))
+    console.log(req.session.accesses)
+    if(checkAccesses.checkUserAccess(process.env.EVENT_ONLY,req)){
+        console.log('1-> hasAccess')
+        next()
+    }else{
+        returnObject.msg = "User does not have permission to list people that maybe go to an event only"
+        return res.status(401).json(returnObject)
+    }
+}

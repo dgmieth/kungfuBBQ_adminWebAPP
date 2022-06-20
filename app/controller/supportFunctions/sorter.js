@@ -56,7 +56,9 @@ exports.sortCookingDates = (data) => {
                 country: cd.country,
                 dishes: dishes,
                 ordersTotal: cd.ordersTotal,
-                cookingDateStatusText: cd.cookingDateStatusText
+                cookingDateStatusText: cd.cookingDateStatusText,
+                maybeGo: cd.maybeGo,
+                eventOnly: cd.eventOnly
             })
         }
     })

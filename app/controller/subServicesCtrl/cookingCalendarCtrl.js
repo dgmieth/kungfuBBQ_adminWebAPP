@@ -39,8 +39,7 @@ exports.allCookingCalendar = (req,res,next) => {
 }
 // COOKING DATE -> UPDATE A COOKING DATE ================================
 exports.updateCookingCalendarDate = (req,res,next)=>{
-    console.log('updateCookingCalendarDate =================================================')
-    console.log(req.body)
+    console.log('cookingCalendarCtrl -> eventOnly ->')
     const addressString = `${req.body.ccdStreet.replace(/\W/g,'+').toLowerCase()},${req.body.cctCity.toLowerCase()},${req.body.ccdState.toLowerCase()}`
     axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${process.env.MAPQUEST_KEY}&location=${addressString}`)
     .then(response => {
@@ -59,21 +58,28 @@ exports.updateCookingCalendarDate = (req,res,next)=>{
                     date = data[0].cookingDate.split(' ')[0]}
                 CookingCalendar.updateCookingDate(jsonObjectForUpdateCookingDate(req,data,latitude,longitude))
                 .then(([data1,meta1])=>{
-                    // console.log(data1)
-                    if(data1[2][0]['@returnCode']===-2){
+                    if(data1.length === 3 ? data1[2][0]['@returnCode']===-2 : data1[1][0]['@returnCode']===-2){
                         return returnErroMessage(`Cooking date is not updatable anylonger.`,res)    }
-                    if(data1[2][0]['@returnCode']===-3){
+                    if(data1.length === 3 ? data1[2][0]['@returnCode']===-3 : data1[1][0]['@returnCode']===-3){
                         return returnErroMessage(`Server: you must include at least one dish that is not First come First served.`,res) }
-                    if(data1[0][0].cdStatus<=3){
-                        returnObject.mgs = 'Cooking event updated.'
-                        returnObject.data = 'Cooking event updated.'
-                        return res.json(returnObject)
-                    }
                     if(data1){
-                        returnObject.hasErrors = false
-                        returnObject.data = data1
-                        const notifMsg = `The menu and/or address of ${date === '' ? 'a' : 'the'} KungfuBBQ event ${date===''? '' : 'on ' + date} changed! Please check it out.`
-                        sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDateId),notifMsg,'subscribed','update')
+                        if(data1[0][0].cdStatus<=3){ 
+                            returnObject.mgs = 'Cooking event updated.'
+                            returnObject.data = 'Cooking event updated.'
+                            return res.json(returnObject)
+                        }else{
+                            if(data1[0][0].cdStatus === 20){
+                                returnObject.hasErrors = false
+                                returnObject.data = data1
+                                const notifMsg = `EVENT ONLY! Food will be sold as first come first served only! ==> The ${date === '' ? 'a' : 'the'} KungfuBBQ event ${date===''? '' : 'on ' + date} has been posted or updated! Please check it out.`
+                                sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDateId),notifMsg,process.env.CD_ALL,process.env.CD_UPDATE)
+                            }else{
+                                returnObject.hasErrors = false
+                                returnObject.data = data1
+                                const notifMsg = `The menu and/or address of ${date === '' ? 'a' : 'the'} KungfuBBQ event ${date===''? '' : 'on ' + date} changed! Please check it out.`
+                                sendNotification.sendNotif(req,res,next,parseInt(req.body.cookingDateId),notifMsg,process.env.CD_SUBSCRIBED,process.env.CD_UPDATE)
+                            }
+                        }
                     }else {
                         return returnErroMessage(`It was not possible to udpate this cooking date`,res) }   })
                 .catch(err => {
@@ -269,6 +275,26 @@ exports.updateStartEndTimes = (req,res,next) => {
         return returnErroMessage(`Not possible to update start and end times at this moment.`,res)   
     })
 }
+// COOKING DATE -> GET LIST OF PEOPLE THAT MAYBE WILL GO =============
+exports.eventOnly = (req,res,next) => {
+    console.log('cookingCalendarCtrl -> eventOnly -> ')
+    console.log(req.query)
+    CookingCalendar.eventOnly(parseInt(req.query.eventOnly))
+    .then(([answer,meta])=>{
+        console.log(answer)
+        if(answer.length>0){
+            returnObject.msg = 'Data received.'
+            returnObject.data = answer[0]
+            return res.json(returnObject)   
+        }else{
+            return returnErroMessage(`It could not retrieve list of presence from the database`,res) 
+        }
+    })
+    .catch(err => {
+        console.log('cookingCalendarCtrl -> eventOnly -> eventOnly - err: ',err)
+        return returnErroMessage(`It could not retrieve list of presence from the database. ${err}`,res) 
+    })
+}
 /*
     ==========================================================================================================================
                             CODE REFACTORING ----> SUPPORT FUNCTIONS
@@ -292,6 +318,7 @@ function jsonObjectForUpdateCookingDate(req,data,latitude,longitude){
         includeDishes: includeDishes,
         excludeDishes: excludeDishes,
         cookingDateId: req.body.cookingDateId,
+        eventOnly: req.body.eventOnly===true ? 1 : 0,
         lat: latitude,
         lng: longitude,
         userId: parseInt(req.session.User.id)   })

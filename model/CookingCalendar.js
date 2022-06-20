@@ -32,7 +32,6 @@ module.exports = class CookingCalendar {
     }
     // update a specifica cooking calendar date -> must send json object
     static updateCookingDate(jsonObject){
-        console.log(jsonObject)
         return db.query(`CALL foodtruck_cd_updateCookingDate(?,@returnCode);SELECT @returnCode;`,[`${jsonObject}`])
     }
     // create a new cookinga calendar date
@@ -60,7 +59,10 @@ module.exports = class CookingCalendar {
         return db.query(`CALL notification_getUserIdsForManualNotifications(?, ?, @returnCode);SELECT @returnCode as returnCode;`, [`${cookingDateId}`,`${all_paid}`])
     }
     static updateStartEndTime(cookingDateId,startTime,endTime,doneBy){
-        console.log('model -> updateStartEndTime')
         return db.query(`CALL foodtruck_cd_updateStartEndTimes(?,?,?,?,@returnCode);SELECT @returnCode as returnCode;`,[`${cookingDateId}`,`${startTime}`,`${endTime}`,`${doneBy}`])
+    }
+    /*list people that maybe go to an event only */
+    static eventOnly(cookingDateId){
+        return db.query(`CALL foodtruck_cd_listPresenceEnventOnly(?);`,[`${cookingDateId}`])
     }
  }

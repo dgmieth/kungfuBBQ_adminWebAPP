@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <!-- FLATPKR CSS -->
     <link rel="stylesheet" href="/css/flatpkr/flatpkr.min.css">
+    <link rel="icon" href="/img/logo500.png">
     <style>
       html,body {
         height: 100%!important;
@@ -202,10 +203,72 @@
                 </div>
                 <button id="usersStateBtn" class="appStateBtns  item">Users</button>
                 <!--<button id="menuStateBtn" class="appStateBtns  item">Menu</button>-->
-                <button id="cookingCalendarStateBtn" class="appStateBtns  item">Cooking calendar</button>
-                <button id="dishStateBtn" class="appStateBtns  item">Dish</button>
-                <button id="ordersStateBtn" class="appStateBtns  item">Orders</button>
-                <button id="catorStateBtn" class="appStateBtns  item">Catering</button>
+                <style>
+                  .foodtruckDropMenu, .onlineStoreDropMenu {
+                    visibility: hidden;
+                    height: 0;
+                    opacity: 0;
+                    transition: all .4s ease-out, height .2s linear;
+                  }
+                  .foodtruck, .store{
+                    padding:15px 10px;
+                    color: #fcfcfc;
+                    text-transform:uppercase;
+                    font-size:15px;
+                    background-color: transparent;
+                    border: none;
+                    border-bottom: 1px solid #444;
+                    width: 100%;   
+                  }
+                  .foodtruck:before, .store::before{
+                    display: inline-block;
+                    content: "\27A4";
+                    transition: all 0.3s;
+                  }
+                  .showFoodTruckMenu, .showOnlineStoreMenu{
+                    font-weight: 900;
+                  }
+                  .showFoodTruckMenu::before, .showOnlineStoreMenu::before{
+                    transform: rotate(90deg);
+                  }
+                  .innerItem{
+                    background-color: #454e57!important;
+                  }
+                  .showFTMenu, .showOSMenu {
+                    visibility: visible;
+                    height: 100%;
+                    opacity: 1;
+                  }
+                </style>
+                <script>
+                    function togleShowFoodTruckDropDownMenu(){
+                      document.getElementById("foodtruck_dropDown").classList.toggle("showFTMenu");
+                      document.getElementsByClassName("foodtruck")[0].classList.toggle("showFoodTruckMenu");
+                    }
+                    function togleShowOnlineStorekDropDownMenu(){
+                      document.getElementById("online_dropDown").classList.toggle("showOSMenu");
+                      document.getElementsByClassName("store")[0].classList.toggle("showOnlineStoreMenu");
+                    }
+                </script>
+                <div class="dropdown1">
+                  <button onclick="togleShowFoodTruckDropDownMenu()" class="foodtruck appStateBtns ">Food Truck</button>
+                  <div id="foodtruck_dropDown" class="foodtruckDropMenu">
+                    <button id="cookingCalendarStateBtn" class="appStateBtns item innerItem">Cooking calendar</button>
+                    <button id="dishStateBtn" class="appStateBtns item innerItem">Dish</button>
+                    <button id="ordersStateBtn" class="appStateBtns item innerItem">Orders</button>
+                  </div>
+                </div>
+                <div class="dropdown2">
+                  <button onclick="togleShowOnlineStorekDropDownMenu()" class="store appStateBtns">Online Store</button>
+                  <div id="online_dropDown" class="onlineStoreDropMenu">
+                    <button id="s_items" class="appStateBtns item innerItem">Items</button>
+                    <button id="s_orders" class="appStateBtns item innerItem">Orders</button>
+                  </div>
+                </div>
+                <button id="catorStateBtn" class="appStateBtns item" style="position:relative;">Catering
+                  <div id="unreadMessagesCounter" class="div" style="position: absolute;top:3px;right:10px;color: black;background-color: #fff900;border-radius: 50%;display: table;width: 20px;">13</div>
+                </button>
+                <button id="sauseFundingStateBtn" class="appStateBtns  item">Sause Funding</button>
                 <button id="reportsStateBtn" class="appStateBtns  item">Reports</button>
                 
                 <div style="margin:.3px;border: rgb(236, 71, 71) 0.5px solid;">

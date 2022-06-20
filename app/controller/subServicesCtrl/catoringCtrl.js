@@ -82,3 +82,22 @@ exports.archiveMessage = (req,res,next) => {
         console.log(err)
         return returnErroMessage(`It was not possible archive this message this time. ${err}`,res)  })
 }
+// ======================================================================
+// TOTAL UNREAD MESSAG ==================================================
+exports.totalUnreadMessages = (req,res,next) =>{
+    console.log('===> totalUnreadMessages')
+    // res.json({reached: true})
+    CatoringMessage.unreadMessages()
+    .then(([data,meta])=>{
+        console.log(data[0][0].unreadTotal)
+        if(data){
+            returnObject.hasErrors = false
+            returnObject.data = parseInt(data[0][0].unreadTotal)
+            return res.json(returnObject)   }
+        return returnErroMessage(`Could get quantity of unread messages.`,res)  
+    })
+    .catch(err => {
+        console.log(err)
+        return returnErroMessage(`Could get quantity of unread messages. ${err}`, res)  
+    })
+}

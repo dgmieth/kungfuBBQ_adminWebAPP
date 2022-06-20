@@ -5,6 +5,7 @@ class AppCtrl {
             _INITIAL: 'INITIAL',
             _INVITATIONCODE: 'INVITATIONCODE',
             _ORDERDELIVERY: 'ORDERDELIVERY',
+            _SAUSEFUNDING:'SAUSEFUNDING',
             _LOGOUT: 'LOGOUT',
             //states with options
             _USERS: 'USERS',
@@ -14,7 +15,10 @@ class AppCtrl {
             _ORDERS: 'ORDERS',
             _MANAGEACCESS: 'MANAGEACCESS',
             _REPORTS: 'REPORTS',
-            _CATORING: 'CATORING'
+            _CATORING: 'CATORING',
+            // ==> Online items store
+            _SITEMS: 'S_ITEMS',
+            _SORDERS: 'S_ORDERS'
         }
         this.previousState = ''
         this.appState = this.appStatesList._INITIAL
@@ -210,7 +214,6 @@ class AppCtrl {
                 }})})
     }
     updateCookingDateInformation(dataCtrl,uiCtrl,dataObj){
-        console.log(dataObj)
         return new Promise((resolve,reject)=> {
             fetch('/services/updateCookingCalendarDate', {
                 method: 'POST',
@@ -224,7 +227,7 @@ class AppCtrl {
                 }else{
                     answer.json()
                     .then(response => {
-                        console.log(response)
+                        // console.log(response)
                         if(!response.hasErrors){
                             uiCtrl.showHideAlert(`alert-info`,response.data,'show')
                             this.fetchCookingDates(dataCtrl,uiCtrl)
@@ -434,6 +437,31 @@ class AppCtrl {
                             this.fetchCookingDates(dataCtrl,uiCtrl)
                             .then(value => {resolve(true)})
                             .catch(err => {reject(false)})
+                        }})
+                    .catch(err => {
+                        console.log(err)
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                        reject(false)})
+                }})})
+    }
+    fetchPresenceCookingDatesEventOnly(dataCtrl,uiCtrl,element){
+        return new Promise((resolve,reject)=>{
+            fetch(`/services/eventOnly?eventOnly=${element}`)
+            .then(answer => {
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User has no access to fetch orders from database','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
+                }else{
+                    answer.json()
+                    .then(response => {
+                        // console.log(response)
+                        if(!response.hasErrors){
+                            dataCtrl.setListOfPresence = response.data
+                            resolve(true)
+                        }else{
+                            reject(false)
                         }})
                     .catch(err => {
                         console.log(err)
@@ -677,6 +705,7 @@ class AppCtrl {
                 return answer.json()})
             .then(response => {
                 if(!response.hasErrors){
+                    this.unreadMessages(dataCtrl,uiCtrl)
                     resolve(true)
                 }else{
                     reject(false)
@@ -743,6 +772,58 @@ class AppCtrl {
                         reject(false)})
                 }})})
     }
+//ARCHIVE MESSAGE
+    unreadMessages(dataCtrl,uiCtrl){
+        fetch('/services/totalUnreadMessages')
+        .then(answer => {  
+            if(answer.redirected){ return window.location.href = answer.url 
+            }else{
+                answer.json()
+                .then(response => {
+                    console.log(response)
+                    uiCtrl.updateUnreadMessagesCounter(response.data)
+                })
+                .catch(err => {
+                    console.log(err)
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                    })
+            }})
+    }
+//=================================================================================================
+//SAUSE FUNDING APP STATE =========================================================================
+//=================================================================================================
+//FETCH ALL SAUSE PRE ORDERS
+    fetchAllSausePreOrders(dataCtrl,uiCtrl){ 
+        this.fetchUsers(dataCtrl,uiCtrl)
+        .then(value => {
+            fetch(`/services/getInformationAndPreOrders`)
+            .then(answer => {
+                return answer.json()
+            })
+            .then(response => {
+                console.log(response)
+                uiCtrl.showHideSpinner('hide')
+                if(!response.hasErrors){
+                    dataCtrl.setSauseFunding = response.data
+                    uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
+                    uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
+                }else{
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,response.msg,'show')
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                uiCtrl.showHideSpinner('hide')
+                uiCtrl.showHideUserModal(null,null,'hide',null)
+                uiCtrl.showHideAlert(`alert-warning`,`${response.msg}. ${err}`,'show')
+            })
+        })
+        .catch(err => {
+            uiCtrl.showHideSpinner('hide')
+            console.log('error fetchUsers->',err)})
+    }
 //=================================================================================================
 //=================================================================================================
 //=================================================================================================
@@ -760,6 +841,7 @@ class AppCtrl {
 // APP STATE
     loadAppStateEventListeners(dataCtrl,uiCtrl){
         const appStateIds = uiCtrl.getIDs().sidebar.btns
+        this.unreadMessages(dataCtrl,uiCtrl)
         // document.getElementById(appStateIds.invitationCode).addEventListener('click',(e)=>{
         //     uiCtrl.showHideSpinner('show')
         //     this.setAppState = this.getAppStatesList._INVITATIONCODE
@@ -908,6 +990,22 @@ class AppCtrl {
         document.getElementById(appStateIds.logout).addEventListener('click', (e)=>{
             this.setAppState = this.getAppStatesList._LOGOUT
             this.logout(uiCtrl)
+        })
+        //ONLINE STORE STATES
+        document.getElementById(appStateIds.sItems).addEventListener('click',(e)=>{
+            this.setAppState = this.getAppStatesList._SITEMS
+        })
+        document.getElementById(appStateIds.sOrders).addEventListener('click',(e)=>{
+            this.setAppState = this.getAppStatesList._SORDERS
+        })
+        //SAUSE FUNDING
+        document.getElementById(appStateIds.sauseFunding).addEventListener('click',(e)=>{
+            this.setAppState = this.getAppStatesList._SAUSEFUNDING
+            this.setAppSubState = this.appSubStatesList._INITIAL
+            uiCtrl.showHideSpinner('show')
+            this.fetchAllSausePreOrders(dataCtrl,uiCtrl)
+            uiCtrl.showHideSpinner('hide')
+            this.toggleSidebar(null,uiCtrl)
         })
     }
 //=================================================================================================
@@ -1138,6 +1236,7 @@ class AppCtrl {
             loadEventListeners(dataCtrl,uiCtrl,this,modalAction,element)
         }
         if(modalAction===modalActions.notify){
+            console.log(parseInt(element.id.split('-')[1]))
             uiCtrl.showHideUserModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.notify)
             loadEventListeners(dataCtrl,uiCtrl,this,modalAction,element)
         }
@@ -1244,6 +1343,7 @@ class AppCtrl {
                     for(let info of cookingCalendarInfo){
                         const value = info.value
                         const id = info.id
+                        /** VALIDATIONS */
                         if(id===uiCtrl.getIDs().inputs.cookingCalendarDate.street &&
                         (value===''||value===null)){
                             msg = `${msg}You MUST inform the name of the street. `
@@ -1256,19 +1356,31 @@ class AppCtrl {
                         (value===''||value===null)){
                             msg = `${msg}You MUST choose a state. `
                         }
-                        dataObj[info.id] = info.value
+                        /* getting information from form*/
+                        if(id===uiCtrl.getIDs().inputs.cookingCalendarDate.eventOnly){
+                            dataObj[info.id] = info.checked
+                        }else{
+                            dataObj[info.id] = info.value
+                        }
                     }
-                    var fifos = dishes.filter(dish=> { if(selectedDishes.includes(dish.id) && dish.fifo ===1) {return true }})
-                    if(selectedDishes.length===0 || fifos.length === selectedDishes.length){
-                        msg = `${msg}You MUST select at least ONE dish that is not First Come First Served.`
+                    /** VALIDATIONS */
+                    if(dataObj[uiCtrl.getIDs().inputs.cookingCalendarDate.eventOnly]===false){
+                        var fifos = dishes.filter(dish=> { if(selectedDishes.includes(dish.id) && dish.fifo ===1) {return true }})
+                        if(selectedDishes.length===0 || fifos.length === selectedDishes.length){
+                            msg = `${msg}You MUST select at least ONE dish that is not First Come First Served.`
+                        }
                     }else{
-                        dataObj.dishes = selectedDishes
-                        dataObj.cookingDateId = dataCtrl.returnData('tempSelectedData').id.split('-')[1]
+                        if(selectedDishes.length===0){
+                            msg = `${msg}You MUST select at least ONE dish.`
+                        }
                     }
+                    /** checkiong VALIDATIONS and creating dishes object*/
                     if(msg!==''){
                         return uiCtrl.showHideAlert(`alert-danger`,msg,'show')
                     }else {
                         uiCtrl.showHideAlert(null,null,'hide')
+                        dataObj.dishes = selectedDishes
+                        dataObj.cookingDateId = dataCtrl.returnData('tempSelectedData').id.split('-')[1]
                     }
                     uiCtrl.showHideSpinner('show')
                     appCtrl.updateCookingDateInformation(dataCtrl,uiCtrl,dataObj)
@@ -1376,6 +1488,18 @@ class AppCtrl {
             })
             .catch(err => { console.log('error fetchOrdersForActiveFinishedCookingDates', err);uiCtrl.showHideSpinner('hide')})
         }
+        if(action===modalActions.listPresence){
+            console.log('listPresence')
+            uiCtrl.showHideSpinner('show')
+            this.fetchPresenceCookingDatesEventOnly(dataCtrl,uiCtrl,parseInt(element.id.split(`-`)[1]))
+            .then(value=> {
+                //uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
+                //uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
+                uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.listPresence)
+                uiCtrl.showHideSpinner('hide')
+            })
+            .catch(err => { console.log('error fetchOrdersForActiveFinishedCookingDates', err);uiCtrl.showHideSpinner('hide')})
+        }
         if(action===modalActions.sendToAll){
             uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.sendToAll)
             loadListenersForBtnAction(modalActions.sendToAll)
@@ -1386,7 +1510,6 @@ class AppCtrl {
             dataCtrl.setTempSelectedData = element
             appCtrl.fetchAllDishes(dataCtrl,uiCtrl)
             .then(value => {
-                console.log(element)
                 uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.edit)
                 loadListenersForBtnAction(modalActions.edit)
                 uiCtrl.showHideSpinner('hide')
@@ -1435,6 +1558,9 @@ class AppCtrl {
             console.log('editStartEndTimes')
             uiCtrl.showHideCookingCalendarModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.editStartEndTimes)
             loadListenersForBtnAction(modalActions.editStartEndTimes)
+        }
+        if(action===modalActions.filterFifoDishes){
+            filterFifoDishes(dataCtrl,uiCtrl,element.checked)
         }
     }
     // loadDishesSelectionCheckBoxes(dataCtrl,uiCtrl,className){
@@ -1719,156 +1845,239 @@ class AppCtrl {
 //=================================================================================================
 //*************************************************************************************************
 // APP STATE =====>>>>> CATORING
-catoringActions(dataCtrl,uiCtrl,action,element){
-    const modalActions = uiCtrl.getIDs().modalActions.catoring
-    const modalTypes = uiCtrl.getIDs().modalTypes.catoring
-    const btnAction = uiCtrl.getIDs().modal.btnAction
-    const btnAction2 = uiCtrl.getIDs().modal.btnAction2
-    //=================================
-    //EVENT LISTENERS =================
-    function loadEventListeners(dataCtrl,uiCtrl,appCtrl,action,element){
-        var msgId = parseInt(element.id.split('-')[1])
-        if(action===modalActions.archive){
-            console.log('archive --')
-            document.getElementById(btnAction).addEventListener('click',(e)=>{
-                console.log(e.target)
-                appCtrl.archiveMessage(dataCtrl,uiCtrl,{messageId:msgId})
-                .then(value => {
-                    appCtrl.fetchAllMessages(dataCtrl,uiCtrl)
+    catoringActions(dataCtrl,uiCtrl,action,element){
+        const modalActions = uiCtrl.getIDs().modalActions.catoring
+        const modalTypes = uiCtrl.getIDs().modalTypes.catoring
+        const btnAction = uiCtrl.getIDs().modal.btnAction
+        const btnAction2 = uiCtrl.getIDs().modal.btnAction2
+        //=================================
+        //EVENT LISTENERS =================
+        function loadEventListeners(dataCtrl,uiCtrl,appCtrl,action,element){
+            var msgId = parseInt(element.id.split('-')[1])
+            if(action===modalActions.archive){
+                console.log('archive --')
+                document.getElementById(btnAction).addEventListener('click',(e)=>{
+                    console.log(e.target)
+                    appCtrl.archiveMessage(dataCtrl,uiCtrl,{messageId:msgId})
                     .then(value => {
-                        uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
-                        uiCtrl.showHideOrderModal(null,null,'hide',null,null)
+                        appCtrl.fetchAllMessages(dataCtrl,uiCtrl)
+                        .then(value => {
+                            uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
+                            uiCtrl.showHideOrderModal(null,null,'hide',null,null)
+                        })
+                        .catch(err => {console.log('error fetchAllMessages')})
                     })
-                    .catch(err => {console.log('error fetchAllMessages')})
+                    .catch(value => {console.log('error archiveMessage')})
                 })
-                .catch(value => {console.log('error archiveMessage')})
+            }
+            if(action===modalActions.delete){
+                console.log('delete --')
+                document.getElementById(btnAction).addEventListener('click',(e)=>{
+                    console.log(e.target)
+                    appCtrl.deleteMessage(dataCtrl,uiCtrl,{messageId:msgId})
+                    .then(value => {
+                        appCtrl.fetchAllMessages(dataCtrl,uiCtrl)
+                        .then(value => {
+                            uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
+                            uiCtrl.showHideOrderModal(null,null,'hide',null,null)
+                        })
+                        .catch(err=> { console.log('error fetchAllMessages')})})
+                    .catch(value => {console.log('error deleteMessage')})
+                })
+            }
+        }
+        //=================================
+        //ACTIONS==========================
+        if(action===modalActions.read){
+            console.log(element.id)
+            var msgId = parseInt(element.id.split('-')[1])
+            dataCtrl.returnData('activeMsgs').filter(reg => {
+                console.log(msgId)
+                if(reg.id===msgId&&reg.read===0){
+                    this.readMessage(dataCtrl,uiCtrl,{messageId:msgId})
+                    .then(value => {
+                        this.fetchAllMessages(dataCtrl,uiCtrl)
+                        .then(value => {
+                            uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
+                            return uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.read)
+                        })
+                        .catch(err => {console.log('error fetchAllMessages')})
+                    })
+                    .catch(value => {console.log('error readMessage')})
+                }
             })
+            uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.read)
+        }
+        if(action===modalActions.archive){
+            uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.archive)
+            loadEventListeners(dataCtrl,uiCtrl,this,modalActions.archive,element)
         }
         if(action===modalActions.delete){
-            console.log('delete --')
-            document.getElementById(btnAction).addEventListener('click',(e)=>{
-                console.log(e.target)
-                appCtrl.deleteMessage(dataCtrl,uiCtrl,{messageId:msgId})
-                .then(value => {
-                    appCtrl.fetchAllMessages(dataCtrl,uiCtrl)
-                    .then(value => {
-                        uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,appCtrl)
-                        uiCtrl.showHideOrderModal(null,null,'hide',null,null)
+            uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.delete)
+            loadEventListeners(dataCtrl,uiCtrl,this,modalActions.delete,element)
+        }
+    }
+//=================================================================================================
+//*************************************************************************************************
+// APP STATE =====>>>>> SAUSE FUNDING
+    sauseFundingActions(dataCtrl,uiCtrl,action,element){
+        console.log('sauseFundingActions')
+        const modalActions = uiCtrl.getIDs().modalActions.sauseFunding
+        const modalTypes = uiCtrl.getIDs().modalTypes.sauseFunding
+        const btnAction = uiCtrl.getIDs().modal.btnAction
+        const btnAction2 = uiCtrl.getIDs().modal.btnAction2
+        //=================================
+        //EVENT LISTENERS =================
+        function loadEventListeners(dataCtrl,uiCtrl,appCtrl,action,element){
+            if(action===modalActions.information){
+            
+            }else if(action===modalActions.sendToAll){
+                document.getElementById(btnAction).addEventListener('click',(e)=>{
+                    const msg = document.getElementById(uiCtrl.getIDs().inputs.notification.messageToUser).value
+                    console.log(msg)
+                    fetch('/services/notifyAllPreOrders', {
+                        method: 'POST',
+                        headers: {'Content-type':'application/json'},
+                        body: JSON.stringify({msgToUser: msg})})
+                    .then(answer => {
+                        if(answer.status===401){
+                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideAlert(`alert-warning`,'User does not have permission to send notification to all or to all paid','show')    
+                        }else if(answer.redirected){ return window.location.href = answer.url 
+                        }else{
+                            answer.json()
+                            .then(response => {
+                                console.log(response)
+                                uiCtrl.showHideOrderModal(null,null,'hide',null)
+                                uiCtrl.showHideSpinner('hide')
+                                if(!response.hasErros){
+                                    uiCtrl.showHideAlert(`alert-info`,response.data,'show')
+                                }else{
+                                    uiCtrl.showHideAlert(`alert-danger`,response.data,'show')}})
+                            .catch(err => {
+                                console.log('orderModals - sendToAll',err);
+                                uiCtrl.showHideSpinner('hide')
+                                uiCtrl.showHideOrderModal(null,null,'hide',null)
+                            })
+                        }
                     })
-                    .catch(err=> { console.log('error fetchAllMessages')})})
-                .catch(value => {console.log('error deleteMessage')})
+                })
+            }
+        }
+        //=================================
+        //ACTIONS==========================
+        if(action===modalActions.information){
+            uiCtrl.showHideSauseFundingModal(dataCtrl,this,'show',null,modalTypes.information)
+            loadEventListeners(dataCtrl,uiCtrl,this,modalActions.information,element)
+        }
+        if(action===modalActions.sendToAll){
+            uiCtrl.showHideSauseFundingModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.sendToAll)
+            loadEventListeners(dataCtrl,uiCtrl,this,modalActions.sendToAll,element)
+        }
+        if(action===modalActions.toggle){
+            // uiCtrl.showHideSauseFundingModal(dataCtrl,appCtrl,'show',parseInt(element.id.split(`-`)[1]),modalTypes.sendToAll)
+            // loadEventListeners(dataCtrl,uiCtrl,this,modalActions.sendToAll,element)
+            fetch('/services/updateCampaignStatus')
+            .then(answer => {
+                if(answer.status===401){
+                    uiCtrl.showHideUserModal(null,null,'hide',null)
+                    uiCtrl.showHideAlert(`alert-warning`,'User does not have permission to send notification to all or to all paid','show')    
+                }else if(answer.redirected){ return window.location.href = answer.url 
+                }else{
+                    answer.json()
+                    .then(response => {
+                        console.log(response)
+                        this.fetchAllSausePreOrders(dataCtrl,uiCtrl)
+                        uiCtrl.showHideAlert('alert-success',response.msg,'show')
+                    })
+                    .catch(err => {
+                        console.log('orderModals - sendToAll',err);
+                        uiCtrl.showHideAlert('alert-danger',response.msg,'show')
+                        uiCtrl.showHideSpinner('hide')
+                        uiCtrl.showHideOrderModal(null,null,'hide',null)
+                    })
+                }
             })
         }
     }
-    //=================================
-    //ACTIONS==========================
-    if(action===modalActions.read){
-        console.log(element.id)
-        var msgId = parseInt(element.id.split('-')[1])
-        dataCtrl.returnData('activeMsgs').filter(reg => {
-            console.log(msgId)
-            if(reg.id===msgId&&reg.read===0){
-                this.readMessage(dataCtrl,uiCtrl,{messageId:msgId})
-                .then(value => {
-                    this.fetchAllMessages(dataCtrl,uiCtrl)
-                    .then(value => {
-                        uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
-                        return uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.read)
-                    })
-                    .catch(err => {console.log('error fetchAllMessages')})
-                })
-                .catch(value => {console.log('error readMessage')})
-            }
-        })
-        uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.read)
-    }
-    if(action===modalActions.archive){
-        uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.archive)
-        loadEventListeners(dataCtrl,uiCtrl,this,modalActions.archive,element)
-    }
-    if(action===modalActions.delete){
-        uiCtrl.showHideCatoringModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.delete)
-        loadEventListeners(dataCtrl,uiCtrl,this,modalActions.delete,element)
-    }
-}
 //=================================================================================================
 //*************************************************************************************************
 // APP STATE =====>>>>> MANAGE ACCESS
-manageAccessActions(dataCtrl,uiCtrl,action,element){
-    const modalActions = uiCtrl.getIDs().modalActions.manageAccess
-    const modalTypes = uiCtrl.getIDs().modalTypes.manageAccess
-    const btnAction = uiCtrl.getIDs().modal.btnAction
-    const btnAction2 = uiCtrl.getIDs().modal.btnAction2
-    function loadEventListenersMA(dataCtrl,uiCtrl,appCtrl,action,element){
-        if(action===modalActions.manageAccess){
-            document.getElementById(btnAction).addEventListener('click',(e)=>{
-                console.log('updateAccess')
-                const original = dataCtrl.returnData('originalAccesses')
-                const modified = dataCtrl.returnData('modifiedAccesses')
-                var insertAccess = []
-                var deleteAccess = []
-                modified.some(x => {
-                    if(!original.includes(x)){
-                        insertAccess.push(x)
+    manageAccessActions(dataCtrl,uiCtrl,action,element){
+        const modalActions = uiCtrl.getIDs().modalActions.manageAccess
+        const modalTypes = uiCtrl.getIDs().modalTypes.manageAccess
+        const btnAction = uiCtrl.getIDs().modal.btnAction
+        const btnAction2 = uiCtrl.getIDs().modal.btnAction2
+        function loadEventListenersMA(dataCtrl,uiCtrl,appCtrl,action,element){
+            if(action===modalActions.manageAccess){
+                document.getElementById(btnAction).addEventListener('click',(e)=>{
+                    console.log('updateAccess')
+                    const original = dataCtrl.returnData('originalAccesses')
+                    const modified = dataCtrl.returnData('modifiedAccesses')
+                    var insertAccess = []
+                    var deleteAccess = []
+                    modified.some(x => {
+                        if(!original.includes(x)){
+                            insertAccess.push(x)
+                        }
+                    })
+                    original.some(x => {
+                        if(!modified.includes(x)){
+                            deleteAccess.push(x)
+                        }
+                    })
+                    console.log(insertAccess.length)
+                    console.log(deleteAccess.length)
+                    if(insertAccess.length===0 && deleteAccess.length===0){
+                        return uiCtrl.showHideAlert('alert-danger','No accesses changed for this user','show')
                     }
-                })
-                original.some(x => {
-                    if(!modified.includes(x)){
-                        deleteAccess.push(x)
-                    }
-                })
-                console.log(insertAccess.length)
-                console.log(deleteAccess.length)
-                if(insertAccess.length===0 && deleteAccess.length===0){
-                    return uiCtrl.showHideAlert('alert-danger','No accesses changed for this user','show')
-                }
-                uiCtrl.showHideSpinner('show')
-                fetch('/services/updateUserAccesses',{
-                    method: 'POST',
-                    headers: {'Content-type':'application/json'},
-                    body: JSON.stringify({
-                        insertAccesses: insertAccess,
-                        deleteAccesses: deleteAccess,
-                        userId: dataCtrl.returnData('tempSelectedData')
-                    })})
-                .then(answer => { 
-                    console.log('updateAccess =====================================')
-                    console.log(answer.status)
-                    if(answer.status===401){
-                        uiCtrl.showHideSpinner('hide')
-                        uiCtrl.showHideUserModal(null,null,'hide',null)
-                        uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete users','show')    
-                    }else if(answer.redirected){ return window.location.href = answer.url 
-                    }else{
-                        answer.json()
-                        .then(response => {
-                            if(!response.hasErros){
-                                appCtrl.fetchUsers(dataCtrl,uiCtrl)
-                                .then(value => {
-                                    uiCtrl.showHideSpinner('hide')
-                                    uiCtrl.showHideUserModal(null,null,'hide',null)
-                                })
-                                .catch(err => {console.log('error fetchUsers',err);uiCtrl.showHideSpinner('hide')})
-                            }else{
-                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
-                                reject(false)
-                            }
-                        })
-                        .catch(err => {
-                            console.log(`updateUserAccesses ->`,err)
+                    uiCtrl.showHideSpinner('show')
+                    fetch('/services/updateUserAccesses',{
+                        method: 'POST',
+                        headers: {'Content-type':'application/json'},
+                        body: JSON.stringify({
+                            insertAccesses: insertAccess,
+                            deleteAccesses: deleteAccess,
+                            userId: dataCtrl.returnData('tempSelectedData')
+                        })})
+                    .then(answer => { 
+                        console.log('updateAccess =====================================')
+                        console.log(answer.status)
+                        if(answer.status===401){
                             uiCtrl.showHideSpinner('hide')
                             uiCtrl.showHideUserModal(null,null,'hide',null)
-                            uiCtrl.showHideAlert(`alert-danger`,err,'show')
-                            reject(false)
-                        })}})})
+                            uiCtrl.showHideAlert(`alert-warning`,'User has no access to delete users','show')    
+                        }else if(answer.redirected){ return window.location.href = answer.url 
+                        }else{
+                            answer.json()
+                            .then(response => {
+                                if(!response.hasErros){
+                                    appCtrl.fetchUsers(dataCtrl,uiCtrl)
+                                    .then(value => {
+                                        uiCtrl.showHideSpinner('hide')
+                                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                                    })
+                                    .catch(err => {console.log('error fetchUsers',err);uiCtrl.showHideSpinner('hide')})
+                                }else{
+                                    uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')    
+                                    reject(false)
+                                }
+                            })
+                            .catch(err => {
+                                console.log(`updateUserAccesses ->`,err)
+                                uiCtrl.showHideSpinner('hide')
+                                uiCtrl.showHideUserModal(null,null,'hide',null)
+                                uiCtrl.showHideAlert(`alert-danger`,err,'show')
+                                reject(false)
+                            })}})})
+            }
+        }
+
+        if(action===modalActions.manageAccess){
+            uiCtrl.showHideManageAccessModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.manageAccess)
+            loadEventListenersMA(dataCtrl,uiCtrl,this,action,element)
         }
     }
-
-    if(action===modalActions.manageAccess){
-        uiCtrl.showHideManageAccessModal(dataCtrl,this,'show',parseInt(element.id.split('-')[1]),modalTypes.manageAccess)
-        loadEventListenersMA(dataCtrl,uiCtrl,this,action,element)
-    }
-}
 //=================================================================================================
 //*************************************************************************************************
 // APP STATE =====>>>>> LOGOUT
@@ -1904,7 +2113,22 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
         searchBox.addEventListener('focus',(e)=>{
             this.appSearchMode(true)
         })
-        searchBox.addEventListener('input',(e)=>{
+        // searchBox.addEventListener('input',(e)=>{
+        //     if(e.target.value===''){
+        //         this.appSearchMode(false)
+        //         e.target.value = null
+        //         uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
+        //         uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
+        //         return
+        //     }else{
+        //         const regex = new RegExp(e.target.value.toLowerCase(),'ig')
+        //         uiCtrl.changeUISearchModeOn(dataCtrl,this,regex)
+        //     }
+        // })
+        var typingTimer;
+        let doneTypingInterval = 1300;
+        searchBox.addEventListener('keyup',(e)=>{
+            clearTimeout(typingTimer);
             if(e.target.value===''){
                 this.appSearchMode(false)
                 e.target.value = null
@@ -1912,8 +2136,10 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
                 uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)
                 return
             }else{
-                const regex = new RegExp(e.target.value.toLowerCase(),'ig')
-                uiCtrl.changeUISearchModeOn(dataCtrl,this,regex)
+                typingTimer = setTimeout(() => {
+                    const regex = new RegExp(e.target.value.toLowerCase(),'ig')
+                    uiCtrl.changeUISearchModeOn(dataCtrl,this,regex)
+                }, doneTypingInterval);
             }
         })
     }
@@ -2000,14 +2226,35 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
                         .catch(err => { console.log('error fetchCookingDates') })})
                     .catch(err => {console.log('error fetchUsers')})}
             })
+            socket.on(`cookingDateCalendar`,(msg)=>{
+                console.log(msg)
+                if(this.appState===this.appStatesList._COOKINGCALENDAR ||
+                    this.appState===this.appStatesList._ORDERS){
+                        this.fetchOrdersForActiveFinishedCookingDates(dataCtrl,uiCtrl)
+                        .then(value => {
+                            this.fetchCookingDates(dataCtrl,uiCtrl)
+                            .then(value => {
+                                this.fetchUsers(dataCtrl,uiCtrl)
+                                .then(value => {
+                                    uiCtrl.changeUIInterfaceAccordingToAppState(dataCtrl,this)
+                                    uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)})
+                                .catch(err => {console.log('error fetchOrdersForActiveFinishedCookingDates')})})
+                            .catch(err => { console.log('error fetchCookingDates') })})
+                        .catch(err => {console.log('error fetchUsers')})}
+                })
           socket.on(`catering`,(msg)=>{
             console.log(msg)
+            this.unreadMessages(dataCtrl,uiCtrl)
             if(this.appState===this.appStatesList._CATORING){
                 this.fetchAllMessages(dataCtrl,uiCtrl)
                 .then(value => {
                     console.log('catoring_IOSOCKET')
                     uiCtrl.changeUIInterfaceAccordingToAppSubState(dataCtrl,this)})
                 .catch(value => {console.log('error fetchAllMessages')})}
+          })
+          socket.on(`sauseFunding`,(msg)=>{
+            console.log(msg)
+            this.fetchAllSausePreOrders(dataCtrl,uiCtrl)
           })
     }
 //=================================================================================================
@@ -2085,6 +2332,7 @@ manageAccessActions(dataCtrl,uiCtrl,action,element){
         const id = uiCtrl.getIDs().sidebar.div
         document.getElementById(id).classList.toggle('active');
         this.sideBarShowing = !this.sideBarShowing
+        this.unreadMessages(dataCtrl,uiCtrl)
     }
     toggleOptionsbar(ref,uiCtrl){
         const id = uiCtrl.getIDs().optionbar.div

@@ -33,4 +33,7 @@ module.exports = class CatoringMessage {
     static fetchAllMessages(){
         return db.query(`CALL catoring_fetchAllMessages();`)
     }
+    static unreadMessages(){
+        return db.query(`CALL catoring_totalUnreadMessages();`)
+    }
 }

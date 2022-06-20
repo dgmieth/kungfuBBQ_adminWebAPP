@@ -10,6 +10,7 @@ const orderCtrl = require(`./subServicesCtrl/orderCtrl`)
 const dishesCtrl = require('./subServicesCtrl/dishesCtrl')
 const catoringCtrl = require('./subServicesCtrl/catoringCtrl')
 const notificationCtrl = require('./subServicesCtrl/notificationCtrl')
+const sauseFundingCtrl = require('./subServicesCtrl/sauseFundingCtrl')
 // ======================================================================
 // DEVELOPER ============================================================
 // ======================================================================
@@ -133,6 +134,7 @@ exports.closeToOrders = cookingCalendarCtrl.closeToOrders
 exports.setCookingCapacity = cookingCalendarCtrl.setCookingCapacity
 exports.initiateDelivery = cookingCalendarCtrl.initiateDelivery
 exports.updateStartEndTimes = cookingCalendarCtrl.updateStartEndTimes
+exports.eventOnly = cookingCalendarCtrl.eventOnly
 // ======================================================================
 // ORDERS ===============================================================
 exports.fetchOrdersForActiveFinishedCookingDates = orderCtrl.fetchOrdersForActiveFinishedCookingDates
@@ -151,6 +153,12 @@ exports.fetchAllMessages = catoringCtrl.fetchAllMessages
 exports.readMessage = catoringCtrl.readMessage
 exports.deleteMessage = catoringCtrl.deleteMessage
 exports.archiveMessage = catoringCtrl.archiveMessage
+exports.totalUnreadMessages = catoringCtrl.totalUnreadMessages
+// ======================================================================
+// SAUSE FUNDING ========================================================
+exports.getInformationAndPreOrders = sauseFundingCtrl.getInformationAndPreOrders
+exports.notifyAllPreOrders = sauseFundingCtrl.notifyAllPreOrders
+exports.updateCampaignStatus = sauseFundingCtrl.updateCampaignStatus
 // ======================================================================
 // NOTIFICATION =========================================================
 exports.sendNotification = notificationCtrl.sendNotification

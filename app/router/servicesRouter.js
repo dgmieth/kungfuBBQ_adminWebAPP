@@ -12,6 +12,7 @@ const orderAccessesCtrl = require('../controller/acessesCtrl/orderAccessesCtrl')
 const dishesAccessesCtrl = require('../controller/acessesCtrl/dishesAccessesCtrl')
 const catoringAccessesCtrl = require('../controller/acessesCtrl/catoringAccessesCtrl')
 const notificationAccessesCtrl = require('../controller/acessesCtrl/notificationAccessesCtrl')
+const sauseFundingAccessesController = require('../controller/acessesCtrl/sauseFundingAccessesController')
 // ======================================================================
 // ADMINISTRATIVE ROUTES ================================================
 // ======================================================================
@@ -31,6 +32,7 @@ servicesRouter.post('/closeToOrders',authCtrl.isAuth, cookingDatesAccessesCtrl.c
 servicesRouter.post('/setCookingCapacity',authCtrl.isAuth, cookingDatesAccessesCtrl.setCookingCapacity, indexServicesCtrl.setCookingCapacity)
 servicesRouter.post('/initiateDelivery',authCtrl.isAuth, cookingDatesAccessesCtrl.initiateDelivery, indexServicesCtrl.initiateDelivery)
 servicesRouter.post('/updateStartEndTimes',authCtrl.isAuth, cookingDatesAccessesCtrl.initiateDelivery, indexServicesCtrl.updateStartEndTimes)
+servicesRouter.get('/eventOnly',authCtrl.isAuth, cookingDatesAccessesCtrl.eventOnly, indexServicesCtrl.eventOnly)
 //ORDER
 servicesRouter.get('/fetchOrdersForActiveFinishedCookingDates',authCtrl.isAuth,orderAccessesCtrl.fetchOrdersForActiveFinishedCookingDates, indexServicesCtrl.fetchOrdersForActiveFinishedCookingDates)
 servicesRouter.post('/deleteOrder',authCtrl.isAuth,orderAccessesCtrl.deleteOrder, indexServicesCtrl.deleteOrder)
@@ -46,6 +48,11 @@ servicesRouter.get('/fetchAllMessages', authCtrl.isAuth, catoringAccessesCtrl.fe
 servicesRouter.post('/readMessage', authCtrl.isAuth, catoringAccessesCtrl.fetchReadMessages, indexServicesCtrl.readMessage)
 servicesRouter.post('/deleteMessage', authCtrl.isAuth, catoringAccessesCtrl.deleteMessage, indexServicesCtrl.deleteMessage)
 servicesRouter.post('/archiveMessage', authCtrl.isAuth, catoringAccessesCtrl.archiveMessage, indexServicesCtrl.archiveMessage)
+servicesRouter.get('/totalUnreadMessages', indexServicesCtrl.totalUnreadMessages)
+// SAUSE FUNDING
+servicesRouter.get(`/getInformationAndPreOrders`,/*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.getInformationAndPreOrders)
+servicesRouter.post('/notifyAllPreOrders', /*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.notifyAllPreOrders)
+servicesRouter.get(`/updateCampaignStatus`,/*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.updateCampaignStatus)
 //NOTIFICATIONS
 servicesRouter.post('/sendNotification', authCtrl.isAuth, notificationAccessesCtrl.sendNotification, indexServicesCtrl.sendNotification)
 servicesRouter.post('/sendNotifToAll',authCtrl.isAuth, notificationAccessesCtrl.sendNotifToAll, indexServicesCtrl.sendNotifToAll)
