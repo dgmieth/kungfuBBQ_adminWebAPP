@@ -159,6 +159,7 @@ exports.totalUnreadMessages = catoringCtrl.totalUnreadMessages
 exports.getInformationAndPreOrders = sauseFundingCtrl.getInformationAndPreOrders
 exports.notifyAllPreOrders = sauseFundingCtrl.notifyAllPreOrders
 exports.updateCampaignStatus = sauseFundingCtrl.updateCampaignStatus
+exports.listFounders = sauseFundingCtrl.listFounders
 // ======================================================================
 // NOTIFICATION =========================================================
 exports.sendNotification = notificationCtrl.sendNotification

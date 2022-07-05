@@ -67,7 +67,7 @@ CREATE TABLE sause_price (
 INSERT INTO sause_price(price) VALUES(7.00);
 
 ALTER TABLE sause_price ADD name varchar(100) NULL;
-INSERT INTO sause_price(`name`) VALUES('Kungfu BBQ sause bottle (pre-order)');
+INSERT INTO sause_price(`name`) VALUES('Kungfu BBQ sauce bottle (pre-order)');
 /*==================================================================================================================*/
 /*==================================================================================================================*/
 /*==================================================================================================================*/
@@ -88,4 +88,32 @@ ALTER TABLE configuration ADD CONSTRAINT configuration_PK PRIMARY KEY (id);
 ALTER TABLE configuration MODIFY COLUMN id bigint auto_increment NOT NULL;
 ALTER TABLE configuration ADD CONSTRAINT configuration_FK FOREIGN KEY (createdBy) REFERENCES `user`(id);
 ALTER TABLE configuration ADD CONSTRAINT configuration_FK_1 FOREIGN KEY (excludedBy) REFERENCES `user`(id);
-INSERT INTO configuration (name,value,createdBy,createdIn) VALUES('Sause campaing','ON',3,NOW());
+INSERT INTO configuration (name,value,createdBy,createdIn) VALUES('Sauce campaing','ON',3,NOW());
+/*==================================================================================================================*/
+/*==================================================================================================================*/
+/*==================================================================================================================*/
+/*==================================================================================================================*/
+/*
+										MODIFICATION DONE ON June 29 2022
+*/
+/*==================================================================================================================*/
+/*t-shirt size table*/
+CREATE TABLE sause_tShirtSize (
+	`user_id` bigint NOT NULL,
+	shirtSize VARCHAR(30) NOT NULL,
+	createdBy bigint NOT NULL,
+	createdIn timestamp DEFAULT Current_timestamp NOT NULL,
+	excluded int(1) DEFAULT 0 NOT NULL,
+	excludedBy bigint NULL,
+	excludedIn timestamp NULL
+);
+ALTER TABLE sause_tShirtSize ADD CONSTRAINT sause_tShirtSize_PK PRIMARY KEY (user_id);
+ALTER TABLE sause_tShirtSize ADD CONSTRAINT sause_tShirtSize_FK FOREIGN KEY (user_id) REFERENCES `user`(id);
+ALTER TABLE sause_tShirtSize ADD CONSTRAINT sause_tShirtSize_FK_1 FOREIGN KEY (createdBy) REFERENCES `user`(id);
+ALTER TABLE sause_tShirtSize ADD CONSTRAINT sause_tShirtSize_FK_2 FOREIGN KEY (excludedBy) REFERENCES `user`(id);
+
+INSERT INTO SYSTEMLOG_dbObject (object,description,createdBy,createdIn,excluded)
+VALUES('sauce_tShirtSize', 'sauce_tShirtSize table',3,now(),0);
+
+INSERT INTO configuration (name,value,description,createdBy,createdIn,excluded)
+ VALUES ('Sauce Batch Value','5709','Cost of batch of sauce',3,NOW(),0);

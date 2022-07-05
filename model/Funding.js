@@ -16,8 +16,8 @@ module.exports = class Order {
     static getSausePrice(){
         return db.query(`SELECT funding_sause_getPrice();`)
     }
-    static getAmountRaised(){
-        return db.query(`CALL funding_sause_getAmountRaised();`)
+    static getInformation(){
+        return db.query(`CALL funding_sause_getInformation();`)
     }
     static getPreOrders(){
         return db.query(`CALL funding_sause_getPreOrders();`)
@@ -30,5 +30,8 @@ module.exports = class Order {
     }
     static updateCampaignStatus(userId) {
         return db.query(`CALL funding_sause_campaignStatus(TRUE,?);`,[`${userId}`])
+    }
+    static listFounders(){
+        return db.query(`CALL funding_sause_listFounders();`)
     }
 }

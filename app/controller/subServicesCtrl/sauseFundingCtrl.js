@@ -36,7 +36,7 @@ exports.getInformationAndPreOrders = (req,res,next) => {
             .then(([answer2,meta2])=>{
                 if(answer2.length>0){
                     var price = answer2[0]['funding_sause_getPrice()']
-                    Funding.getAmountRaised()
+                    Funding.getInformation()
                     .then(([answer3,meta3])=>{
                         if(answer3.length>0){
                             var amountRaised = answer3[0][0].totalAmount
@@ -119,6 +119,26 @@ exports.updateCampaignStatus = (req,res,next) => {
             return res.json(returnObject)       }
         return returnErroMessage(`Not possible to update campaign status this time!`,res)   })
     .catch(err => {
-        console.log('sauseFundinCtrl -> updateCampaignStatus -> ',err)
+        console.log('sauseFundinCtrl -> updateCampaignStatus -> updateCampaignStatus',err)
         return returnErroMessage(`Not possible to update campaign status this time! ${err}`,res)    })
+}
+//=====================================================================
+//LIST FOUNDERS =======================================================
+exports.listFounders = (req,res,next) => {
+    console.log('sauseFundingCtrl - listFounders--->')
+    Funding.listFounders()
+    .then(([answer,metda])=>{
+        console.log(answer)
+        if(answer){
+                returnObject.hasErrors = false
+                returnObject.data = answer[0]
+                returnObject.msg = `Information retrieved!`
+                return res.json(returnObject)  
+        }else{
+            return returnErroMessage(`Not possible to retrieve list of founders from database!`,res)    }
+    })
+    .catch(err => {
+        console.log('sauseFundinCtrl -> listFounders -> listFounders',err)
+        return returnErroMessage(`Not possible to retrieve list of founders from database! ${err}`,res)
+    })
 }

@@ -50,9 +50,10 @@ servicesRouter.post('/deleteMessage', authCtrl.isAuth, catoringAccessesCtrl.dele
 servicesRouter.post('/archiveMessage', authCtrl.isAuth, catoringAccessesCtrl.archiveMessage, indexServicesCtrl.archiveMessage)
 servicesRouter.get('/totalUnreadMessages', indexServicesCtrl.totalUnreadMessages)
 // SAUSE FUNDING
-servicesRouter.get(`/getInformationAndPreOrders`,/*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.getInformationAndPreOrders)
-servicesRouter.post('/notifyAllPreOrders', /*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.notifyAllPreOrders)
-servicesRouter.get(`/updateCampaignStatus`,/*authCtrl.isAuth,*/ sauseFundingAccessesController.allAccesses, indexServicesCtrl.updateCampaignStatus)
+servicesRouter.get(`/getInformationAndPreOrders`,authCtrl.isAuth, sauseFundingAccessesController.allAccesses, indexServicesCtrl.getInformationAndPreOrders)
+servicesRouter.post('/notifyAllPreOrders', authCtrl.isAuth, sauseFundingAccessesController.allAccesses, indexServicesCtrl.notifyAllPreOrders)
+servicesRouter.get(`/updateCampaignStatus`,authCtrl.isAuth, sauseFundingAccessesController.allAccesses, indexServicesCtrl.updateCampaignStatus)
+servicesRouter.get(`/listFounders`,authCtrl.isAuth, sauseFundingAccessesController.allAccesses, indexServicesCtrl.listFounders)
 //NOTIFICATIONS
 servicesRouter.post('/sendNotification', authCtrl.isAuth, notificationAccessesCtrl.sendNotification, indexServicesCtrl.sendNotification)
 servicesRouter.post('/sendNotifToAll',authCtrl.isAuth, notificationAccessesCtrl.sendNotifToAll, indexServicesCtrl.sendNotifToAll)

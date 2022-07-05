@@ -169,7 +169,8 @@ class UICtrl {
             sauseFunding: {
                 information: 'information',
                 sendToAll: 'sendToAll',
-                toggle: 'toggle'
+                toggle: 'toggle',
+                listFounders:'listFounders'
             }
         }
         this.modalTypes = this.modalActions
@@ -305,6 +306,18 @@ class UICtrl {
                 .bottomLine{border-bottom: darkgray .5px solid;}
                 .leftLine{border-left: darkgray .5px solid;}
                 .colNoMarging{margin:0;padding:0 1px;}
+                .btnconfiguration {width: 140px!important;
+                    margin-left: 3px;
+                }
+                @media only screen and (max-width: 600px) {
+                    .smallResolutionTextHide{display:none}
+                    .btnconfiguration {
+                        margin-left: 3px;
+                        width: 50px!important;
+                        background-position: center;
+                    }
+                }
+                
             </style>
             <div class=".container-fluid my-auto text-right w-100" style="height: 7%!important;padding-left:100px!important;padding-right:15px!important">
                 <div class=".container-fluid text-right w-50" style="float:right">
@@ -330,24 +343,31 @@ class UICtrl {
                 <div class=".container-fluid w-100" style="display:flex;flex-direction: row-reverse;">
                     <button 
                         id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
-                        class="btn btn-outline-warning btnActions editMode" 
-                        style="background-image: url(/img/sendNotification.png);width: 120px!important;z-index:2;"
+                        class="btn btn-outline-warning btnActions editMode btnconfiguration" 
+                        style="background-image: url(/img/sendNotification.png);z-index:2;"
                         onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.sendToAll}',this)" >
-                        Notify all
+                        <div class="smallResolutionTextHide">Notify all</div>
                     </button>
                     <button 
                         id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
-                        class="btn btn-outline-secondary btnActions editMode" 
-                        style="background-image: url(/img/stats.png);width: 120px!important;z-index:2;"
+                        class="btn btn-outline-secondary btnActions editMode btnconfiguration" 
+                        style="background-image: url(/img/stats.png);z-index:2;"
                         onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.information}',this)" >
-                        Information
+                        <div class="smallResolutionTextHide">Information</div>
                     </button>
                     <button 
                         id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
-                        class="btn ${tempData.status.toLowerCase() === 'on' ? 'btn-primary' : 'btn-outline-primary'} btnActions editMode" 
-                        style="width: 100px!important;z-index:2;padding-left: 38px;"
+                        class="btn btn-outline-info btnActions editMode btnconfiguration" 
+                        style="background-image: url(/img/listPeople.png);z-index:2;"
+                        onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.listFounders}',this)" >
+                        <div class="smallResolutionTextHide">List pioneers</div>
+                    </button>
+                    <button 
+                        id="{uiCtrl.modalTypes.cookingDate.edit}-{reg.id}" 
+                        class="btn ${tempData.status.toLowerCase() === 'on' ? 'btn-primary' : 'btn-outline-primary'} btnActions editMode btnconfiguration" 
+                        style="z-index:2;padding-left: 0;padding-right:0;display:flex;justify-content:center"
                         onclick="appCtrl.sauseFundingActions(dataCtrl,uiCtrl,'${this.modalActions.sauseFunding.toggle}',this)" >
-                        ${tempData.status}
+                        <div style="padding-left:0;padding-right:0;margin-top:auto;margin-bottom: auto;">${tempData.status}</div>
                     </button>
                 </div>
             </div>
@@ -356,7 +376,7 @@ class UICtrl {
                     ${innerData}
                 </div>
             </div>  `
-            appStateBtnAndBreadcrum(this.sidebar.btns.orderDelivery,this.mainContent.divBreadcumber,'Sause Funding','')
+            appStateBtnAndBreadcrum(this.sidebar.btns.sauseFunding,this.mainContent.divBreadcumber,'Sause Funding','')
             document.getElementById(this.commonPropertiesNames.scrollingContainer).scrollTop = appCtrl.getScrollPosition()
             appCtrl.loadSearchEventListeners(dataCtrl,this)
         }
@@ -2144,6 +2164,48 @@ showHideSauseFundingModal(dataCtrl,appCtrl,show_hide,messageId,modalType){
         ` 
         udateActionButtonLayout(this,`btn-primary`,`Send`,false)
     }
+    if(show_hide===`show`&&modalType===this.modalTypes.sauseFunding.listFounders){
+        console.log('listFounders called')
+        var header = ''
+        innerData = ``
+        dataCtrl.returnData('listOfFounders').forEach((p,counter) => {
+            innerData = `${innerData}
+            <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0? 'darkBG' : ''} wrapWord bottomLine colNoMarging"> 
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Pioneer #:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${counter+1}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>First order on:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.firstOnderIn}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>E-mail:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.email}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Name:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.name}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Phone number:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${phoneNumberMask(p.phoneNumber)}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Total of bottles:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.totalOfBottles}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Total of pre-orders:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.totalOfOrders}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Pre-orders amount:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">U$ ${parseFloat(p.ordersAmount).toFixed(2)}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Tips amount:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">U$ ${parseFloat(p.tipsAmount).toFixed(2)}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>Total amount:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">U$ ${parseFloat(p.ordersAmount+p.tipsAmount).toFixed(2)}</div>
+                <div class=".container-fluid col-12 col-md-4 text-left"><strong>T-shirt size:</strong></div>
+                <div class=".container-fluid col-12 col-md-8 text-left">${p.shirtSize}</div>
+            </div>
+            `
+        })
+        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Listing pioneers: </p>`
+        document.getElementById(this.modal.body).innerHTML = `
+        <div class=".container-fluid mx-auto my-auto w-100" style="height: 100%!important;">
+            <div class=".container-fluid row w-100 mx-auto my-auto"> 
+                ${innerData}
+            </div>
+        </div>
+        `
+        udateActionButtonLayout(this,null,null,true)
+    }
     this.showModal(show_hide)
 }
 //=================================================================================================
@@ -2869,7 +2931,6 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
     function returnRepetitivePart(uictrl,appCtrl,reg,subStateOne,subStateTwo,subStateThree){
         return `
         <div class="col-12 row borderBottom ${counter%2===0 ? '' : 'darkBG'} colNoMarging">
-            <!-- COOKING DATE INFO -->
             <div class="col-5 row colNoMarging paddingLeftRight" style="text-align:left;padding: 2px">
                 <div class="col-12 colNoMarging innerTextMargin"><strong>${reg.nmMonth.substr(0,3)} ${reg.cookingDate.split(' ')[0].split('-')[2]} ${reg.cookingDate.split(' ')[0].split('-')[0]}</strong></div>
                 <style>
@@ -2919,11 +2980,11 @@ function returnInnerDataForCookingDateSubStatesAndSearchMode(dataCtrl,uiCtrl,tem
                     `
                     <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center"><i>EVENT ONLY (FCFS)</i></div>
                     <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center"><strong>Maybe will go:</strong></div>
-                    <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center">
+                    <div class="col-12 colNoMarging breakWord my-auto mx-auto text-center w-100" style="display:flex;justify-content: center;">
                         <button 
                             id="${uiCtrl.modalTypes.cookingDate.listPresence}-${reg.id}" 
-                            class="btn btnActions editMode w-50" 
-                            style="border: black 0.5px solid;padding-left: 15px;padding-right: 25px;text-align: center;"
+                            class="btn btnActions editMode" 
+                            style="border: black 0.5px solid;padding-left: 0px;padding-right: 0px;text-align: center;width:65%!important"
                             onclick="appCtrl.cookingCalendarDateActions(dataCtrl,uiCtrl,'${uiCtrl.modalActions.cookingDate.listPresence}',this)">
                             <p style="margin:0;">${reg.maybeGo}</p>
                         </button>
@@ -3414,8 +3475,10 @@ function returnInnerDataForSauseFundingAndSearchMode(dataCtrl,uiCtrl,tempData){
         innerData=`${innerData}
             <div class=".container-fluid row w-100 mx-auto my-auto ${counter%2===0?'darkBG':''} bottomLine colNoMarging">
                 <div class=".container-fluid col-4 row colNoMarging">
-                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Pre-order: </strong></div>
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Pre-order #: </strong></div>
                     <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${pre.orderNr} ${pre.paid === 1 ? '<i style="font-size:0.8rem">paid</i>' : ''}</div>
+                    <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Pre-order id: </strong></div>
+                    <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${pre.id} ${pre.paid === 1 ? '<i style="font-size:0.8rem">paid</i>' : ''}</div>
                     ${uiCtrl.getIDs().elRowDivider}
                     <div class="col-12 col-md-4 alignLeft colNoMarging"><strong>Qtty: </strong></div>
                     <div class="col-12 col-md-8 textCenter biggerFont colNoMarging">${parseInt(pre.qtty)}</div>

@@ -1929,9 +1929,7 @@ class AppCtrl {
         //=================================
         //EVENT LISTENERS =================
         function loadEventListeners(dataCtrl,uiCtrl,appCtrl,action,element){
-            if(action===modalActions.information){
-            
-            }else if(action===modalActions.sendToAll){
+            if(action===modalActions.sendToAll){
                 document.getElementById(btnAction).addEventListener('click',(e)=>{
                     const msg = document.getElementById(uiCtrl.getIDs().inputs.notification.messageToUser).value
                     console.log(msg)
@@ -1941,14 +1939,14 @@ class AppCtrl {
                         body: JSON.stringify({msgToUser: msg})})
                     .then(answer => {
                         if(answer.status===401){
-                            uiCtrl.showHideUserModal(null,null,'hide',null)
+                            uiCtrl.showHideSauseFundingModal(null,null,'hide',null)
                             uiCtrl.showHideAlert(`alert-warning`,'User does not have permission to send notification to all or to all paid','show')    
                         }else if(answer.redirected){ return window.location.href = answer.url 
                         }else{
                             answer.json()
                             .then(response => {
                                 console.log(response)
-                                uiCtrl.showHideOrderModal(null,null,'hide',null)
+                                uiCtrl.showHideSauseFundingModal(null,null,'hide',null)
                                 uiCtrl.showHideSpinner('hide')
                                 if(!response.hasErros){
                                     uiCtrl.showHideAlert(`alert-info`,response.data,'show')
@@ -1957,7 +1955,7 @@ class AppCtrl {
                             .catch(err => {
                                 console.log('orderModals - sendToAll',err);
                                 uiCtrl.showHideSpinner('hide')
-                                uiCtrl.showHideOrderModal(null,null,'hide',null)
+                                uiCtrl.showHideSauseFundingModal(null,null,'hide',null)
                             })
                         }
                     })
@@ -1994,10 +1992,41 @@ class AppCtrl {
                         console.log('orderModals - sendToAll',err);
                         uiCtrl.showHideAlert('alert-danger',response.msg,'show')
                         uiCtrl.showHideSpinner('hide')
-                        uiCtrl.showHideOrderModal(null,null,'hide',null)
+                        uiCtrl.showHideSauseFundingModal(null,null,'hide',null)
                     })
                 }
             })
+        }
+        if(action===modalActions.listFounders){
+            console.log('==================listFOunders')
+            console.log('==================listFOunders2')
+                fetch('/services/listFounders')
+                .then(answer => {
+                    if(answer.status===401){
+                        uiCtrl.showHideUserModal(null,null,'hide',null)
+                        uiCtrl.showHideAlert(`alert-warning`,'User does not have permission to retrieve list of founders from database','show')    
+                    }else if(answer.redirected){ return window.location.href = answer.url 
+                    }else{
+                        answer.json()
+                        .then(response => {
+                            console.log(response)
+                            uiCtrl.showHideOrderModal(null,null,'hide',null)
+                            uiCtrl.showHideSpinner('hide')
+                            if(!response.hasErros){
+                                dataCtrl.setListOfFouders = response.data
+                                uiCtrl.showHideSauseFundingModal(dataCtrl,this,'show',null,modalTypes.listFounders)
+                            }else{
+                                uiCtrl.showHideAlert(`alert-danger`,response.msg,'show')}
+                        })
+                        .catch(err => {
+                            console.log('orderModals - sendToAll',err);
+                            uiCtrl.showHideSpinner('hide')
+                            uiCtrl.showHideSauseFundingModal(null,null,'hide',null)
+                        })
+                    }
+                })
+            // uiCtrl.showHideSauseFundingModal(dataCtrl,this,'show',null,modalTypes.listFounders)
+            // loadEventListeners(dataCtrl,uiCtrl,this,modalActions.listFounders,element)
         }
     }
 //=================================================================================================

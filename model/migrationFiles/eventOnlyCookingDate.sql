@@ -55,3 +55,5 @@ ALTER TABLE notification_user ADD CONSTRAINT notification_user_PK PRIMARY KEY (u
 ALTER TABLE notification_user ADD CONSTRAINT notification_user_FK FOREIGN KEY (user_fk) REFERENCES `user`(id);
 ALTER TABLE notification_user ADD CONSTRAINT notification_user_FK_1 FOREIGN KEY (notification_fk) REFERENCES notification(id);
 
+ALTER TABLE cookingDate_presenceConfirmation ADD CONSTRAINT cookingDate_presenceConfirmation_FK_3 FOREIGN KEY (cookingDate_id) REFERENCES cookingDates(id);
+

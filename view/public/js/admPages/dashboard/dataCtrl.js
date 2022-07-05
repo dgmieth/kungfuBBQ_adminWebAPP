@@ -29,6 +29,7 @@ class DataCtrl {
         this.waitingListOrderStatusArray = [4]
         this.sauseFunding = {}
         this.listOfPresence = []
+        this.listOfFounders - []
     }
 //=================================================================================================
 //=================================================================================================
@@ -129,7 +130,7 @@ class DataCtrl {
         if(this.sauseFunding.preOrders){
             if(this.sauseFunding.preOrders.length>0){
                 this.sauseFunding.preOrders.forEach(pre => {
-                    pre.searchString = `${pre.name.toLowerCase()} ${pre.email.toLowerCase()} ${pre.phoneNumber.toLowerCase()}`
+                    pre.searchString = `${pre.name.toLowerCase()} ${pre.email.toLowerCase()} ${pre.phoneNumber.toLowerCase()} ${pre.id} ${pre.orderNumber}`
                 })
             }
         }
@@ -138,6 +139,12 @@ class DataCtrl {
         this.listOfPresence = []
         if(array.length===0){   return  }
         this.listOfPresence = array
+    }
+    set setListOfFouders(array){
+        console.log('dataCtrl -> setListOfFouders')
+        this.listOfFouders = []
+        if(array.length===0){   return  }
+        this.listOfFouders = array
     }
     removeAccess(access){
         this.modifiedAccesses = this.modifiedAccesses.filter(a => {if(a===access){return false} return true})
@@ -457,6 +464,9 @@ class DataCtrl {
         //sause funding
         if(selectionText==='sauseFunding'){
             return this.sauseFunding
+        }
+        if(selectionText==='listOfFounders'){
+            return this.listOfFouders
         }
         //
     }
