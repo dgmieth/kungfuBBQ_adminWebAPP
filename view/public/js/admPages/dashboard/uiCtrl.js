@@ -2136,10 +2136,10 @@ showHideSauseFundingModal(dataCtrl,appCtrl,show_hide,messageId,modalType){
     //view details
     if(show_hide===`show`&&modalType===this.modalTypes.sauseFunding.information){
         tempData = dataCtrl.returnData('sauseFunding')
-        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Statistical information about sause funding campaign</p>`
+        document.getElementById(this.modal.title).innerHTML = `<p class="h3">Statistical information about sauce funding campaign</p>`
         document.getElementById(this.modal.body).innerHTML = `
         <div class=".container-fluid mx-auto my-auto text-left w-100 row" style="height: 100%!important;">
-            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Current sause price:</strong></div>
+            <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Current sauce price:</strong></div>
             <div class="col-12 col-md-8 mx-auto my-auto text-left">U$ ${parseFloat(tempData.price).toFixed(2)}</div>
             ${this.elRowDivider}
             <div class="col-12 col-md-4 mx-auto my-auto text-left"><strong>Amount raised in pre-orders:</strong></div>
@@ -3468,7 +3468,7 @@ function returnInnerDataForOrderSubStatesAndSearchMode(dataCtrl,uiCtrl,tempData,
     })
     return innerData
 }
-//inner data to populate sause funding
+//inner data to populate sauce funding
 function returnInnerDataForSauseFundingAndSearchMode(dataCtrl,uiCtrl,tempData){
     var innerData = ''
     tempData.forEach((pre,counter)=> {

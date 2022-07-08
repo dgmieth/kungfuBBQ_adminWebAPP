@@ -772,7 +772,7 @@ class AppCtrl {
                         reject(false)})
                 }})})
     }
-//ARCHIVE MESSAGE
+//UNREAD MESSAGES COUNTER
     unreadMessages(dataCtrl,uiCtrl){
         fetch('/services/totalUnreadMessages')
         .then(answer => {  
